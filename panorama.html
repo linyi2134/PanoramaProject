@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>B7教学楼全景导航（含二楼）</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        #panorama {
+            width: 100%;
+            height: 100%;
+        }
+        .info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div id="panorama"></div>
+    <div class="info">鼠标拖拽旋转视角 | 点击热点跳转</div>
+
+    <script>
+        pannellum.viewer('panorama', {
+            "default": {
+                "firstScene": "corridor",
+                "sceneFadeDuration": 800,
+                "autoLoad": true
+            },
+            "scenes": {
+                "corridor": {
+                    "title": "一楼走廊",
+                    "panorama": "corridor.jpg",
+                    "hotSpots": [
+                        {
+                            "pitch": -1.86,
+                            "yaw": 94.06,
+                            "type": "scene",
+                            "text": "前往一楼大厅",
+                            "sceneId": "lobby"
+                        },
+                        {
+                            "pitch": -1.86,
+                            "yaw": -82.70,
+                            "type": "scene",
+                            "text": "前往外侧楼梯",
+                            "sceneId": "outer_stair"
+                        }
+                    ]
+                },
+                "lobby": {
+                    "title": "一楼大厅",
+                    "panorama": "lobby.jpg",
+                    "hotSpots": [
+                        {
+                            "pitch": 0.35,
+                            "yaw": 1.08,
+                            "type": "scene",
+                            "text": "回一楼走廊",
+                            "sceneId": "corridor"
+                        }
+                    ]
+                },
+                "outer_stair": {
+                    "title": "一楼外侧楼梯",
+                    "panorama": "outer_stair.jpg",
+                    "hotSpots": [
+                        {
+                            "pitch": 0.99,
+                            "yaw": -39.23,
+                            "type": "scene",
+                            "text": "回一楼走廊",
+                            "sceneId": "corridor"
+                        },
+                        {
+                            "pitch": 1.22,
+                            "yaw": 143.58,
+                            "type": "scene",
+                            "text": "前往里侧楼梯",
+                            "sceneId": "inner_stair"
+                        },
+                        {
+                            "pitch": 0,
+                            "yaw": 8.46,
+                            "type": "scene",
+                            "text": "上二楼",
+                            "sceneId": "second_floor"
+                        }
+                    ]
+                },
+                "inner_stair": {
+                    "title": "一楼里侧楼梯",
+                    "panorama": "inner_stair.jpg",
+                    "hotSpots": [
+                        {
+                            "pitch": 1.22,
+                            "yaw": -17.23,
+                            "type": "scene",
+                            "text": "回外侧楼梯",
+                            "sceneId": "outer_stair"
+                        }
+                    ]
+                },
+                "second_floor": {
+                    "title": "二楼",
+                    "panorama": "second_floor.jpg",
+                    "hotSpots": [
+                        {
+                            "pitch": -24.84,
+                            "yaw": 91.21,
+                            "type": "scene",
+                            "text": "回一楼外侧楼梯",
+                            "sceneId": "outer_stair"
+                        }
+                    ]
+                }
+            }
+        });
+    </script>
+</body>
+</html>
