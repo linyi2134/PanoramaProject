@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>B7教学楼全景导航（含二楼）</title>
+    <title>B7教学楼全景导航（含路径规划）</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
     <style>
@@ -18,26 +18,224 @@
             width: 100%;
             height: 100%;
         }
-        .info {
+        /* 导航面板样式 */
+        .nav-panel {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.6);
+            top: 20px;
+            right: 20px;
+            width: 280px;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 15px;
             color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
+            z-index: 20;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
             font-size: 14px;
-            pointer-events: none;
-            z-index: 10;
+            pointer-events: auto;
+        }
+        .nav-panel h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            text-align: center;
+        }
+        .nav-panel select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+        .nav-panel button {
+            width: 100%;
+            padding: 8px;
+            background: #e67e22;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .nav-panel button:hover {
+            background: #f39c12;
+        }
+        .route-info {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            font-size: 13px;
+        }
+        .next-step {
+            background: #27ae60;
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .scene-name {
+            font-weight: bold;
+            color: #f1c40f;
+        }
+        .current-scene {
+            margin-bottom: 8px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        hr {
+            border-color: rgba(255,255,255,0.2);
+        }
+        @media (max-width: 640px) {
+            .nav-panel { width: 240px; top: 10px; right: 10px; padding: 10px; }
         }
     </style>
 </head>
 <body>
     <div id="panorama"></div>
-    <div class="info">鼠标拖拽旋转视角 | 点击热点跳转</div>
+    <div class="nav-panel">
+        <h3>🗺️ 导航系统</h3>
+        <div class="current-scene">📍 当前场景：<span id="currentSceneLabel">加载中...</span></div>
+        <select id="destinationSelect">
+            <option value="">— 选择目的地 —</option>
+            <option value="corridor">一楼走廊</option>
+            <option value="lobby">一楼大厅</option>
+            <option value="outer_stair">外侧楼梯</option>
+            <option value="inner_stair">里侧楼梯</option>
+            <option value="second_floor">二楼</option>
+        </select>
+        <button id="navigateBtn">🚀 开始导航</button>
+        <div id="routeResult" class="route-info" style="display: none;">
+            <!-- 动态显示路径和下一步 -->
+        </div>
+    </div>
 
     <script>
-        pannellum.viewer('panorama', {
+        // ---------- 场景连接图（根据你的跳转逻辑定义）----------
+        // 每个场景可以到达哪些其他场景（与热点配置对应）
+        const connections = {
+            corridor: ["lobby", "outer_stair"],        // 走廊 → 大厅、外侧楼梯
+            lobby: ["corridor"],                       // 大厅 → 走廊
+            outer_stair: ["corridor", "inner_stair", "second_floor"], // 外侧楼梯 → 走廊、里侧楼梯、二楼
+            inner_stair: ["outer_stair"],              // 里侧楼梯 → 外侧楼梯
+            second_floor: ["outer_stair"]              // 二楼 → 外侧楼梯
+        };
+
+        // 场景中文名映射
+        const sceneNames = {
+            corridor: "一楼走廊",
+            lobby: "一楼大厅",
+            outer_stair: "外侧楼梯",
+            inner_stair: "里侧楼梯",
+            second_floor: "二楼"
+        };
+
+        // 定义每个场景中，到达某个目标场景应该点击哪个热点（从热点的 sceneId 映射）
+        // 注意：这里需要根据你实际的热点配置，建立 当前场景 → 目标场景 → 热点文本/标识
+        // 我们手动维护一个指引映射，因为热点 text 可能不同。
+        const nextHotspotHint = {
+            corridor: {
+                lobby: "前往一楼大厅",
+                outer_stair: "前往外侧楼梯"
+            },
+            lobby: {
+                corridor: "回一楼走廊"
+            },
+            outer_stair: {
+                corridor: "回一楼走廊",
+                inner_stair: "前往里侧楼梯",
+                second_floor: "上二楼"
+            },
+            inner_stair: {
+                outer_stair: "回外侧楼梯"
+            },
+            second_floor: {
+                outer_stair: "回一楼外侧楼梯"
+            }
+        };
+
+        // ---------- BFS 求最短路径 ----------
+        function findShortestPath(start, target) {
+            if (start === target) return [start];
+            let queue = [[start]];
+            let visited = new Set([start]);
+            while (queue.length > 0) {
+                let path = queue.shift();
+                let last = path[path.length - 1];
+                let neighbors = connections[last] || [];
+                for (let neighbor of neighbors) {
+                    if (neighbor === target) {
+                        return [...path, neighbor];
+                    }
+                    if (!visited.has(neighbor)) {
+                        visited.add(neighbor);
+                        queue.push([...path, neighbor]);
+                    }
+                }
+            }
+            return null; // 无路径
+        }
+
+        // 全景查看器实例
+        let viewer = null;
+
+        // 存储当前场景ID
+        let currentSceneId = "corridor"; // 默认走廊
+
+        // 更新UI显示当前场景名
+        function updateCurrentSceneLabel() {
+            document.getElementById("currentSceneLabel").innerText = sceneNames[currentSceneId] || currentSceneId;
+        }
+
+        // 执行导航（根据当前场景和目标）
+        function navigateTo(destinationId) {
+            if (!destinationId) {
+                document.getElementById("routeResult").style.display = "none";
+                return;
+            }
+            if (currentSceneId === destinationId) {
+                document.getElementById("routeResult").style.display = "block";
+                document.getElementById("routeResult").innerHTML = `
+                    <div style="color:#2ecc71;">✅ 您已经在 ${sceneNames[destinationId]} 了！</div>
+                `;
+                return;
+            }
+            const path = findShortestPath(currentSceneId, destinationId);
+            if (!path || path.length === 0) {
+                document.getElementById("routeResult").style.display = "block";
+                document.getElementById("routeResult").innerHTML = `
+                    <div style="color:#e74c3c;">❌ 无法找到从 ${sceneNames[currentSceneId]} 到 ${sceneNames[destinationId]} 的路径。</div>
+                `;
+                return;
+            }
+            // 路径显示
+            let pathStr = path.map(id => sceneNames[id]).join(" → ");
+            const nextStepScene = path[1]; // 下一个要去的场景
+            const hint = nextHotspotHint[currentSceneId]?.[nextStepScene];
+            let nextStepHtml = "";
+            if (hint) {
+                nextStepHtml = `<div class="next-step">👉 下一步：请点击 <strong>“${hint}”</strong> 热点</div>`;
+            } else {
+                nextStepHtml = `<div class="next-step">⚠️ 无法识别下一步热点，请根据场景手动点击。</div>`;
+            }
+            document.getElementById("routeResult").style.display = "block";
+            document.getElementById("routeResult").innerHTML = `
+                <div>🗺️ 最优路径：<span class="scene-name">${pathStr}</span></div>
+                ${nextStepHtml}
+                <div style="margin-top:8px; font-size:12px; opacity:0.7;">💡 跟随提示点击热点，即可按路径到达目的地。</div>
+            `;
+        }
+
+        // 当全景切换场景时，需要更新 currentSceneId 并重新刷新导航（如果之前有选中的目的地，可以自动重新规划？但为了用户体验，不自动重新规划，只更新当前场景显示）
+        // 我们需要监听 pannellum 的场景切换事件。Pannellum 支持 onSceneChange 回调。
+        // 在初始化时设置。
+
+        // ---------- 初始化全景（复制之前的配置，并添加 onSceneChange 回调）----------
+        const tourConfig = {
             "default": {
                 "firstScene": "corridor",
                 "sceneFadeDuration": 800,
@@ -131,7 +329,48 @@
                     ]
                 }
             }
+        };
+
+        // 初始化 viewer，并监听场景变化
+        viewer = pannellum.viewer('panorama', tourConfig);
+
+        // 获取当前场景ID（Pannellum 提供了 getCurrentScene 方法）
+        function updateCurrentScene() {
+            if (viewer) {
+                let scene = viewer.getCurrentScene();
+                if (scene && scene !== currentSceneId) {
+                    currentSceneId = scene;
+                    updateCurrentSceneLabel();
+                    // 可选：如果之前有选中的目的地，可以重新规划？但这里不自动触发，以免干扰
+                }
+            }
+        }
+
+        // 监听场景切换事件
+        viewer.on('scenechange', function(newSceneId) {
+            currentSceneId = newSceneId;
+            updateCurrentSceneLabel();
+            // 如果你希望切换场景后自动重新规划之前选择的目的地，可以在这里添加逻辑（可选）
+            // 但简单起见，不清空导航结果，只是更新当前场景标示。
         });
+
+        // 初次获取当前场景（因为提供了 firstScene，这里立即执行一次）
+        setTimeout(() => {
+            updateCurrentScene();
+        }, 500);
+
+        // 绑定导航按钮事件
+        document.getElementById("navigateBtn").addEventListener("click", function() {
+            const dest = document.getElementById("destinationSelect").value;
+            if (!dest) {
+                alert("请先选择目的地！");
+                return;
+            }
+            navigateTo(dest);
+        });
+
+        // 显示当前场景名
+        updateCurrentSceneLabel();
     </script>
 </body>
 </html>
