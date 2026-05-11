@@ -2,12 +2,16 @@ import http.server
 import socketserver
 import webbrowser
 import os
+import sys
 
 # 设置端口号
 PORT = 8000
 
-# 切换到当前文件所在的目录（也就是项目根目录）
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+# 切换到资源目录：源码运行时为本文件目录；PyInstaller 单文件 exe 为解压目录
+if getattr(sys, "frozen", False):
+    os.chdir(sys._MEIPASS)
+else:
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # 创建一个简单的 HTTP 服务器
 Handler = http.server.SimpleHTTPRequestHandler

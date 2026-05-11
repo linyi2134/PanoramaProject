@@ -1,0 +1,7 @@
+{
+  "name": "indoor-nav-graph",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "楼内路网 JSON + Dijkstra 最短路径（与平面图通过节点编号对齐）"
+}
