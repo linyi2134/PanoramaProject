@@ -7,7 +7,7 @@
 可选：
   - "facilities": [ { "id", "type", "nodeId", "label" }, ... ]
 
-其它字段（如 meta、explain、isfinish）会被忽略。
+其它字段（如 meta、description、isFinished；旧版 explain、isfinish 仍可读）会被忽略。
 """
 
 from __future__ import annotations

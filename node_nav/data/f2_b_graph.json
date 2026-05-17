@@ -1,0 +1,333 @@
+{
+  "description": "2F-B座",
+  "isFinished": false,
+  "meta": {
+    "floor": 2,
+    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；门节点贴在走廊侧，后门按实际连通性增删边；所有距离均在走廊中部测量。",
+    "building": "B7",
+    "zone": "B",
+    "units": "meter"
+  },
+  "nodes": [
+    {
+      "id": "fork_nw",
+      "label": "西北分叉",
+      "floor": 2,
+      "role": "corridor"
+    },
+    {
+      "id": "fork_ne",
+      "label": "东北分叉",
+      "floor": 2,
+      "role": "corridor"
+    },
+    {
+      "id": "fork_se",
+      "label": "东南分叉",
+      "floor": 2,
+      "role": "corridor"
+    },
+    {
+      "id": "fork_sw",
+      "label": "西南分叉",
+      "floor": 2,
+      "role": "corridor"
+    },
+    {
+      "id": "stair_west",
+      "label": "西侧楼梯",
+      "floor": 2,
+      "role": "vertical"
+    },
+    {
+      "id": "stair_east",
+      "label": "东侧楼梯",
+      "floor": 2,
+      "role": "vertical"
+    },
+    {
+      "id": "elevator",
+      "label": "电梯",
+      "floor": 2,
+      "role": "vertical"
+    },
+    {
+      "id": "washroom",
+      "label": "洗手间",
+      "floor": 2,
+      "role": "facility"
+    },
+    {
+      "id": "water",
+      "label": "饮水机",
+      "floor": 2,
+      "role": "facility"
+    },
+    {
+      "id": "weak",
+      "label": "弱电间",
+      "floor": 2,
+      "role": "room"
+    },
+    {
+      "id": "strong",
+      "label": "强电间",
+      "floor": 2,
+      "role": "room"
+    },
+    {
+      "id": "link_a",
+      "label": "连廊（接A区）",
+      "floor": 2,
+      "role": "corridor"
+    },
+    {
+      "id": "238_front",
+      "label": "238实验室前门",
+      "floor": 2,
+      "role": "door"
+    },
+    {
+      "id": "238_back",
+      "label": "238实验室后门",
+      "floor": 2,
+      "role": "door"
+    },
+    {
+      "id": "233_back",
+      "label": "233实训基地Ⅱ后门",
+      "floor": 2,
+      "role": "door"
+    },
+    {
+      "id": "233_front",
+      "label": "233实训基地Ⅱ前门",
+      "floor": 2,
+      "role": "door"
+    },
+    {
+      "id": "232",
+      "label": "232监控室门",
+      "floor": 2,
+      "role": "door"
+    },
+    {
+      "id": "231_front",
+      "label": "231实训基地Ⅰ前门",
+      "floor": 2,
+      "role": "door"
+    },
+    {
+      "id": "230",
+      "label": "230储藏室",
+      "floor": 2,
+      "role": "door"
+    },
+    {
+      "id": "240_front",
+      "label": "240办公室前门",
+      "floor": 2,
+      "role": "door"
+    },
+    {
+      "id": "237",
+      "label": "237监控室门",
+      "floor": 2,
+      "role": "door"
+    },
+    {
+      "id": "236_front",
+      "label": "236学生创新基地前门",
+      "floor": 2,
+      "role": "door"
+    },
+    {
+      "id": "236_back",
+      "label": "236学生创新基地后门",
+      "floor": 2,
+      "role": "door"
+    },
+    {
+      "id": "235_back",
+      "label": "235服务器室后门",
+      "floor": 2,
+      "role": "door"
+    },
+    {
+      "id": "234",
+      "label": "234门",
+      "floor": 2,
+      "role": "door"
+    },
+    {
+      "id": "235_front",
+      "label": "235服务器室前门",
+      "floor": 2,
+      "role": "door"
+    }
+  ],
+  "edges": [
+    {
+      "from": "fork_sw",
+      "to": "stair_west",
+      "weight": 6.6
+    },
+    {
+      "from": "stair_west",
+      "to": "fork_nw",
+      "weight": 18
+    },
+    {
+      "from": "fork_nw",
+      "to": "238_front",
+      "weight": 0
+    },
+    {
+      "from": "fork_nw",
+      "to": "238_back",
+      "weight": 24
+    },
+    {
+      "from": "238_back",
+      "to": "fork_ne",
+      "weight": 3
+    },
+    {
+      "from": "fork_ne",
+      "to": "washroom",
+      "weight": 19.2
+    },
+    {
+      "from": "washroom",
+      "to": "fork_se",
+      "weight": 5.4
+    },
+    {
+      "from": "fork_se",
+      "to": "water",
+      "weight": 7.8
+    },
+    {
+      "from": "water",
+      "to": "233_back",
+      "weight": 1.2
+    },
+    {
+      "from": "fork_se",
+      "to": "233_front",
+      "weight": 6
+    },
+    {
+      "from": "233_front",
+      "to": "232",
+      "weight": 3
+    },
+    {
+      "from": "232",
+      "to": "231_front",
+      "weight": 13.2
+    },
+    {
+      "from": "231_front",
+      "to": "fork_sw",
+      "weight": 4.8
+    },
+    {
+      "from": "fork_sw",
+      "to": "weak",
+      "weight": 3.6
+    },
+    {
+      "from": "weak",
+      "to": "strong",
+      "weight": 1.2
+    },
+    {
+      "from": "strong",
+      "to": "230",
+      "weight": 3
+    },
+    {
+      "from": "230",
+      "to": "link_a",
+      "weight": 2.4
+    },
+    {
+      "from": "fork_sw",
+      "to": "240_front",
+      "weight": 2.4
+    },
+    {
+      "from": "fork_ne",
+      "to": "stair_east",
+      "weight": 0.9
+    },
+    {
+      "from": "stair_east",
+      "to": "elevator",
+      "weight": 3.3
+    },
+    {
+      "from": "elevator",
+      "to": "237",
+      "weight": 3
+    },
+    {
+      "from": "237",
+      "to": "236_front",
+      "weight": 1.8
+    },
+    {
+      "from": "236_front",
+      "to": "236_back",
+      "weight": 12.6
+    },
+    {
+      "from": "236_back",
+      "to": "235_back",
+      "weight": 0
+    },
+    {
+      "from": "237",
+      "to": "234",
+      "weight": 9.6
+    },
+    {
+      "from": "234",
+      "to": "235_front",
+      "weight": 1.8
+    }
+  ],
+  "facilities": [
+    {
+      "id": "poi_washroom",
+      "type": "洗手间",
+      "nodeId": "washroom",
+      "label": "洗手间"
+    },
+    {
+      "id": "poi_water",
+      "type": "饮水机",
+      "nodeId": "water",
+      "label": "饮水机"
+    },
+    {
+      "id": "poi_stair_west",
+      "type": "楼梯",
+      "nodeId": "stair_west",
+      "label": "西侧楼梯"
+    },
+    {
+      "id": "poi_stair_east",
+      "type": "楼梯",
+      "nodeId": "stair_east",
+      "label": "东侧楼梯"
+    },
+    {
+      "id": "poi_elevator",
+      "type": "电梯",
+      "nodeId": "elevator",
+      "label": "电梯"
+    }
+  ]
+}

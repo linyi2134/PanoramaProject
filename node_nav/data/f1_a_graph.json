@@ -1,0 +1,160 @@
+{
+  "description": "1F-A座",
+  "isFinished": false,
+  "meta": {
+    "floor": 1,
+    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；门节点贴在走廊侧，后门按实际连通性增删边；所有距离均在走廊中部测量。",
+    "building": "B7",
+    "zone": "A",
+    "units": "meter"
+  },
+  "nodes": [
+    {
+      "id": "fork_nw",
+      "label": "西北分叉",
+      "floor": 1,
+      "role": "corridor"
+    },
+    {
+      "id": "fork_ne",
+      "label": "东北分叉",
+      "floor": 1,
+      "role": "corridor"
+    },
+    {
+      "id": "fork_se",
+      "label": "东南分叉",
+      "floor": 1,
+      "role": "corridor"
+    },
+    {
+      "id": "fork_sw",
+      "label": "西南分叉",
+      "floor": 1,
+      "role": "corridor"
+    },
+    {
+      "id": "washroom",
+      "label": "洗手间",
+      "floor": 1,
+      "role": "facility"
+    },
+    {
+      "id": "office_room",
+      "label": "值班室",
+      "floor": 1,
+      "role": "room"
+    },
+    {
+      "id": "restarea",
+      "label": "休息区",
+      "floor": 1,
+      "role": "facility"
+    },
+    {
+      "id": "a_door",
+      "label": "A区大门",
+      "floor": 1,
+      "role": "door"
+    },
+    {
+      "id": "office101_front",
+      "label": "学院办公室前门",
+      "floor": 1,
+      "role": "door"
+    },
+    {
+      "id": "office101_back",
+      "label": "学院办公室后门",
+      "floor": 1,
+      "role": "door"
+    },
+    {
+      "id": "office102",
+      "label": "学生工作办公室",
+      "floor": 1,
+      "role": "door"
+    },
+    {
+      "id": "se_stair",
+      "label": "东南侧楼梯",
+      "floor": 1,
+      "role": "vertical"
+    },
+    {
+      "id": "link_to_b",
+      "label": "AB连廊",
+      "floor": 1,
+      "role": "corridor"
+    },
+    {
+      "id": "fireboard",
+      "label": "消防柜",
+      "floor": 1,
+      "role": "facility"
+    }
+  ],
+  "edges": [
+    {
+      "from": "washroom",
+      "to": "office_room",
+      "weight": 2.5
+    },
+    {
+      "from": "office_room",
+      "to": "restarea",
+      "weight": 5
+    },
+    {
+      "from": "restarea",
+      "to": "a_door",
+      "weight": 6
+    },
+    {
+      "from": "a_door",
+      "to": "se_stair",
+      "weight": 18.5
+    },
+    {
+      "from": "office_room",
+      "to": "office101_front",
+      "weight": 5
+    },
+    {
+      "from": "office101_front",
+      "to": "office101_back",
+      "weight": 8
+    },
+    {
+      "from": "office101_back",
+      "to": "office102",
+      "weight": 8
+    }
+  ],
+  "facilities": [
+    {
+      "id": "poi_wash",
+      "type": "洗手间",
+      "nodeId": "washroom",
+      "label": "洗手间"
+    },
+    {
+      "id": "poi_rest",
+      "type": "休息区",
+      "nodeId": "restarea",
+      "label": "休息区"
+    },
+    {
+      "id": "poi_fire",
+      "type": "消防设施",
+      "nodeId": "fireboard",
+      "label": "消防柜"
+    },
+    {
+      "id": "poi_stair",
+      "type": "楼梯",
+      "nodeId": "se_stair",
+      "label": "东南侧楼梯"
+    }
+  ]
+}

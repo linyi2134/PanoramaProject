@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "naming": "f{floor}_{zone}_graph.json，zone 为 a|b（小写）",
+  "graphs": [
+    {
+      "file": "f1_a_graph.json",
+      "building": "B7",
+      "floor": 1,
+      "zone": "A",
+      "description": "1F-A座",
+      "isFinished": false,
+      "nodeCount": 14,
+      "edgeCount": 7
+    },
+    {
+      "file": "f1_b_graph.json",
+      "building": "B7",
+      "floor": 1,
+      "zone": "B",
+      "description": "1F-B座",
+      "isFinished": false,
+      "nodeCount": 25,
+      "edgeCount": 16
+    },
+    {
+      "file": "f2_a_graph.json",
+      "building": "B7",
+      "floor": 2,
+      "zone": "A",
+      "description": "2F-A座",
+      "isFinished": false,
+      "nodeCount": 32,
+      "edgeCount": 32
+    },
+    {
+      "file": "f2_b_graph.json",
+      "building": "B7",
+      "floor": 2,
+      "zone": "B",
+      "description": "2F-B座",
+      "isFinished": false,
+      "nodeCount": 26,
+      "edgeCount": 26
+    },
+    {
+      "file": "f3_a_graph.json",
+      "building": "B7",
+      "floor": 3,
+      "zone": "A",
+      "description": "3F-A座",
+      "isFinished": false,
+      "nodeCount": 38,
+      "edgeCount": 38
+    },
+    {
+      "file": "f3_b_graph.json",
+      "building": "B7",
+      "floor": 3,
+      "zone": "B",
+      "description": "3F-B座",
+      "isFinished": false,
+      "nodeCount": 42,
+      "edgeCount": 42
+    },
+    {
+      "file": "f4_a_graph.json",
+      "building": "B7",
+      "floor": 4,
+      "zone": "A",
+      "description": "4F-A座",
+      "isFinished": false,
+      "nodeCount": 32,
+      "edgeCount": 32
+    },
+    {
+      "file": "f4_b_graph.json",
+      "building": "B7",
+      "floor": 4,
+      "zone": "B",
+      "description": "4F-B座",
+      "isFinished": false,
+      "nodeCount": 41,
+      "edgeCount": 39
+    },
+    {
+      "file": "f5_a_graph.json",
+      "building": "B7",
+      "floor": 5,
+      "zone": "A",
+      "description": "5F-A座",
+      "isFinished": false,
+      "nodeCount": 33,
+      "edgeCount": 33
+    },
+    {
+      "file": "f5_b_graph.json",
+      "building": "B7",
+      "floor": 5,
+      "zone": "B",
+      "description": "5F-B座",
+      "isFinished": false,
+      "nodeCount": 36,
+      "edgeCount": 34
+    }
+  ]
+}
