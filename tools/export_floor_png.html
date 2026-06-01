@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>导出 map 示意 SVG / PNG</title>
+<style>
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0d1117;color:#c9d1d9;margin:0;padding:20px;}
+h1{font-size:18px;color:#58a6ff;margin:0 0 8px;}
+p{color:#6e7681;font-size:13px;margin:0 0 16px;max-width:720px;line-height:1.5;}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px;}
+select,button{padding:8px 14px;border-radius:6px;border:1px solid #21262d;background:#161b22;color:#c9d1d9;font-size:13px;cursor:pointer;}
+button:hover{border-color:#58a6ff;color:#58a6ff;}
+.preview{background:#080c12;border:1px solid #21262d;border-radius:8px;padding:12px;display:inline-block;}
+#mapSvg{display:block;background:#080c12;}
+.hint{margin-top:12px;font-size:12px;color:#6e7681;}
+a{color:#58a6ff;}
+</style>
+</head>
+<body>
+<h1>map.html 示意层导出</h1>
+<p>
+  与 <a href="../map.html">map.html</a> 中 <code>renderBuild()</code> 相同的建筑 SVG（760×520）。
+  可下载 <strong>.svg</strong> 或 <strong>.png</strong>，供 <code>plans/</code> 底图使用。
+  需在本地服务下打开：<code>http://localhost:8000/tools/export_floor_png.html</code>
+</p>
+<div class="toolbar">
+  <label>楼层 <select id="floorSel"></select></label>
+  <button type="button" id="btnSvg">下载 SVG</button>
+  <button type="button" id="btnPng">下载 PNG</button>
+</div>
+<div class="preview">
+  <svg id="mapSvg" viewBox="0 0 760 520" width="760" height="520" xmlns="http://www.w3.org/2000/svg">
+    <g id="gBuild"></g>
+  </svg>
+</div>
+<p class="hint">PNG 由浏览器将 SVG  rasterize；若文字略有差异，可用 Inkscape 打开 SVG 再导出。</p>
+<script>
+const NS='http://www.w3.org/2000/svg';
+const W=760,H=520;
+const TITLES={1:'1F · 软件学院',2:'2F · 软件学院',3:'3F · 软件学院',4:'4F · 软件学院',5:'5F · 软件学院'};
+function svg(tag,a){const e=document.createElementNS(NS,tag);for(const[k,v] of Object.entries(a))e.setAttribute(k,v);return e;}
+
+function renderBuild(floor){
+  const g=document.getElementById('gBuild');
+  g.innerHTML='';
+  [[20,20,195,480],[215,20,520,110],[640,130,100,260],[215,390,520,110]].forEach(([x,y,w,h])=>{
+    g.appendChild(svg('rect',{x,y,width:w,height:h,rx:2,fill:'#16202e',stroke:'#253550','stroke-width':'1'}));
+  });
+  g.appendChild(svg('rect',{x:215,y:130,width:425,height:260,fill:'#060a10',stroke:'#253550','stroke-width':'1'}));
+  [[100,25,26,470],[20,62,640,26],[634,75,26,372],[20,432,640,26]].forEach(([x,y,w,h])=>{
+    g.appendChild(svg('rect',{x,y,width:w,height:h,fill:'#243550',rx:1}));
+    g.appendChild(svg('rect',{x,y,width:w,height:h,fill:'none',stroke:'#3a5575','stroke-width':'0.8',rx:1}));
+  });
+  if([3,4].includes(floor)){
+    g.appendChild(svg('rect',{x:20,y:20,width:125,height:480,rx:2,fill:'#16202e',stroke:'#253550','stroke-width':'1'}));
+    g.appendChild(svg('rect',{x:145,y:20,width:70,height:110,fill:'#060a10',stroke:'none'}));
+    g.appendChild(svg('rect',{x:145,y:390,width:70,height:110,fill:'#060a10',stroke:'none'}));
+    g.appendChild(svg('rect',{x:145,y:130,width:70,height:260,fill:'#192233',stroke:'#253550','stroke-width':'0.8'}));
+    g.appendChild(svg('rect',{x:195,y:130,width:20,height:260,fill:'#243550',rx:1}));
+    g.appendChild(svg('rect',{x:78,y:25,width:20,height:470,fill:'#243550',rx:1}));
+  }
+  const ct=svg('text',{x:420,y:268,'text-anchor':'middle',fill:'#1a2d45','font-size':'12','font-family':'Segoe UI,sans-serif','letter-spacing':'2'});
+  ct.textContent='庭 院 上 空'; g.appendChild(ct);
+  const ft=svg('text',{x:22,y:514,fill:'#2a4060','font-size':'11','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
+  ft.textContent=TITLES[floor]||floor+'F'; g.appendChild(ft);
+  const arr=svg('text',{x:750,y:493,'font-size':'11',fill:'#f7f74f','text-anchor':'middle','font-family':'Segoe UI,sans-serif'});
+  arr.textContent='→A区'; g.appendChild(arr);
+}
+
+function downloadBlob(blob,name){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function downloadSvg(){
+  const floor=+document.getElementById('floorSel').value;
+  const el=document.getElementById('mapSvg');
+  const clone=el.cloneNode(true);
+  clone.setAttribute('xmlns',NS);
+  const src=new XMLSerializer().serializeToString(clone);
+  downloadBlob(new Blob([src],{type:'image/svg+xml;charset=utf-8'}),`f${floor}_b.svg`);
+}
+
+function downloadPng(){
+  const floor=+document.getElementById('floorSel').value;
+  const el=document.getElementById('mapSvg');
+  const clone=el.cloneNode(true);
+  clone.setAttribute('xmlns',NS);
+  const src=new XMLSerializer().serializeToString(clone);
+  const url=URL.createObjectURL(new Blob([src],{type:'image/svg+xml;charset=utf-8'}));
+  const img=new Image();
+  img.onload=()=>{
+    const canvas=document.createElement('canvas');
+    canvas.width=W; canvas.height=H;
+    const ctx=canvas.getContext('2d');
+    ctx.fillStyle='#080c12';
+    ctx.fillRect(0,0,W,H);
+    ctx.drawImage(img,0,0,W,H);
+    canvas.toBlob(b=>{ if(b) downloadBlob(b,`f${floor}_b.png`); URL.revokeObjectURL(url); },'image/png');
+  };
+  img.onerror=()=>{ alert('PNG 导出失败，请改用「下载 SVG」或在浏览器中打开 SVG 后截图'); URL.revokeObjectURL(url); };
+  img.src=url;
+}
+
+const sel=document.getElementById('floorSel');
+for(let f=1;f<=5;f++){
+  const o=document.createElement('option');
+  o.value=f; o.textContent=f+'F';
+  sel.appendChild(o);
+}
+sel.onchange=()=>renderBuild(+sel.value);
+document.getElementById('btnSvg').onclick=downloadSvg;
+document.getElementById('btnPng').onclick=downloadPng;
+renderBuild(1);
+</script>
+</body>
+</html>

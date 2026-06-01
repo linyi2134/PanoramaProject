@@ -1,0 +1,184 @@
+{
+  "description": "1F B座：map.html FLOORS[1] 节点 id ↔ f1_b_graph.json 节点 id 对照",
+  "floor": 1,
+  "planImage": "plans/f1_b.png",
+  "planWidth": 760,
+  "planHeight": 520,
+  "source": "map.html FLOORS[1] + bn(1,'f1_')",
+  "note": "direct=示意图有同名/同义节点可一一对应；inferred=JSON 独有节点，坐标由邻近 FLOORS 节点推断，CAD 底图替换时需重标",
+  "mappings": [
+    {
+      "jsonId": "fork_nw",
+      "floorsId": "f1_jnw",
+      "match": "direct",
+      "note": "西北分叉 ↔ 西北交叉"
+    },
+    {
+      "jsonId": "fork_ne",
+      "floorsId": "f1_jne",
+      "match": "direct",
+      "note": "东北分叉 ↔ 右上转角"
+    },
+    {
+      "jsonId": "fork_se",
+      "floorsId": "f1_jse",
+      "match": "direct",
+      "note": "东南分叉 ↔ 右下转角"
+    },
+    {
+      "jsonId": "fork_sw",
+      "floorsId": "f1_jsw",
+      "match": "direct",
+      "note": "西南分叉 ↔ 西南交叉"
+    },
+    {
+      "jsonId": "end_nww",
+      "floorsId": "f1_lw_n",
+      "match": "direct",
+      "note": "西北向北延伸 ↔ 左翼北"
+    },
+    {
+      "jsonId": "end_sww",
+      "floorsId": "f1_lw_s",
+      "match": "direct",
+      "note": "西南向西延伸 ↔ 左翼南"
+    },
+    {
+      "jsonId": "end_see",
+      "floorsId": "f1_jrt_s",
+      "match": "direct",
+      "note": "东南向东延伸 ↔ 右廊南"
+    },
+    {
+      "jsonId": "link_to_a",
+      "floorsId": "f1_link_a",
+      "match": "direct",
+      "note": "连廊接 A 区"
+    },
+    {
+      "jsonId": "washroom",
+      "floorsId": "f1_wash",
+      "match": "direct",
+      "note": "洗手间"
+    },
+    {
+      "jsonId": "sn_elec",
+      "floorsId": "f1_stN",
+      "match": "direct",
+      "note": "西北侧电梯 ↔ 北楼梯/电梯口"
+    },
+    {
+      "jsonId": "ws_stair",
+      "floorsId": "f1_stS",
+      "match": "direct",
+      "note": "南侧楼梯 ↔ 南楼梯"
+    },
+    {
+      "jsonId": "room137_front",
+      "floorsId": "f1_rm138",
+      "match": "direct",
+      "note": "微机室前门 ↔ 138 微机室（房号与 JSON 137 不一致，坐标沿用示意）"
+    },
+    {
+      "jsonId": "mobile_room",
+      "floorsId": "f1_rm133",
+      "match": "direct",
+      "note": "移动计算与软件实验室 ↔ 133 实验室"
+    },
+    {
+      "jsonId": "elec_room",
+      "floorsId": "f1_util",
+      "match": "direct",
+      "note": "配电室门 ↔ 弱电间/强电间/储藏"
+    },
+    {
+      "jsonId": "restarea",
+      "floorsId": "f1_rm135",
+      "match": "direct",
+      "note": "休息区 ↔ 135 休息室"
+    },
+    {
+      "jsonId": "desk",
+      "floorsId": "f1_rm136",
+      "match": "inferred",
+      "note": "座椅 ↔ 136 值班室位置（语义近似）"
+    },
+    {
+      "jsonId": "teacher_room",
+      "floorsId": "f1_monitor_r",
+      "match": "inferred",
+      "note": "教师办公室门 ↔ 监控室(右) 走廊侧"
+    },
+    {
+      "jsonId": "ai_room",
+      "floorsId": "f1_rm131",
+      "match": "inferred",
+      "note": "AI 工作室门 ↔ 131 库房位置"
+    },
+    {
+      "jsonId": "lab_door",
+      "floorsId": "f1_rm133",
+      "match": "inferred",
+      "x_px": 665,
+      "y_px": 60,
+      "note": "实验室门：133 实验室走廊侧，相对 rm133 略偏走廊"
+    },
+    {
+      "jsonId": "wn_door",
+      "floorsId": "f1_lw_n",
+      "match": "inferred",
+      "x_px": 40,
+      "y_px": 75,
+      "note": "西北门：左翼北端外侧"
+    },
+    {
+      "jsonId": "b_door",
+      "floorsId": "f1_lw_s",
+      "match": "inferred",
+      "x_px": 40,
+      "y_px": 445,
+      "note": "B 区大门：左翼南端外侧"
+    },
+    {
+      "jsonId": "room137_back",
+      "floorsId": "f1_rm138",
+      "match": "inferred",
+      "x_px": 35,
+      "y_px": 300,
+      "note": "微机室后门：138 微机室内侧，待 CAD 重标"
+    },
+    {
+      "jsonId": "out_stair",
+      "floorsId": "f1_stN",
+      "match": "inferred",
+      "x_px": 195,
+      "y_px": 65,
+      "note": "户外楼梯：近北楼梯/电梯口外侧"
+    },
+    {
+      "jsonId": "st_elec",
+      "floorsId": "f1_util",
+      "match": "inferred",
+      "x_px": 695,
+      "y_px": 400,
+      "note": "强电井：util 区东侧"
+    },
+    {
+      "jsonId": "weak_elec",
+      "floorsId": "f1_util",
+      "match": "inferred",
+      "x_px": 670,
+      "y_px": 410,
+      "note": "弱电井：util 区西侧"
+    }
+  ],
+  "floorsOnly": [
+    { "floorsId": "f1_lw_m", "label": "左翼中", "x": 117, "y": 260, "note": "JSON 无对应走廊节点，合并路网时可补" },
+    { "floorsId": "f1_top", "label": "北廊中", "x": 357, "y": 75 },
+    { "floorsId": "f1_jrt_n", "label": "右廊北", "x": 650, "y": 165 },
+    { "floorsId": "f1_jrt_m", "label": "右廊中", "x": 650, "y": 260 },
+    { "floorsId": "f1_bot", "label": "南廊中", "x": 420, "y": 445 },
+    { "floorsId": "f1_monitor_l", "label": "监控室(左翼)", "x": 60, "y": 60 },
+    { "floorsId": "f1_rm140", "label": "140 值班室", "x": 680, "y": 492 }
+  ]
+}

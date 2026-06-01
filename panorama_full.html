@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>B7教学楼全景导航（完整版·52场景）</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+    <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: "Microsoft YaHei", sans-serif; }
+        #panorama { width: 100%; height: 100%; }
+        #info {
+            position: absolute; bottom: 20px; left: 20px;
+            background: rgba(0,0,0,0.6); color: white;
+            padding: 8px 16px; border-radius: 20px;
+            font-size: 14px; pointer-events: none; z-index: 10;
+        }
+        /* 智能导航面板 */
+        .nav-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 280px;
+            background: rgba(30,30,40,0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 15px;
+            color: white;
+            z-index: 30;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            font-size: 14px;
+            pointer-events: auto;
+        }
+        .nav-panel h3 { margin: 0 0 10px 0; font-size: 18px; text-align: center; }
+        .nav-panel select { width: 100%; padding: 8px; border-radius: 8px; background: #2c3e50; color: white; border: none; margin-bottom: 12px; }
+        .nav-panel button { width: 100%; padding: 8px; background: #e67e22; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        .nav-panel button:hover { background: #f39c12; }
+        .route-info { margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); font-size: 13px; }
+        .next-step { background: #27ae60; border-radius: 8px; padding: 8px; margin-top: 10px; text-align: center; font-weight: bold; }
+        .current-scene { margin-bottom: 8px; font-size: 12px; opacity: 0.8; }
+    </style>
+</head>
+<body>
+    <div id="panorama"></div>
+    <div id="info">🔍 B7教学楼全景导航 | 当前场景：连廊-1f | 鼠标拖拽旋转 | 点击热点跳转</div>
+    <!-- 智能导航面板 -->
+    <div class="nav-panel">
+        <h3>🗺️ 智能导航</h3>
+        <div class="current-scene" id="currentSceneLabel">📍 当前场景：加载中...</div>
+        <select id="destinationSelect"><option value="">— 选择目的地 —</option></select>
+        <button id="navigateBtn">🚀 开始导航</button>
+        <p style="margin-top:10px;font-size:12px;text-align:center;">
+            <a href="map.html" style="color:#58a6ff;text-decoration:none;">🗺️ 二维地图导航</a>
+            <span style="opacity:0.5;margin:0 6px;">|</span>
+            <a href="panorama.html" style="color:#aaa;text-decoration:none;font-size:11px;">简易 demo</a>
+        </p>
+
+        <div id="routeResult" class="route-info" style="display: none;"></div>
+    </div>
+
+    <script>
+        // ======================= 1. 定义所有场景ID =======================
+        const allScenes = [];
+        allScenes.push("一栋-1f-1", "一栋-1f-2");
+        for (let f = 2; f <= 5; f++) {
+            for (let i = 1; i <= 5; i++) allScenes.push(`一栋-${f}f-${i}`);
+        }
+        for (let f = 1; f <= 2; f++) {
+            for (let i = 1; i <= 5; i++) allScenes.push(`二栋-${f}f-${i}`);
+        }
+        for (let f = 3; f <= 5; f++) {
+            for (let i = 1; i <= 4; i++) allScenes.push(`二栋-${f}f-${i}`);
+        }
+        for (let f = 1; f <= 5; f++) allScenes.push(`连廊-${f}f`);
+        for (let f = 1; f <= 3; f++) allScenes.push(`三栋-${f}f`);
+
+        // 填充目的地菜单
+        const destSelect = document.getElementById("destinationSelect");
+        allScenes.forEach(scene => {
+            const opt = document.createElement("option");
+            opt.value = scene; opt.textContent = scene;
+            destSelect.appendChild(opt);
+        });
+
+        // ======================= 2. 构建连接图（用于导航）=======================
+        const connections = new Map();
+        allScenes.forEach(s => connections.set(s, []));
+        function addLink(a, b) {
+            if (!connections.get(a).includes(b)) connections.get(a).push(b);
+            if (!connections.get(b).includes(a)) connections.get(b).push(a);
+        }
+
+        // 二栋楼层内连接
+        function addErdongFloor(floor, maxNum) {
+            const ids = [];
+            for (let i = 1; i <= maxNum; i++) ids.push(`二栋-${floor}f-${i}`);
+            if (maxNum >= 2) addLink(ids[0], ids[1]);
+            if (maxNum >= 3) addLink(ids[0], ids[2]);
+            if (maxNum >= 4) {
+                addLink(ids[1], ids[3]);
+                addLink(ids[2], ids[3]);
+            }
+            if (maxNum === 5) {
+                addLink(ids[3], ids[4]);
+                addLink(ids[4], ids[1]);
+                addLink(ids[4], ids[3]);
+            } else if (maxNum === 4) {
+                addLink(ids[3], ids[1]);
+                addLink(ids[3], ids[2]);
+            }
+        }
+        for (let f = 1; f <= 2; f++) addErdongFloor(f, 5);
+        for (let f = 3; f <= 5; f++) addErdongFloor(f, 4);
+        for (let f = 1; f <= 4; f++) {
+            const cur1 = `二栋-${f}f-1`, up1 = `二栋-${f+1}f-1`;
+            if (allScenes.includes(up1)) addLink(cur1, up1);
+            const cur4 = `二栋-${f}f-4`, up4 = `二栋-${f+1}f-4`;
+            if (allScenes.includes(up4)) addLink(cur4, up4);
+        }
+
+        // 一栋连接
+        addLink("一栋-1f-1", "一栋-1f-2");
+        for (let f = 2; f <= 5; f++) {
+            const ids = [];
+            for (let i = 1; i <= 5; i++) ids.push(`一栋-${f}f-${i}`);
+            addLink(ids[0], ids[1]);
+            addLink(ids[1], ids[2]);
+            addLink(ids[1], ids[4]);
+            addLink(ids[2], ids[3]);
+            addLink(ids[3], ids[2]);
+            addLink(ids[3], ids[4]);
+            addLink(ids[4], ids[1]);
+            addLink(ids[4], ids[3]);
+        }
+        addLink("一栋-1f-2", "一栋-2f-1");
+        for (let f = 2; f <= 4; f++) addLink(`一栋-${f}f-1`, `一栋-${f+1}f-1`);
+
+        // 连廊
+        for (let f = 1; f <= 4; f++) addLink(`连廊-${f}f`, `连廊-${f+1}f`);
+        addLink("连廊-1f", "一栋-1f-1");
+        for (let f = 2; f <= 5; f++) addLink(`连廊-${f}f`, `一栋-${f}f-4`);
+        for (let f = 1; f <= 5; f++) {
+            const lian = `连廊-${f}f`, er = `二栋-${f}f-1`;
+            if (allScenes.includes(er)) addLink(lian, er);
+        }
+
+        // 三栋
+        addLink("三栋-1f", "三栋-2f");
+        addLink("三栋-2f", "三栋-3f");
+        // 三栋与二栋连接（通过连廊二，但三栋-2f 不与二栋-2f-1相连）
+for (let f = 1; f <= 3; f++) {
+    const san = `三栋-${f}f`, er = `二栋-${f}f-1`;
+    if (allScenes.includes(er) && !(san === "三栋-2f" && er === "二栋-2f-1")) {
+        addLink(san, er);
+    }
+}
+// 三栋-2f 直接连接 一栋-2f-1
+addLink("三栋-2f", "一栋-2f-1");
+
+        // ======================= 3. 精确热点配置 =======================
+        const scenesConfig = {};
+
+        // 连廊
+        scenesConfig["连廊-1f"] = { title: "连廊-1f", panorama: "连廊-1f.jpg", hotSpots: [
+            { pitch: -0.46639106887387594, yaw: 84.61447959132366, type: "scene", text: "→ 前往 二栋-1f-1", sceneId: "二栋-1f-1" },
+            { pitch: -0.08605308929667488, yaw: 266.80299474652725, type: "scene", text: "→ 前往 一栋-1f-1", sceneId: "一栋-1f-1" },
+            { pitch: 2.358686366849831,   yaw: 232.25389836539384, type: "scene", text: "↑ 前往 连廊-2f", sceneId: "连廊-2f" }
+        ] };
+        scenesConfig["连廊-2f"] = { title: "连廊-2f", panorama: "连廊-2f.jpg", hotSpots: [
+            { pitch: -24.318639091726446, yaw: 190.62619112965774, type: "scene", text: "↓ 前往 连廊-1f", sceneId: "连廊-1f" },
+            { pitch: 7.65674834294555,    yaw: 171.40190445108186, type: "scene", text: "↑ 前往 连廊-3f", sceneId: "连廊-3f" },
+            { pitch: 0.8008236852892046,  yaw: 89.885797152993,   type: "scene", text: "→ 前往 二栋-2f-1", sceneId: "二栋-2f-1" },
+            { pitch: -3.392253600116897,  yaw: 270.2958373051913, type: "scene", text: "→ 前往 一栋-2f-4", sceneId: "一栋-2f-4" }
+        ] };
+        scenesConfig["连廊-3f"] = { title: "连廊-3f", panorama: "连廊-3f.jpg", hotSpots: [
+            { pitch: 8.216047347448606,   yaw: 172.50508283297017, type: "scene", text: "↑ 前往 连廊-4f", sceneId: "连廊-4f" },
+            { pitch: -22.81924705770635,  yaw: 190.71236507311679, type: "scene", text: "↓ 前往 连廊-2f", sceneId: "连廊-2f" },
+            { pitch: -0.8350243052579889, yaw: 92.75816561849527,  type: "scene", text: "→ 前往 二栋-3f-1", sceneId: "二栋-3f-1" },
+            { pitch: -4.468125590631474,  yaw: 269.98225079751523, type: "scene", text: "→ 前往 一栋-3f-4", sceneId: "一栋-3f-4" }
+        ] };
+        scenesConfig["连廊-4f"] = { title: "连廊-4f", panorama: "连廊-4f.jpg", hotSpots: [
+            { pitch: -20.60731985870992, yaw: -167.08510975959666, type: "scene", text: "↓ 前往 连廊-3f", sceneId: "连廊-3f" },
+            { pitch: 8.532901649663922,  yaw: -189.60073931254234, type: "scene", text: "↑ 前往 连廊-5f", sceneId: "连廊-5f" },
+            { pitch: -2.1076231828282386, yaw: -268.5249748259078, type: "scene", text: "→ 前往 二栋-4f-1", sceneId: "二栋-4f-1" },
+            { pitch: 0.06836934800620753, yaw: -92.4686741861101,  type: "scene", text: "→ 前往 一栋-4f-4", sceneId: "一栋-4f-4" }
+        ] };
+        scenesConfig["连廊-5f"] = { title: "连廊-5f", panorama: "连廊-5f.jpg", hotSpots: [
+            { pitch: -1.4248955437638497, yaw: 90.99929987735719, type: "scene", text: "→ 前往 二栋-5f-1", sceneId: "二栋-5f-1" },
+            { pitch: -1.5938621061391238, yaw: -90.25989550192986, type: "scene", text: "→ 前往 一栋-5f-4", sceneId: "一栋-5f-4" },
+            { pitch: -15.545951929463683, yaw: -126.6055116957756, type: "scene", text: "↓ 前往 连廊-4f", sceneId: "连廊-4f" }
+        ] };
+
+        // 二栋
+        scenesConfig["二栋-1f-1"] = { title: "二栋-1f-1", panorama: "二栋-1f-1.jpg", hotSpots: [
+            { pitch: -2.4075501539693134, yaw: -0.12877245149124095, type: "scene", text: "→ 前往 二栋-1f-2", sceneId: "二栋-1f-2" },
+            { pitch: -0.948108158057906,  yaw: 91.11867237337506,   type: "scene", text: "→ 前往 二栋-1f-3", sceneId: "二栋-1f-3" },
+            { pitch: -2.996691623740415,  yaw: -14.096305454563378, type: "scene", text: "↑ 前往 二栋-2f-1", sceneId: "二栋-2f-1" },
+            { pitch: -1.6827290878515448, yaw: -178.59416315347218, type: "scene", text: "→ 前往 连廊-1f", sceneId: "连廊-1f" }
+        ] };
+        scenesConfig["二栋-1f-2"] = { title: "二栋-1f-2", panorama: "二栋-1f-2.jpg", hotSpots: [
+            { pitch: -0.8078506185499956, yaw: -176.30303693264707, type: "scene", text: "→ 前往 二栋-1f-1", sceneId: "二栋-1f-1" },
+            { pitch: -1.000628343401407,  yaw: 93.43558082385186,   type: "scene", text: "→ 前往 二栋-1f-4", sceneId: "二栋-1f-4" }
+        ] };
+        scenesConfig["二栋-1f-3"] = { title: "二栋-1f-3", panorama: "二栋-1f-3.jpg", hotSpots: [
+            { pitch: -3.608664489196882, yaw: 0.3766783354596,   type: "scene", text: "→ 前往 二栋-1f-1", sceneId: "二栋-1f-1" },
+            { pitch: -2.0141613677901558, yaw: 88.9449728394,     type: "scene", text: "→ 前往 二栋-1f-4", sceneId: "二栋-1f-4" }
+        ] };
+        scenesConfig["二栋-1f-4"] = { title: "二栋-1f-4", panorama: "二栋-1f-4.jpg", hotSpots: [
+            { pitch: 0.9571720482369304, yaw: -177.42376105707456, type: "scene", text: "→ 前往 二栋-1f-5", sceneId: "二栋-1f-5" },
+            { pitch: 0.11036719177901899, yaw: 96.46722584723465,  type: "scene", text: "→ 前往 二栋-1f-2", sceneId: "二栋-1f-2" },
+            { pitch: -2.317766701634735,  yaw: 0.4617175655455,    type: "scene", text: "→ 前往 二栋-1f-3", sceneId: "二栋-1f-3" },
+            { pitch: 6.3665268128498,     yaw: -112.61388371222837, type: "scene", text: "↑ 前往 二栋-2f-4", sceneId: "二栋-2f-4" }
+        ] };
+        scenesConfig["二栋-1f-5"] = { title: "二栋-1f-5", panorama: "二栋-1f-5.jpg", hotSpots: [
+            { pitch: -3.917056734278358, yaw: 0.1565801490779022, type: "scene", text: "→ 前往 二栋-1f-4", sceneId: "二栋-1f-4" }
+        ] };
+        scenesConfig["二栋-2f-1"] = { title: "二栋-2f-1", panorama: "二栋-2f-1.jpg", hotSpots: [
+            { pitch: -1.084035477244793, yaw: 181.01424727194038, type: "scene", text: "→ 前往 连廊-2f", sceneId: "连廊-2f" },
+            { pitch: -2.9856515775047265, yaw: 0.5048916235687813, type: "scene", text: "→ 前往 二栋-2f-2", sceneId: "二栋-2f-2" },
+            { pitch: -0.3811877335147571, yaw: 87.24379803403146, type: "scene", text: "→ 前往 二栋-2f-3", sceneId: "二栋-2f-3" },
+            { pitch: 0.28836072278410985, yaw: -12.814256342948013, type: "scene", text: "↑ 前往 二栋-3f-1", sceneId: "二栋-3f-1" },
+            { pitch: -7.2410434981696445, yaw: -12.925551351602918, type: "scene", text: "↓ 前往 二栋-1f-1", sceneId: "二栋-1f-1" }
+        ] };
+        scenesConfig["二栋-2f-2"] = { title: "二栋-2f-2", panorama: "二栋-2f-2.jpg", hotSpots: [
+            { pitch: 0.9985218573732106, yaw: 183.12375904077874, type: "scene", text: "→ 前往 二栋-2f-1", sceneId: "二栋-2f-1" },
+            { pitch: -0.5703517516627756, yaw: 92.711745856901,   type: "scene", text: "→ 前往 二栋-2f-4", sceneId: "二栋-2f-4" }
+        ] };
+        scenesConfig["二栋-2f-3"] = { title: "二栋-2f-3", panorama: "二栋-2f-3.jpg", hotSpots: [
+            { pitch: 0.24021919836639993, yaw: 90.24134456540592, type: "scene", text: "→ 前往 二栋-2f-1", sceneId: "二栋-2f-1" },
+            { pitch: 0.09883905662458115, yaw: 177.3996372929501, type: "scene", text: "→ 前往 二栋-2f-4", sceneId: "二栋-2f-4" }
+        ] };
+        scenesConfig["二栋-2f-4"] = { title: "二栋-2f-4", panorama: "二栋-2f-4.jpg", hotSpots: [
+            { pitch: 0.5797709210475923, yaw: -268.39069527275734, type: "scene", text: "→ 前往 二栋-2f-2", sceneId: "二栋-2f-2" },
+            { pitch: -2.214620225959082, yaw: -358.0840357032779,  type: "scene", text: "→ 前往 二栋-2f-3", sceneId: "二栋-2f-3" },
+            { pitch: -2.628021290775326, yaw: -176.75203736485162, type: "scene", text: "→ 前往 二栋-2f-5", sceneId: "二栋-2f-5" },
+            { pitch: 7.22515608655035, yaw: -110.16003767418508, type: "scene", text: "↑ 前往 二栋-3f-4", sceneId: "二栋-3f-4" },
+            { pitch: -25.55832984171373, yaw: -89.31836963628687, type: "scene", text: "↓ 前往 二栋-1f-4", sceneId: "二栋-1f-4" }
+        ] };
+        scenesConfig["二栋-2f-5"] = { title: "二栋-2f-5", panorama: "二栋-2f-5.jpg", hotSpots: [
+            { pitch: -3.5481987875413505, yaw: 0.5031244624323211, type: "scene", text: "→ 前往 二栋-2f-4", sceneId: "二栋-2f-4" }
+        ] };
+        scenesConfig["二栋-3f-1"] = { title: "二栋-3f-1", panorama: "二栋-3f-1.jpg", hotSpots: [
+            { pitch: -2.083484817675069, yaw: 182.37306219444045, type: "scene", text: "→ 前往 连廊-3f", sceneId: "连廊-3f" },
+            { pitch: 0.6481461849948662, yaw: 93.1789867173873,   type: "scene", text: "→ 前往 二栋-3f-3", sceneId: "二栋-3f-3" },
+            { pitch: -6.673979724739121, yaw: -11.64456832876051,  type: "scene", text: "↓ 前往 二栋-2f-1", sceneId: "二栋-2f-1" },
+            { pitch: 5.129766756706688, yaw: -10.823551400230812, type: "scene", text: "↑ 前往 二栋-4f-1", sceneId: "二栋-4f-1" },
+            { pitch: 0.6111804748441179, yaw: 2.618456192802511, type: "scene", text: "→ 前往 二栋-3f-2", sceneId: "二栋-3f-2" }
+        ] };
+        scenesConfig["二栋-3f-2"] = { title: "二栋-3f-2", panorama: "二栋-3f-2.jpg", hotSpots: [
+            { pitch: 0.45314008767641745, yaw: 176.20863523465684, type: "scene", text: "→ 前往 二栋-3f-1", sceneId: "二栋-3f-1" },
+            { pitch: -1.6570674253658402, yaw: 85.37775483794013,  type: "scene", text: "→ 前往 二栋-3f-4", sceneId: "二栋-3f-4" }
+        ] };
+        scenesConfig["二栋-3f-3"] = { title: "二栋-3f-3", panorama: "二栋-3f-3.jpg", hotSpots: [
+            { pitch: -0.1057175141667761, yaw: 89.68546392921998, type: "scene", text: "→ 前往 二栋-3f-1", sceneId: "二栋-3f-1" },
+            { pitch: -0.8949018170545591, yaw: 178.0573230752779, type: "scene", text: "→ 前往 二栋-3f-4", sceneId: "二栋-3f-4" }
+        ] };
+        scenesConfig["二栋-3f-4"] = { title: "二栋-3f-4", panorama: "二栋-3f-4.jpg", hotSpots: [
+            { pitch: -0.0991682797679232, yaw: 2.620248988761386,   type: "scene", text: "→ 前往 二栋-3f-2", sceneId: "二栋-3f-2" },
+            { pitch: -0.9316703053969058, yaw: -88.24083930153401,  type: "scene", text: "→ 前往 二栋-3f-3", sceneId: "二栋-3f-3" },
+            { pitch: 1.8500340914004099, yaw: -98.20526979986921,  type: "scene", text: "↑ 前往 二栋-4f-4", sceneId: "二栋-4f-4" },
+            { pitch: -7.468841431358149, yaw: -97.66357230772014,  type: "scene", text: "↓ 前往 二栋-2f-4", sceneId: "二栋-2f-4" }
+        ] };
+        scenesConfig["二栋-4f-1"] = { title: "二栋-4f-1", panorama: "二栋-4f-1.jpg", hotSpots: [
+            { pitch: -2.169414391824164, yaw: 87.75415858437232,  type: "scene", text: "→ 前往 连廊-4f", sceneId: "连廊-4f" },
+            { pitch: 0.19999384283437105, yaw: 270.9832142671057, type: "scene", text: "→ 前往 二栋-4f-2", sceneId: "二栋-4f-2" },
+            { pitch: -0.7091918726698685, yaw: 2.524542943883546, type: "scene", text: "→ 前往 二栋-4f-3", sceneId: "二栋-4f-3" },
+            { pitch: 0.4367506232595968, yaw: 260.0244453543184, type: "scene", text: "↑ 前往 二栋-5f-1", sceneId: "二栋-5f-1" },
+            { pitch: -10.969670817931958, yaw: 260.2271853041826, type: "scene", text: "↓ 前往 二栋-3f-1", sceneId: "二栋-3f-1" }
+        ] };
+        scenesConfig["二栋-4f-2"] = { title: "二栋-4f-2", panorama: "二栋-4f-2.jpg", hotSpots: [
+            { pitch: -1.3971639746966011, yaw: 91.92566208128056, type: "scene", text: "→ 前往 二栋-4f-1", sceneId: "二栋-4f-1" },
+            { pitch: -1.2239725985970633, yaw: 2.3054715844659626, type: "scene", text: "→ 前往 二栋-4f-4", sceneId: "二栋-4f-4" }
+        ] };
+        scenesConfig["二栋-4f-3"] = { title: "二栋-4f-3", panorama: "二栋-4f-3.jpg", hotSpots: [
+            { pitch: -0.21975150165539525, yaw: 0.8912476207225244, type: "scene", text: "→ 前往 二栋-4f-1", sceneId: "二栋-4f-1" },
+            { pitch: 0.4903631086471272, yaw: 88.66082766181776,  type: "scene", text: "→ 前往 二栋-4f-4", sceneId: "二栋-4f-4" }
+        ] };
+        scenesConfig["二栋-4f-4"] = { title: "二栋-4f-4", panorama: "二栋-4f-4.jpg", hotSpots: [
+            { pitch: 2.716038184184905, yaw: 0.8483408247852184,  type: "scene", text: "→ 前往 二栋-4f-2", sceneId: "二栋-4f-2" },
+            { pitch: 0.32963548522369135, yaw: -91.83008438439398, type: "scene", text: "→ 前往 二栋-4f-3", sceneId: "二栋-4f-3" },
+            { pitch: 5.079836572805117, yaw: -105.10049426739123, type: "scene", text: "↑ 前往 二栋-5f-4", sceneId: "二栋-5f-4" },
+            { pitch: -6.221809896252264, yaw: -104.58667880409195, type: "scene", text: "↓ 前往 二栋-3f-4", sceneId: "二栋-3f-4" }
+        ] };
+        scenesConfig["二栋-5f-1"] = { title: "二栋-5f-1", panorama: "二栋-5f-1.jpg", hotSpots: [
+            { pitch: -1.3408254636407517, yaw: 178.68391144133133, type: "scene", text: "→ 前往 连廊-5f", sceneId: "连廊-5f" },
+            { pitch: 0.6666125541869068, yaw: 2.241617448228249, type: "scene", text: "→ 前往 二栋-5f-2", sceneId: "二栋-5f-2" },
+            { pitch: -0.5712728822955455, yaw: 90.4750992957527, type: "scene", text: "→ 前往 二栋-5f-3", sceneId: "二栋-5f-3" },
+            { pitch: -6.630833505355066, yaw: -13.340093816319872, type: "scene", text: "↓ 前往 二栋-4f-1", sceneId: "二栋-4f-1" }
+        ] };
+        scenesConfig["二栋-5f-2"] = { title: "二栋-5f-2", panorama: "二栋-5f-2.jpg", hotSpots: [
+            { pitch: 0.22560006637081376, yaw: 91.86347299200072, type: "scene", text: "→ 前往 二栋-5f-4", sceneId: "二栋-5f-4" },
+            { pitch: -3.02768797779414,   yaw: 177.8793458315909, type: "scene", text: "→ 前往 二栋-5f-1", sceneId: "二栋-5f-1" }
+        ] };
+        scenesConfig["二栋-5f-3"] = { title: "二栋-5f-3", panorama: "二栋-5f-3.jpg", hotSpots: [
+            { pitch: 0.5792967937696019, yaw: 83.01694644815478,  type: "scene", text: "→ 前往 二栋-5f-1", sceneId: "二栋-5f-1" },
+            { pitch: 0.27340492294997,   yaw: 175.3636018473238, type: "scene", text: "→ 前往 二栋-5f-4", sceneId: "二栋-5f-4" }
+        ] };
+        scenesConfig["二栋-5f-4"] = { title: "二栋-5f-4", panorama: "二栋-5f-4.jpg", hotSpots: [
+            { pitch: -0.682334715598369, yaw: 97.94379164167198, type: "scene", text: "→ 前往 二栋-5f-2", sceneId: "二栋-5f-2" },
+            { pitch: -0.5002109336753304, yaw: 0.47938854109238394, type: "scene", text: "→ 前往 二栋-5f-3", sceneId: "二栋-5f-3" },
+            { pitch: -7.687060857638757, yaw: -12.41991946565846, type: "scene", text: "↓ 前往 二栋-4f-4", sceneId: "二栋-4f-4" }
+        ] };
+
+        // 一栋
+        scenesConfig["一栋-1f-1"] = { title: "一栋-1f-1", panorama: "一栋-1f-1.jpg", hotSpots: [
+            { pitch: 0.0007002478168621207, yaw: -238.1255497181525, type: "scene", text: "→ 前往 一栋-1f-2", sceneId: "一栋-1f-2" },
+            { pitch: 0.5441045394093158, yaw: -358.51600327325554, type: "scene", text: "→ 前往 连廊-1f", sceneId: "连廊-1f" }
+        ] };
+        scenesConfig["一栋-1f-2"] = { title: "一栋-1f-2", panorama: "一栋-1f-2.jpg", hotSpots: [
+            { pitch: -3.2710314639533675, yaw: -76.82878722949903, type: "scene", text: "→ 前往 一栋-1f-1", sceneId: "一栋-1f-1" },
+            { pitch: 8.894496246522687,   yaw: 9.922287726206491,  type: "scene", text: "↑ 前往 一栋-2f-1", sceneId: "一栋-2f-1" }
+        ] };
+        scenesConfig["一栋-2f-1"] = { title: "一栋-2f-1", panorama: "一栋-2f-1.jpg", hotSpots: [
+            { pitch: -32.63588778065049, yaw: -11.28052175220406, type: "scene", text: "↓ 前往 一栋-1f-1", sceneId: "一栋-1f-1" },
+            { pitch: 10.23184318211063,   yaw: 8.670030941268653,  type: "scene", text: "↑ 前往 一栋-3f-1", sceneId: "一栋-3f-1" },
+            { pitch: -2.043889793976722,  yaw: -86.14525581729953, type: "scene", text: "→ 前往 一栋-2f-2", sceneId: "一栋-2f-2" },
+            { pitch: -0.9980098890138767, yaw: 91.36002868295161, type: "scene", text: "→ 前往 三栋-2f", sceneId: "三栋-2f" }
+        ] };
+        scenesConfig["一栋-2f-2"] = { title: "一栋-2f-2", panorama: "一栋-2f-2.jpg", hotSpots: [
+            { pitch: 0.44322516738893414, yaw: 1.590306854392579,  type: "scene", text: "→ 前往 一栋-2f-5", sceneId: "一栋-2f-5" },
+            { pitch: -1.7345718256555323, yaw: -89.19749703847157, type: "scene", text: "→ 前往 一栋-2f-3", sceneId: "一栋-2f-3" },
+            { pitch: -4.398504732357688,  yaw: 93.7233041453,       type: "scene", text: "→ 前往 一栋-2f-1", sceneId: "一栋-2f-1" }
+        ] };
+        scenesConfig["一栋-2f-3"] = { title: "一栋-2f-3", panorama: "一栋-2f-3.jpg", hotSpots: [
+            { pitch: -2.1959187800306266, yaw: 2.334728206014301, type: "scene", text: "→ 前往 一栋-2f-4", sceneId: "一栋-2f-4" },
+            { pitch: 0.22157541992264157, yaw: 92.2525083510477,  type: "scene", text: "→ 前往 一栋-2f-2", sceneId: "一栋-2f-2" }
+        ] };
+        scenesConfig["一栋-2f-4"] = { title: "一栋-2f-4", panorama: "一栋-2f-4.jpg", hotSpots: [
+            { pitch: -2.7577868700133052, yaw: -186.4439920573697, type: "scene", text: "→ 前往 连廊-2f", sceneId: "连廊-2f" },
+            { pitch: -0.3256013581941417, yaw: -0.7732453440691742, type: "scene", text: "→ 前往 一栋-2f-3", sceneId: "一栋-2f-3" },
+            { pitch: -1.2512594013941678, yaw: -100.21104453131663, type: "scene", text: "→ 前往 一栋-2f-5", sceneId: "一栋-2f-5" }
+        ] };
+        scenesConfig["一栋-2f-5"] = { title: "一栋-2f-5", panorama: "一栋-2f-5.jpg", hotSpots: [
+            { pitch: 0.5282848935848468, yaw: 86.42605274951296, type: "scene", text: "→ 前往 一栋-2f-4", sceneId: "一栋-2f-4" },
+            { pitch: -0.6852961200526413, yaw: 0.2074698882396646, type: "scene", text: "→ 前往 一栋-2f-2", sceneId: "一栋-2f-2" }
+        ] };
+        scenesConfig["一栋-3f-1"] = { title: "一栋-3f-1", panorama: "一栋-3f-1.jpg", hotSpots: [
+            { pitch: -3.9888087553556177, yaw: -85.80125933531146, type: "scene", text: "→ 前往 一栋-3f-2", sceneId: "一栋-3f-2" },
+            { pitch: -31.25867891851306,  yaw: -12.534379918793206, type: "scene", text: "↓ 前往 一栋-2f-1", sceneId: "一栋-2f-1" },
+            { pitch: 12.729850333505837,   yaw: 9.545776870724836,  type: "scene", text: "↑ 前往 一栋-4f-1", sceneId: "一栋-4f-1" },
+            { pitch: 0.01373665223115332,  yaw: 90.62878339046323,  type: "scene", text: "→ 前往 三栋-3f", sceneId: "三栋-3f" }
+        ] };
+        scenesConfig["一栋-3f-2"] = { title: "一栋-3f-2", panorama: "一栋-3f-2.jpg", hotSpots: [
+            { pitch: -5.523867948594841, yaw: 92.8764224806007, type: "scene", text: "→ 前往 一栋-3f-1", sceneId: "一栋-3f-1" },
+            { pitch: 0.029326223182338573, yaw: -88.6882297887296, type: "scene", text: "→ 前往 一栋-3f-3", sceneId: "一栋-3f-3" },
+            { pitch: -2.7063741362234706, yaw: 3.2396089527550167, type: "scene", text: "→ 前往 一栋-3f-5", sceneId: "一栋-3f-5" }
+        ] };
+        scenesConfig["一栋-3f-3"] = { title: "一栋-3f-3", panorama: "一栋-3f-3.jpg", hotSpots: [
+            { pitch: 0.4665659588458513, yaw: 86.87592399293236, type: "scene", text: "→ 前往 一栋-3f-2", sceneId: "一栋-3f-2" },
+            { pitch: -0.8636813045908589, yaw: -9.640409419107307, type: "scene", text: "→ 前往 一栋-3f-4", sceneId: "一栋-3f-4" }
+        ] };
+        scenesConfig["一栋-3f-4"] = { title: "一栋-3f-4", panorama: "一栋-3f-4.jpg", hotSpots: [
+            { pitch: -1.881737860811286, yaw: -172.5776124063961, type: "scene", text: "→ 前往 连廊-3f", sceneId: "连廊-3f" },
+            { pitch: -3.175225744102771, yaw: -86.28362713372245, type: "scene", text: "→ 前往 一栋-3f-5", sceneId: "一栋-3f-5" },
+            { pitch: -0.4456826243657437, yaw: 12.782831298923561, type: "scene", text: "→ 前往 一栋-3f-3", sceneId: "一栋-3f-3" }
+        ] };
+        scenesConfig["一栋-3f-5"] = { title: "一栋-3f-5", panorama: "一栋-3f-5.jpg", hotSpots: [
+            { pitch: -0.9445746640511211, yaw: 2.980282830773393, type: "scene", text: "→ 前往 一栋-3f-2", sceneId: "一栋-3f-2" },
+            { pitch: -0.22368763456312124, yaw: 88.9121229181711, type: "scene", text: "→ 前往 一栋-3f-4", sceneId: "一栋-3f-4" }
+        ] };
+        scenesConfig["一栋-4f-1"] = { title: "一栋-4f-1", panorama: "一栋-4f-1.jpg", hotSpots: [
+            { pitch: 6.994804832818845,   yaw: 12.378560268014844,  type: "scene", text: "↑ 前往 一栋-5f-1", sceneId: "一栋-5f-1" },
+            { pitch: -28.234810748345268,  yaw: -8.58027018707449,   type: "scene", text: "↓ 前往 一栋-3f-1", sceneId: "一栋-3f-1" },
+            { pitch: -0.5418529831265424,  yaw: -83.32868471355135,  type: "scene", text: "→ 前往 一栋-4f-2", sceneId: "一栋-4f-2" }
+        ] };
+        scenesConfig["一栋-4f-2"] = { title: "一栋-4f-2", panorama: "一栋-4f-2.jpg", hotSpots: [
+            { pitch: -3.010033724026775, yaw: 93.80030237057579, type: "scene", text: "→ 前往 一栋-4f-1", sceneId: "一栋-4f-1" },
+            { pitch: -2.214867414811052, yaw: -86.00013091924515, type: "scene", text: "→ 前往 一栋-4f-3", sceneId: "一栋-4f-3" },
+            { pitch: -1.781092248490027, yaw: 1.940031694501163, type: "scene", text: "→ 前往 一栋-4f-5", sceneId: "一栋-4f-5" }
+        ] };
+        scenesConfig["一栋-4f-3"] = { title: "一栋-4f-3", panorama: "一栋-4f-3.jpg", hotSpots: [
+            { pitch: -0.23609868381547633, yaw: -14.184792031375915, type: "scene", text: "→ 前往 一栋-4f-4", sceneId: "一栋-4f-4" },
+            { pitch: -1.541771486321076,  yaw: 88.82007687155411,   type: "scene", text: "→ 前往 一栋-4f-2", sceneId: "一栋-4f-2" }
+        ] };
+        scenesConfig["一栋-4f-4"] = { title: "一栋-4f-4", panorama: "一栋-4f-4.jpg", hotSpots: [
+            { pitch: -4.162030973060896, yaw: -172.02800901857987, type: "scene", text: "→ 前往 连廊-4f", sceneId: "连廊-4f" },
+            { pitch: -3.2529277880146985, yaw: 17.802291733921322, type: "scene", text: "→ 前往 一栋-4f-3", sceneId: "一栋-4f-3" },
+            { pitch: -3.3811282092615444, yaw: -84.74748782163343, type: "scene", text: "→ 前往 一栋-4f-5", sceneId: "一栋-4f-5" }
+        ] };
+        scenesConfig["一栋-4f-5"] = { title: "一栋-4f-5", panorama: "一栋-4f-5.jpg", hotSpots: [
+            { pitch: -0.8543793123297558, yaw: 5.325886880182085,  type: "scene", text: "→ 前往 一栋-4f-2", sceneId: "一栋-4f-2" },
+            { pitch: -2.2306074725483773, yaw: 90.15826640953364,  type: "scene", text: "→ 前往 一栋-4f-4", sceneId: "一栋-4f-4" }
+        ] };
+        scenesConfig["一栋-5f-1"] = { title: "一栋-5f-1", panorama: "一栋-5f-1.jpg", hotSpots: [
+            { pitch: -30.633179040453065, yaw: -7.474375344733982, type: "scene", text: "↓ 前往 一栋-4f-1", sceneId: "一栋-4f-1" },
+            { pitch: -3.7582174920348015,  yaw: -87.32492010054408, type: "scene", text: "→ 前往 一栋-5f-2", sceneId: "一栋-5f-2" }
+        ] };
+        scenesConfig["一栋-5f-2"] = { title: "一栋-5f-2", panorama: "一栋-5f-2.jpg", hotSpots: [
+            { pitch: -2.0317175789062913, yaw: -1.1675436445671679, type: "scene", text: "→ 前往 一栋-5f-5", sceneId: "一栋-5f-5" },
+            { pitch: -0.6080065036344511, yaw: -91.11811894156025,  type: "scene", text: "→ 前往 一栋-5f-3", sceneId: "一栋-5f-3" },
+            { pitch: -5.379153457312241,  yaw: 92.73946541613618,   type: "scene", text: "→ 前往 一栋-5f-1", sceneId: "一栋-5f-1" }
+        ] };
+        scenesConfig["一栋-5f-3"] = { title: "一栋-5f-3", panorama: "一栋-5f-3.jpg", hotSpots: [
+            { pitch: -3.6304046861197516, yaw: -10.805365864292675, type: "scene", text: "→ 前往 一栋-5f-4", sceneId: "一栋-5f-4" },
+            { pitch: -0.24571110790133233, yaw: 86.80659726894781,  type: "scene", text: "→ 前往 一栋-5f-2", sceneId: "一栋-5f-2" }
+        ] };
+        scenesConfig["一栋-5f-4"] = { title: "一栋-5f-4", panorama: "一栋-5f-4.jpg", hotSpots: [
+            { pitch: 0.8537836310852818, yaw: -180.00619390273275, type: "scene", text: "→ 前往 连廊-5f", sceneId: "连廊-5f" },
+            { pitch: 0.14105300386973374, yaw: 14.940694769888589, type: "scene", text: "→ 前往 一栋-5f-3", sceneId: "一栋-5f-3" },
+            { pitch: -0.6482982210308116, yaw: -89.92994354550785, type: "scene", text: "→ 前往 一栋-5f-5", sceneId: "一栋-5f-5" }
+        ] };
+        scenesConfig["一栋-5f-5"] = { title: "一栋-5f-5", panorama: "一栋-5f-5.jpg", hotSpots: [
+            { pitch: -2.5842985724686187, yaw: 1.7360822073680895, type: "scene", text: "→ 前往 一栋-5f-4", sceneId: "一栋-5f-4" },
+            { pitch: -0.5103850925038725, yaw: -89.77122634123958, type: "scene", text: "→ 前往 一栋-5f-2", sceneId: "一栋-5f-2" }
+        ] };
+
+        // 三栋
+        scenesConfig["三栋-3f"] = { title: "三栋-3f", panorama: "三栋-3f.jpg", hotSpots: [
+            { pitch: -0.9475420665271345, yaw: 358.46650615849865, type: "scene", text: "→ 前往 一栋-3f-1", sceneId: "一栋-3f-1" },
+            { pitch: -18.66018538478752, yaw: 178.32340072027864, type: "scene", text: "↓ 前往 三栋-2f", sceneId: "三栋-2f" }
+        ] };
+       scenesConfig["三栋-2f"] = { title: "三栋-2f", panorama: "三栋-2f.jpg", hotSpots: [
+            { pitch: 2.1927516866805865, yaw: 101.61045062479965, type: "scene", text: "↑ 前往 三栋-3f", sceneId: "三栋-3f" },
+            { pitch: -11.461389993895548, yaw: 91.72401241112959,  type: "scene", text: "↓ 前往 三栋-1f", sceneId: "三栋-1f" },
+            { pitch: 1.5618222016581844, yaw: -91.15946151848522, type: "scene", text: "→ 前往 一栋-2f-1", sceneId: "一栋-2f-1" }
+        ] };
+        scenesConfig["三栋-1f"] = { title: "三栋-1f", panorama: "三栋-1f.jpg", hotSpots: [
+            { pitch: 5.2002276854558165, yaw: 171.1731691144815, type: "scene", text: "↑ 前往 三栋-2f", sceneId: "三栋-2f" }
+        ] };
+
+        // 未提供精确角度的场景生成默认热点（角度0，带方向箭头）
+        function getFloorLevel(sceneId) {
+            const match = sceneId.match(/(\d+)f/);
+            return match ? parseInt(match[1]) : null;
+        }
+        for (const sceneId of allScenes) {
+            if (scenesConfig[sceneId]) continue;
+            const neighbors = connections.get(sceneId) || [];
+            const hotSpots = [];
+            for (const nb of neighbors) {
+                const fromFloor = getFloorLevel(sceneId);
+                const toFloor = getFloorLevel(nb);
+                let arrow = "→";
+                if (fromFloor !== null && toFloor !== null) {
+                    if (toFloor > fromFloor) arrow = "↑";
+                    else if (toFloor < fromFloor) arrow = "↓";
+                }
+                hotSpots.push({ pitch: 0, yaw: 0, type: "scene", text: `${arrow} 前往 ${nb}`, sceneId: nb });
+            }
+            scenesConfig[sceneId] = { title: sceneId, panorama: `${sceneId}.jpg`, hotSpots: hotSpots };
+        }
+
+
+        const PANORAMA_BASE = 'panoramas/';
+        for (const id of Object.keys(scenesConfig)) {
+            const p = scenesConfig[id].panorama;
+            if (p && !p.startsWith(PANORAMA_BASE)) scenesConfig[id].panorama = PANORAMA_BASE + p;
+        }
+
+        // ======================= 4. 初始化 Pannellum =======================
+        const firstScene = "连廊-1f";
+        const config = {
+            default: { firstScene: firstScene, sceneFadeDuration: 800, autoLoad: true },
+            scenes: scenesConfig
+        };
+        window.viewer = pannellum.viewer('panorama', config);
+
+        let currentSceneId = firstScene;
+        window.viewer.on('scenechange', function(newSceneId) {
+            currentSceneId = newSceneId;
+            document.getElementById('currentSceneLabel').innerHTML = `📍 当前场景：${newSceneId}`;
+            const dest = document.getElementById("destinationSelect").value;
+            if (dest && dest !== "") navigateTo(dest);
+        });
+        document.getElementById('currentSceneLabel').innerHTML = `📍 当前场景：${firstScene}`;
+
+        // ======================= 5. 智能导航（BFS） =======================
+        function findShortestPath(start, target) {
+            if (start === target) return [start];
+            let queue = [[start]], visited = new Set([start]);
+            while (queue.length) {
+                let path = queue.shift(), last = path[path.length-1];
+                for (let neighbor of connections.get(last) || []) {
+                    if (neighbor === target) return [...path, neighbor];
+                    if (!visited.has(neighbor)) {
+                        visited.add(neighbor);
+                        queue.push([...path, neighbor]);
+                    }
+                }
+            }
+            return null;
+        }
+        function getNextHotspotText(from, to) {
+            const hs = scenesConfig[from]?.hotSpots || [];
+            const found = hs.find(h => h.sceneId === to);
+            return found ? found.text : `前往 ${to}`;
+        }
+        function navigateTo(destinationId) {
+            if (!destinationId) { document.getElementById("routeResult").style.display = "none"; return; }
+            if (currentSceneId === destinationId) {
+                document.getElementById("routeResult").style.display = "block";
+                document.getElementById("routeResult").innerHTML = `<div style="color:#2ecc71;">✅ 您已在目标场景 ${destinationId}</div>`;
+                return;
+            }
+            const path = findShortestPath(currentSceneId, destinationId);
+            if (!path) {
+                document.getElementById("routeResult").style.display = "block";
+                document.getElementById("routeResult").innerHTML = `<div style="color:#e74c3c;">❌ 无法找到从 ${currentSceneId} 到 ${destinationId} 的路径。</div>`;
+                return;
+            }
+            const pathStr = path.join(" → ");
+            const nextStepScene = path[1];
+            const hint = getNextHotspotText(currentSceneId, nextStepScene);
+            document.getElementById("routeResult").style.display = "block";
+            document.getElementById("routeResult").innerHTML = `
+                <div>🗺️ 最优路径：<span style="font-weight:bold;">${pathStr}</span></div>
+                <div class="next-step">👉 下一步：请点击 <strong>“${hint}”</strong> 热点</div>
+                <div style="margin-top:8px; font-size:12px; opacity:0.7;">💡 跟随提示点击热点，即可按路径到达目的地。</div>
+            `;
+        }
+        document.getElementById("navigateBtn").addEventListener("click", function() {
+            const dest = document.getElementById("destinationSelect").value;
+            if (!dest) { alert("请选择目的地！"); return; }
+            navigateTo(dest);
+        });
+
+        console.log("全景导航已启动，共 " + allScenes.length + " 个场景。");
+    </script>
+</body>
+</html>

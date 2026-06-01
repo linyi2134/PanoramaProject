@@ -19,8 +19,9 @@ Handler = http.server.SimpleHTTPRequestHandler
 # 启动服务器（非阻塞方式，会在后台运行）
 with socketserver.TCPServer(("", PORT), Handler) as httpd:
     print(f"服务器已启动，地址: http://localhost:{PORT}")
-    print("请在浏览器中打开 panorama.html")
-    # 自动打开浏览器
-    webbrowser.open(f"http://localhost:{PORT}/panorama.html")
+    print(f"地图导航: http://localhost:{PORT}/map.html")
+    print(f"全景漫游(完整): http://localhost:{PORT}/panorama_full.html")
+    print(f"全景演示(5场景): http://localhost:{PORT}/panorama.html")
+    webbrowser.open(f"http://localhost:{PORT}/map.html")
     # 保持服务器运行
     httpd.serve_forever()

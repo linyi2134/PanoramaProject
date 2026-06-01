@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>B7软件学院室内导航</title>
+<style>
+:root{
+  --bg:#0d1117;--surface:#161b22;--border:#21262d;
+  --accent:#58a6ff;--accent2:#f0883e;--green:#3fb950;--red:#f85149;
+  --purple:#cf4fff;--yellow:#f7f74f;
+  --text:#c9d1d9;--muted:#6e7681;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.logo{font-weight:700;font-size:15px;color:var(--accent);}
+.floor-tabs{display:flex;gap:4px;overflow-x:auto;max-width:62vw;scrollbar-width:none;}
+.floor-tab{padding:4px 13px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s;}
+.floor-tab.active{background:var(--accent);border-color:var(--accent);color:#0d1117;font-weight:700;}
+.hdr-btns{margin-left:auto;display:flex;gap:6px;}
+.btn{padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn-toilet{border-color:var(--accent2);color:var(--accent2);}
+.btn-toilet:hover{background:var(--accent2);color:#0d1117;}
+.main{display:flex;flex:1;overflow:hidden;}
+.map-wrap{flex:1;position:relative;overflow:hidden;background:#080c12;}
+#mapSvg{width:100%;height:100%;display:block;}
+.hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted);background:rgba(13,17,23,.85);padding:4px 12px;border-radius:12px;pointer-events:none;white-space:nowrap;}
+.side{width:255px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
+.sec{padding:13px;border-bottom:1px solid var(--border);}
+.sec h3{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.pt-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.pt-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.pt-val{font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pt-lbl{font-size:11px;color:var(--muted);flex-shrink:0;}
+#routeResult{margin-top:10px;}
+.dist{font-size:13px;color:var(--accent2);font-weight:700;}
+.steps{margin-top:8px;max-height:240px;overflow-y:auto;}
+.step{display:flex;align-items:flex-start;gap:5px;margin-bottom:5px;font-size:11px;line-height:1.4;}
+.snum{background:var(--border);border-radius:3px;padding:1px 5px;font-size:10px;color:var(--muted);flex-shrink:0;margin-top:1px;}
+.sfloor{color:var(--accent);font-weight:700;}
+.room-list{flex:1;overflow-y:auto;padding:8px;}
+.room-item{padding:5px 8px;border-radius:4px;font-size:11px;cursor:pointer;transition:background .12s;display:flex;align-items:center;gap:6px;}
+.room-item:hover{background:var(--border);}
+.rdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.legend{display:flex;flex-direction:column;gap:5px;}
+.leg{display:flex;align-items:center;gap:7px;font-size:11px;}
+.ldot{width:8px;height:8px;border-radius:50%;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🏢 B7 软件学院 · 室内导航</div>
+  <div class="floor-tabs" id="floorTabs"></div>
+  <div class="hdr-btns">
+    <a class="btn" href="panorama_full.html" style="text-decoration:none;display:inline-flex;align-items:center;">🌐 全景</a>
+    <button class="btn btn-toilet" onclick="nearestToilet()">🚻 最近厕所</button>
+    <button class="btn" onclick="clearAll()">✕ 清除</button>
+  </div>
+</header>
+<div class="main">
+  <div class="map-wrap">
+    <svg id="mapSvg" viewBox="0 0 760 520" preserveAspectRatio="xMidYMid meet">
+      <g id="gBuild"></g><g id="gEdge"></g><g id="gPath"></g>
+      <g id="gNode"></g><g id="gLabel"></g>
+    </svg>
+    <div class="hint" id="hint">点击节点设置起点</div>
+  </div>
+  <div class="side">
+    <div class="sec">
+      <h3>路径规划</h3>
+      <div class="pt-row"><div class="pt-dot" style="background:var(--green)"></div><div class="pt-lbl">起点</div><div class="pt-val" id="lblStart">点击地图选择</div></div>
+      <div class="pt-row"><div class="pt-dot" style="background:var(--red)"></div><div class="pt-lbl">终点</div><div class="pt-val" id="lblEnd">点击地图选择</div></div>
+      <div id="routeResult"></div>
+    </div>
+    <div class="sec">
+      <h3>图例</h3>
+      <div class="legend">
+        <div class="leg"><div class="ldot" style="background:var(--accent)"></div>走廊节点</div>
+        <div class="leg"><div class="ldot" style="background:var(--accent2)"></div>设施（洗手间等）</div>
+        <div class="leg"><div class="ldot" style="background:var(--green)"></div>房间</div>
+        <div class="leg"><div class="ldot" style="background:var(--purple)"></div>楼梯 / 电梯</div>
+        <div class="leg"><div class="ldot" style="background:var(--yellow)"></div>出入口 / 连廊</div>
+      </div>
+    </div>
+    <div class="sec" style="padding-bottom:6px;"><h3>本层房间（点击导航）</h3></div>
+    <div class="room-list" id="roomList"></div>
+  </div>
+</div>
+<script src="js/pathfind.browser.js"></script>
+<script>
+const RC={corridor:'#58a6ff',facility:'#f0883e',room:'#3fb950',vertical:'#cf4fff',door:'#f7f74f'};
+const NS='http://www.w3.org/2000/svg';
+function svg(tag,a){const e=document.createElementNS(NS,tag);for(const[k,v] of Object.entries(a))e.setAttribute(k,v);return e;}
+
+// ── 骨干节点（所有楼层相同坐标）──────────────────────────────────
+function bn(f,p){return[
+  {id:p+'jnw', label:'西北交叉', role:'corridor',x:215,y:75},
+  {id:p+'lw_n',label:'左翼北',  role:'corridor',x:117,y:75},
+  {id:p+'lw_m',label:'左翼中',  role:'corridor',x:117,y:260},
+  {id:p+'lw_s',label:'左翼南',  role:'corridor',x:117,y:445},
+  {id:p+'jsw', label:'西南交叉', role:'corridor',x:215,y:445},
+  {id:p+'top', label:'北廊中',  role:'corridor',x:357,y:75},
+  {id:p+'jne', label:'右上转角', role:'corridor',x:640,y:75},
+  {id:p+'jrt_n',label:'右廊北', role:'corridor',x:650,y:165},
+  {id:p+'jrt_m',label:'右廊中', role:'corridor',x:650,y:260},
+  {id:p+'jrt_s',label:'右廊南', role:'corridor',x:650,y:445},
+  {id:p+'jse', label:'右下转角', role:'corridor',x:640,y:445},
+  {id:p+'bot', label:'南廊中',  role:'corridor',x:420,y:445},
+  {id:p+'stN', label:f+'F楼梯/电梯',role:'vertical',x:210,y:70},
+  {id:p+'stS', label:f+'F南楼梯',role:'vertical',x:630,y:465},
+];}
+
+function be(p){return[
+  [p+'jnw', p+'lw_n',  8],[p+'lw_n',p+'lw_m', 15],[p+'lw_m',p+'lw_s', 15],[p+'lw_s',p+'jsw',  8],
+  [p+'lw_n',p+'stN',   5],[p+'jnw', p+'stN',   3],[p+'stN', p+'top',  10],[p+'top', p+'jne', 18],
+  [p+'jne', p+'jrt_n',15],[p+'jrt_n',p+'jrt_m',15],[p+'jrt_m',p+'jrt_s',15],[p+'jrt_s',p+'jse', 8],
+  [p+'jse', p+'bot',  10],[p+'bot', p+'stS',    4],[p+'stS', p+'jsw',  10],
+];}
+
+// ── 各楼层数据（对照逃生示意图重新标注）────────────────────────────
+const FLOORS = {
+// ── 1F 软件学院计算中心 ──────────────────────────────────────────
+// 左翼：135休息室(顶)、136值班室、监控室、138微机室(大)
+// 北廊：电梯、洗手间
+// 右上：133移动计算与软件实验室
+// 右侧：131库房、监控室、卸电间/强电间/储藏
+// 南廊：140值班室、南楼梯
+// 连廊接A区：右侧出口
+1:{title:'1F · 软件学院',
+  nodes:[...bn(1,'f1_'),
+    {id:'f1_wash',  label:'洗手间',              role:'facility',x:530,y:75},
+    {id:'f1_rm135', label:'135 休息室',           role:'room',    x:117,y:45},
+    {id:'f1_rm136', label:'136 值班室',           role:'room',    x:60, y:45 },
+    {id:'f1_rm138', label:'138 微机室',           role:'room',    x:50, y:280},
+    {id:'f1_monitor_l',label:'监控室(左翼)',      role:'room',    x:60, y:60},
+    {id:'f1_rm133', label:'133 移动计算与软件实验室',role:'room', x:680,y:45},
+    {id:'f1_rm131', label:'131 库房',             role:'room',    x:680,y:290},
+    {id:'f1_util',  label:'弱电间/强电间/储藏',  role:'room',    x:680,y:415},
+    {id:'f1_monitor_r',label:'监控室(右)',        role:'room',    x:680,y:175},
+    {id:'f1_rm140', label:'140 值班室',           role:'room',    x:680,y:492},
+    {id:'f1_link_a',label:'→ 连廊接A区',          role:'door',    x:745,y:420},
+  ],
+  edges:[...be('f1_'),
+    ['f1_top','f1_wash',10],['f1_wash','f1_jne',8],
+    ['f1_lw_n','f1_rm135',5],
+    ['f1_lw_n','f1_rm136',8],['f1_lw_m','f1_monitor_l',4],
+    ['f1_lw_m','f1_rm138',5],
+    ['f1_jne','f1_rm133',5],['f1_jrt_n','f1_monitor_r',5],
+    ['f1_monitor_r','f1_rm131',8],
+    ['f1_rm131','f1_util',10],
+    ['f1_util','f1_jrt_s',5],
+    ['f1_jse','f1_rm140',5],
+    ['f1_jse','f1_link_a',10],
+  ],
+  toilets:['f1_wash']},
+
+// ── 2F 软件学院计算中心 ──────────────────────────────────────────
+// 左翼：236学生创新基地、235服务器室(小，顶部)、监控室、238软件工程实验室(大)
+// 北廊：电梯、洗手间
+// 右上：233软件工程实训基地
+// 右侧：231软件工程实训基地、监控室、弱电间/强电间/储藏
+// 南廊：240办公室
+// 连廊接A区：右侧出口
+2:{title:'2F · 软件学院',
+  nodes:[...bn(2,'f2_'),
+    {id:'f2_wash',  label:'洗手间',              role:'facility',x:530,y:75},
+    {id:'f2_rm235', label:'235 服务器室',         role:'room',    x:125,y:45},
+    {id:'f2_rm236', label:'236 学生创新基地',     role:'room',    x:55, y:45},
+    {id:'f2_monitor_l',label:'监控室(左翼)',      role:'room',    x:55, y:60},
+    {id:'f2_rm238', label:'238 软件工程实验室',   role:'room',    x:50, y:310},
+    {id:'f2_rm233', label:'233 软件工程实训基地', role:'room',    x:705,y:60},
+    {id:'f2_rm231', label:'231 软件工程实训基地', role:'room',    x:705,y:300},
+    {id:'f2_util',  label:'弱电间/强电间/储藏',  role:'room',    x:680,y:415},
+    {id:'f2_rm240', label:'240 办公室',           role:'room',    x:680,y:492},
+    {id:'f2_link_a',label:'→ 连廊接A区',          role:'door',    x:745,y:420},
+  ],
+  edges:[...be('f2_'),
+    ['f2_top','f2_wash',10],['f2_wash','f2_jne',8],
+    ['f2_lw_n','f2_rm235',5],['f2_lw_n','f2_rm236',8],
+    ['f2_lw_m','f2_monitor_l',4],['f2_lw_m','f2_rm238',5],
+    ['f2_jne','f2_rm233',8],
+    ['f2_jrt_n','f2_rm231',5],['f2_rm231','f2_util',12],
+    ['f2_util','f2_jrt_s',5],
+    ['f2_jrt_s','f2_rm240',5],
+    ['f2_jrt_s','f2_link_a',8],
+  ],
+  toilets:['f2_wash']},
+
+// ── 3F 软件学院计算中心 ──────────────────────────────────────────
+// 左翼（上）：349维修室(小)、监控室、储电间
+// 左翼（大）：331微机室(二)、监控室、333微机室(四)
+// 北廊：电梯
+// 右上：339会议室
+// 内廊（右）：主任室→专家室→教师工作室×5→副主任室
+// 右外：338B嵌入式系统实验室、338A数字创意实验室、监控室、336智能计算实验室
+// 南廊：洗手间(近南楼梯处)、335资料室
+// 连廊接A区：右侧出口
+3:{title:'3F · 软件学院',
+  nodes:[...bn(3,'f3_'),
+    {id:'f3_wash',   label:'洗手间',                  role:'facility',x:530,y:75},
+    {id:'f3_rm335',  label:'335 资料室',              role:'room',    x:302,y:45},
+    {id:'f3_rm336',  label:'336 智能计算实验室',      role:'room',    x:60, y:155},
+    {id:'f3_rm338a', label:'338A 数字创意实验室',     role:'room',    x:60, y:265},
+    {id:'f3_rm338b', label:'338B 嵌入式系统实验室',   role:'room',    x:60, y:375},
+    {id:'f3_exec',   label:'主任室/专家室/副主任室',  role:'room',    x:175,y:380},
+    {id:'f3_offices',label:'教师工作室群(5间)',        role:'room',    x:175,y:230},
+    {id:'f3_rm333',  label:'333 微机室(四)',           role:'room',    x:680,y:155},
+    {id:'f3_rm331',  label:'331 微机室(二)',           role:'room',    x:680,y:275},
+    {id:'f3_monitor',label:'监控室',                   role:'room',    x:680,y:370},
+    {id:'f3_rm349',  label:'349 维修室',               role:'room',    x:680,y:430},
+    {id:'f3_rm339',  label:'339 会议室',               role:'room',    x:215,y:480},
+    {id:'f3_link_a', label:'→ 连廊接A区',              role:'door',    x:745,y:490},
+  ],
+  edges:[...be('f3_'),
+    ['f3_top','f3_wash',8],['f3_wash','f3_jne',8],
+    ['f3_lw_n','f3_rm335',5],
+    ['f3_lw_m','f3_rm336',5],['f3_lw_m','f3_rm338a',8],['f3_lw_m','f3_rm338b',10],
+    ['f3_lw_n','f3_offices',8],['f3_offices','f3_exec',8],['f3_exec','f3_lw_s',5],
+    ['f3_jrt_n','f3_rm333',5],['f3_jrt_m','f3_rm331',5],
+    ['f3_jrt_m','f3_monitor',3],['f3_jrt_s','f3_rm349',5],
+    ['f3_jsw','f3_rm339',5],
+    ['f3_jse','f3_link_a',10],
+  ],
+  toilets:['f3_wash']},
+
+// ── 4F 电工电子教学实验中心 ──────────────────────────────────────
+// 左翼：431电子工艺实习室(大)、连廊(左上斜向，通往外部)
+// 北廊顶部：447印刷电路板实习室、446(小)、楼梯
+// 右上：437创新实验室
+// 内廊：438~445教师工作室(共8间)
+// 右外：436电子技术实验室(上)、432(小)、434电子技术实验室(下)
+// 南廊：433仪器设备室、435服务器室
+// 无直接连廊接A区（4F连廊在左翼斜向）
+4:{title:'4F · 电工电子中心',
+  nodes:[...bn(4,'f4_'),
+    {id:'f4_wash',   label:'洗手间',                   role:'facility',x:530,y:75},
+    {id:'f4_rm433',  label:'433 仪器设备室',           role:'room',    x:302,y:45},
+    {id:'f4_rm435',  label:'435 服务器室',             role:'room',    x:60, y:155},
+    {id:'f4_rm432',  label:'432',                      role:'room',    x:60, y:240},
+    {id:'f4_rm434',  label:'434 电子技术实验室(二)',   role:'room',    x:60, y:330},
+    {id:'f4_rm436',  label:'436 电子技术实验室(一)',   role:'room',    x:60, y:420},
+    {id:'f4_offices',label:'438-445 教师工作室(8间)', role:'room',    x:175,y:260},
+    {id:'f4_rm446',  label:'446',                      role:'room',    x:680,y:90},
+    {id:'f4_rm447',  label:'447 印刷电路板实习室',    role:'room',    x:680,y:185},
+    {id:'f4_rm431',  label:'431 电子工艺实习室',      role:'room',    x:680,y:310},
+    {id:'f4_rm437',  label:'437 创新实验室',          role:'room',    x:215,y:480},
+    {id:'f4_link_a', label:'→ 连廊接A区',             role:'door',    x:745,y:490},
+  ],
+  edges:[...be('f4_'),
+    ['f4_top','f4_wash',8],['f4_wash','f4_jne',8],
+    ['f4_lw_n','f4_rm433',5],
+    ['f4_lw_m','f4_rm435',5],['f4_lw_m','f4_rm432',5],
+    ['f4_lw_m','f4_rm434',8],['f4_lw_s','f4_rm436',5],
+    ['f4_lw_n','f4_offices',8],['f4_offices','f4_lw_m',5],
+    ['f4_jrt_n','f4_rm446',5],['f4_jrt_n','f4_rm447',8],['f4_jrt_m','f4_rm431',5],
+    ['f4_jsw','f4_rm437',5],
+    ['f4_jse','f4_link_a',10],
+  ],
+  toilets:['f4_wash']},
+
+// ── 5F 电工电子教学实验中心 ──────────────────────────────────────
+// 左翼：533虚拟仪器实验室、534(小)、535电工技术实验室(大下)
+// 北廊顶部：532(小)、维修室、楼梯
+// 右上：531 EDA实验室
+// 右外：538资材光定冲室(下)
+// 南廊：536资料室、537(小)
+// 连廊：右侧出口
+5:{title:'5F · 电工电子中心',
+  nodes:[...bn(5,'f5_'),
+    {id:'f5_wash',  label:'洗手间',             role:'facility',x:350,y:455},
+    {id:'f5_rm533', label:'533 虚拟仪器实验室', role:'room',    x:50,y:90},
+    {id:'f5_rm532', label:'532 / 维修室',       role:'room',    x:160,y:45},
+    {id:'f5_rm534', label:'534',                role:'room',    x:50,y:70},
+    {id:'f5_rm535', label:'535 电工技术实验室', role:'room',    x:50, y:330},
+    {id:'f5_rm531', label:'531 EDA实验室',      role:'room',    x:705, y:230},
+    {id:'f5_rm538', label:'538 资材光定冲室',   role:'room',    x:705, y:470},
+    {id:'f5_rm536', label:'536 资料室',         role:'room',    x:160,y:492},
+    {id:'f5_rm537', label:'537',                role:'room',    x:680,y:470},
+    {id:'f5_link',  label:'→ 连廊',             role:'door',    x:745,y:420},
+  ],
+  edges:[...be('f5_'),
+    ['f5_wash','f5_bot',4],['f5_stS','f5_wash',4],
+    ['f5_lw_n','f5_rm533',5],['f5_jnw','f5_rm532',5],
+    ['f5_lw_m','f5_rm534',5],['f5_lw_s','f5_rm535',5],
+    ['f5_jne','f5_rm531',8],
+    ['f5_jrt_s','f5_rm538',5],
+    ['f5_bot','f5_rm536',5],['f5_jrt_s','f5_rm537',5],
+    ['f5_jrt_s','f5_link',8],
+  ],
+  toilets:['f5_wash']},
+
+// ── 小楼 1F / 2F / 3F ────────────────────────────────────────────
+6:{title:'小楼 · 1F',
+  nodes:[
+    {id:'sb1_entry',  label:'小楼入口/连廊', role:'door',     x:180,y:250},
+    {id:'sb1_stairs', label:'小楼楼梯',      role:'vertical', x:555,y:360},
+    {id:'sb1_rm104',  label:'104A / 104B',   role:'room',     x:370,y:250},
+  ],
+  edges:[
+    ['sb1_entry',  'sb1_rm104',  12],
+    ['sb1_entry',  'sb1_stairs', 22],
+    ['sb1_rm104',  'sb1_stairs', 12],
+  ],
+  toilets:[]},
+
+7:{title:'小楼 · 2F',
+  nodes:[
+    {id:'sb2_entry',  label:'小楼入口/连廊', role:'door',     x:180,y:250},
+    {id:'sb2_stairs', label:'小楼楼梯',      role:'vertical', x:555,y:360},
+    {id:'sb2_rm209',  label:'209',           role:'room',     x:280,y:210},
+    {id:'sb2_rm207',  label:'207',           role:'room',     x:490,y:300},
+    {id:'sb2_wash',   label:'WC 厕所',       role:'facility', x:250,y:155},
+  ],
+  edges:[
+    ['sb2_entry',  'sb2_rm209',  10],
+    ['sb2_entry',  'sb2_stairs', 22],
+    ['sb2_rm209',  'sb2_stairs', 18],
+    ['sb2_rm209',  'sb2_wash',   15],
+    ['sb2_rm207',  'sb2_stairs',  8],
+    ['sb2_rm207',  'sb2_wash',   15],
+    ['sb2_rm209',  'sb2_rm207',  14],
+  ],
+  toilets:['sb2_wash']},
+
+13:{title:'小楼 · 3F',
+  nodes:[
+    {id:'sb3_entry',  label:'小楼入口/连廊', role:'door',     x:180,y:250},
+    {id:'sb3_stairs', label:'小楼楼梯',      role:'vertical', x:555,y:360},
+    {id:'sb3_roomA',  label:'房间',          role:'room',     x:280,y:320},
+    {id:'sb3_roomB',  label:'房间',          role:'room',     x:490,y:250},
+    {id:'sb3_wash',   label:'WC 厕所',       role:'facility', x:250,y:155},
+  ],
+  edges:[
+    ['sb3_entry',  'sb3_roomA',  12],
+    ['sb3_entry',  'sb3_stairs', 22],
+    ['sb3_roomA',  'sb3_stairs', 18],
+    ['sb3_roomA',  'sb3_wash',   15],
+    ['sb3_roomB',  'sb3_stairs',  8],
+    ['sb3_roomB',  'sb3_wash',   15],
+    ['sb3_roomA',  'sb3_roomB',  14],
+  ],
+  toilets:['sb3_wash']},
+
+// ── 办公楼(A区) 1F–5F ────────────────────────────────────────────
+8:{title:'办公楼(A区) · 1F',
+  nodes:[
+    {id:'a1_entry', label:'连廊入口',   role:'door',     x:80, y:260},
+    {id:'a1_nw',    label:'西北角走廊', role:'corridor', x:155,y:90},
+    {id:'a1_ne',    label:'东北角走廊', role:'corridor', x:605,y:90},
+    {id:'a1_se',    label:'东南角走廊', role:'corridor', x:605,y:430},
+    {id:'a1_sw',    label:'西南角走廊', role:'corridor', x:155,y:430},
+    {id:'a1_link_sb', label:'→ 小楼连廊',   role:'door',     x:670,y:55},
+  ],
+  edges:[
+    ['a1_entry','a1_sw',    5],
+    ['a1_nw',   'a1_ne',  22],
+    ['a1_ne',   'a1_se',  25],
+    ['a1_se',   'a1_sw',  22],
+    ['a1_sw',   'a1_nw',  25],
+    ['a1_ne',   'a1_link_sb', 5],
+    ['a1_entry','a1_link_sb',20],
+  ],
+  toilets:[]},
+
+9:{title:'办公楼(A区) · 2F',
+  nodes:[
+    {id:'a2_entry', label:'连廊入口',   role:'door',     x:80, y:260},
+    {id:'a2_nw',    label:'西北角走廊', role:'corridor', x:155,y:90},
+    {id:'a2_ne',    label:'东北角走廊', role:'corridor', x:605,y:90},
+    {id:'a2_se',    label:'东南角走廊', role:'corridor', x:605,y:430},
+    {id:'a2_sw',    label:'西南角走廊', role:'corridor', x:155,y:430},
+    {id:'a2_link_sb', label:'→ 小楼连廊',   role:'door',     x:670,y:55},
+  ],
+  edges:[
+    ['a2_entry','a2_sw',    5],
+    ['a2_nw',   'a2_ne',  22],
+    ['a2_ne',   'a2_se',  25],
+    ['a2_se',   'a2_sw',  22],
+    ['a2_sw',   'a2_nw',  25],
+    ['a2_ne',   'a2_link_sb', 5],
+    ['a2_entry','a2_link_sb',20],
+  ],
+  toilets:[]},
+
+10:{title:'办公楼(A区) · 3F',
+  nodes:[
+    {id:'a3_entry', label:'连廊入口',   role:'door',     x:80, y:260},
+    {id:'a3_nw',    label:'西北角走廊', role:'corridor', x:155,y:90},
+    {id:'a3_ne',    label:'东北角走廊', role:'corridor', x:605,y:90},
+    {id:'a3_se',    label:'东南角走廊', role:'corridor', x:605,y:430},
+    {id:'a3_sw',    label:'西南角走廊', role:'corridor', x:155,y:430},
+    {id:'a3_link_sb', label:'→ 小楼连廊',   role:'door',     x:670,y:55},
+  ],
+  edges:[
+    ['a3_entry','a3_sw',    5],
+    ['a3_nw',   'a3_ne',  22],
+    ['a3_ne',   'a3_se',  25],
+    ['a3_se',   'a3_sw',  22],
+    ['a3_sw',   'a3_nw',  25],
+    ['a3_ne',   'a3_link_sb', 5],
+    ['a3_entry','a3_link_sb',20],
+  ],
+  toilets:[]},
+
+11:{title:'办公楼(A区) · 4F',
+  nodes:[
+    {id:'a4_entry', label:'连廊入口',   role:'door',     x:80, y:260},
+    {id:'a4_nw',    label:'西北角走廊', role:'corridor', x:155,y:90},
+    {id:'a4_ne',    label:'东北角走廊', role:'corridor', x:605,y:90},
+    {id:'a4_se',    label:'东南角走廊', role:'corridor', x:605,y:430},
+    {id:'a4_sw',    label:'西南角走廊', role:'corridor', x:155,y:430},
+  ],
+  edges:[
+    ['a4_entry','a4_sw',    5],
+    ['a4_nw',   'a4_ne',  22],
+    ['a4_ne',   'a4_se',  25],
+    ['a4_se',   'a4_sw',  22],
+    ['a4_sw',   'a4_nw',  25],
+  ],
+  toilets:[]},
+
+12:{title:'办公楼(A区) · 5F',
+  nodes:[
+    {id:'a5_entry', label:'连廊入口',   role:'door',     x:80, y:260},
+    {id:'a5_nw',    label:'西北角走廊', role:'corridor', x:155,y:90},
+    {id:'a5_ne',    label:'东北角走廊', role:'corridor', x:605,y:90},
+    {id:'a5_se',    label:'东南角走廊', role:'corridor', x:605,y:430},
+    {id:'a5_sw',    label:'西南角走廊', role:'corridor', x:155,y:430},
+  ],
+  edges:[
+    ['a5_entry','a5_sw',    5],
+    ['a5_nw',   'a5_ne',  22],
+    ['a5_ne',   'a5_se',  25],
+    ['a5_se',   'a5_sw',  22],
+    ['a5_sw',   'a5_nw',  25],
+  ],
+  toilets:[]},
+};
+
+const FLOOR_TAB_LABELS={1:'1F',2:'2F',3:'3F',4:'4F',5:'5F',6:'小楼1F',7:'小楼2F',13:'小楼3F',8:'A1F',9:'A2F',10:'A3F',11:'A4F',12:'A5F'};
+const FLOOR_ORDER=[1,2,3,4,5,6,7,13,8,9,10,11,12];
+
+// 跨楼层 / 跨楼连接
+const CROSS_STAIRS=[];
+for(let f=1;f<=4;f++){
+  CROSS_STAIRS.push([`f${f}_stN`,`f${f+1}_stN`,15],[`f${f}_stS`,`f${f+1}_stS`,15]);
+}
+const CROSS_CAMPUS=[
+  ['sb1_stairs','sb2_stairs',15],
+  ['f1_jse','sb1_entry',30],
+  ['sb2_stairs','sb3_stairs',15],
+  ['a1_link_sb','sb1_entry',30],
+  ['a2_link_sb','sb2_entry',30],
+  ['a3_link_sb','sb3_entry',30],
+  ['a1_entry','sb1_entry',30],
+];
+for(let f=1;f<=4;f++){
+  CROSS_CAMPUS.push([`f${f}_link_a`,`a${f}_entry`,30]);
+}
+CROSS_CAMPUS.push(['f5_link','a5_entry',30]);
+for(let f=1;f<=4;f++){
+  CROSS_CAMPUS.push(
+    [`a${f}_nw`,`a${f+1}_nw`,15],[`a${f}_ne`,`a${f+1}_ne`,15],
+    [`a${f}_se`,`a${f+1}_se`,15],[`a${f}_sw`,`a${f+1}_sw`,15]
+  );
+}
+
+// ── PNG 底图 + JSON 路网（合并层）────────────────────────────────
+// 已写入 x_px/y_px 的楼层 → fetch JSON，算路与节点 id 以 JSON 为准
+const JSON_GRAPHS={1:'node_nav/data/f1_b_graph.json'};
+// 各层示意 PNG（760×520）；JSON 未合并时仍可用 FLOORS 坐标叠在上面
+const PLAN_IMAGES={
+  1:{src:'plans/f1_b.png',w:760,h:520},
+  2:{src:'plans/f2_b.png',w:760,h:520},
+  3:{src:'plans/f3_b.png',w:760,h:520},
+  4:{src:'plans/f4_b.png',w:760,h:520},
+  5:{src:'plans/f5_b.png',w:760,h:520},
+};
+const graphCache={};
+
+async function loadJsonGraphs(){
+  for(const[f,url] of Object.entries(JSON_GRAPHS)){
+    try{
+      const r=await fetch(url);
+      if(!r.ok) continue;
+      const g=await r.json();
+      if(g.nodes.every(n=>n.x_px!=null&&n.y_px!=null)) graphCache[f]=g;
+    }catch(e){ console.warn('JSON graph load failed',url,e); }
+  }
+}
+
+function jsonToFloorView(g,f){
+  return{
+    title:g.description||`${f}F`,
+    nodes:g.nodes.map(n=>({id:n.id,label:n.label,role:n.role,x:n.x_px,y:n.y_px})),
+    edges:g.edges.map(e=>[e.from,e.to,e.weight]),
+    toilets:(g.facilities||[]).filter(x=>x.type==='洗手间').map(x=>x.nodeId),
+    planImage:g.meta?.planImage||PLAN_IMAGES[f]?.src,
+    planW:g.meta?.planWidth||760,
+    planH:g.meta?.planHeight||520,
+    source:'json',
+  };
+}
+
+function getFloorView(f){
+  if(graphCache[f]) return jsonToFloorView(graphCache[f],f);
+  const fd=FLOORS[f];
+  const plan=PLAN_IMAGES[f];
+  return{
+    ...fd,
+    planImage:plan?.src,
+    planW:plan?.w||760,
+    planH:plan?.h||520,
+    source:'floors',
+  };
+}
+
+function remapCrossNode(id){
+  if(!graphCache[1]) return id;
+  if(id==='f1_jse') return 'fork_se';
+  if(id==='f1_link_a') return 'link_to_a';
+  return id;
+}
+function crossEdges(){
+  const out=[];
+  if(graphCache[1]){
+    out.push(['sn_elec','f2_stN',15],['ws_stair','f2_stS',15]);
+    for(let f=2;f<=4;f++){
+      out.push([`f${f}_stN`,`f${f+1}_stN`,15],[`f${f}_stS`,`f${f+1}_stS`,15]);
+    }
+  }else out.push(...CROSS_STAIRS);
+  for(const[a,b,w] of CROSS_CAMPUS) out.push([remapCrossNode(a),remapCrossNode(b),w]);
+  return out;
+}
+
+// ── 寻路（复用 js/pathfind.browser.js，与 indoor_nav / node_nav 同算法）──
+function buildGraph(){
+  const nodes=[],edges=[],seen=new Set();
+  for(const f of FLOOR_ORDER){
+    const fd=getFloorView(f);
+    if(!fd) continue;
+    for(const n of fd.nodes){
+      if(!seen.has(n.id)){nodes.push({id:n.id});seen.add(n.id);}
+    }
+    for(const[a,b,w] of fd.edges) edges.push({from:a,to:b,weight:w});
+  }
+  const ids=new Set(nodes.map(n=>n.id));
+  for(const[a,b,w] of crossEdges()){
+    if(ids.has(a)&&ids.has(b)) edges.push({from:a,to:b,weight:w});
+  }
+  return {nodes,edges};
+}
+function runDijkstra(s,e){
+  const r=IndoorPathfind.dijkstra(buildGraph(),s,e);
+  if(!r.pathNodeIds.length) return null;
+  return { distance: r.distance, path: r.pathNodeIds };
+}
+
+// ── 状态 ─────────────────────────────────────────────────────────
+let floor=1,startN=null,endN=null,curPath=null,mode='start';
+let allNodes={};
+function buildNodeMap(){
+  allNodes={};
+  for(const f of FLOOR_ORDER){
+    const fd=getFloorView(f);
+    if(!fd) continue;
+    for(const n of fd.nodes) allNodes[n.id]={...n,floor:f};
+  }
+}
+
+function drawOfficeBuilding(g){
+  g.appendChild(svg('rect',{x:70,y:45,width:620,height:430,rx:2,fill:'#16202e',stroke:'#253550','stroke-width':'1.5'}));
+  g.appendChild(svg('rect',{x:200,y:130,width:360,height:250,fill:'#060a10',stroke:'#253550','stroke-width':'1'}));
+  [[70,76,620,28],[70,76,28,394],[662,76,28,394],[70,406,620,28]].forEach(([x,y,w,h])=>{
+    g.appendChild(svg('rect',{x,y,width:w,height:h,fill:'#243550',rx:1}));
+    g.appendChild(svg('rect',{x,y,width:w,height:h,fill:'none',stroke:'#3a5575','stroke-width':'0.8',rx:1}));
+  });
+  g.appendChild(svg('rect',{x:15,y:246,width:55,height:28,fill:'#243550',rx:1}));
+  g.appendChild(svg('rect',{x:15,y:246,width:55,height:28,fill:'none',stroke:'#3a5575','stroke-width':'0.8',rx:1}));
+  const ct=svg('text',{x:380,y:265,'text-anchor':'middle',fill:'#1a2d45','font-size':'12','font-family':'Segoe UI,sans-serif','letter-spacing':'2'});
+  ct.textContent='庭 院 上 空'; g.appendChild(ct);
+  const ft=svg('text',{x:22,y:514,fill:'#2a4060','font-size':'11','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
+  ft.textContent=FLOORS[floor].title; g.appendChild(ft);
+  const ar=svg('text',{x:380,y:490,'text-anchor':'middle',fill:'#2a4060','font-size':'11','font-family':'Segoe UI,sans-serif'});
+  ar.textContent='← 通过连廊连接 B7后座'; g.appendChild(ar);
+  if(floor>=8&&floor<=10){
+    g.appendChild(svg('rect',{x:618,y:35,width:85,height:25,rx:1,fill:'#16202e',stroke:'#253550','stroke-width':'1'}));
+    g.appendChild(svg('rect',{x:618,y:41,width:85,height:13,fill:'#243550',rx:1}));
+    const sl=svg('text',{x:660,y:33,'text-anchor':'middle',fill:'#f7f74f','font-size':'9','font-family':'Segoe UI,sans-serif'});
+    sl.textContent='→ 小楼连廊'; g.appendChild(sl);
+  }
+}
+
+function drawSmallBuilding(g){
+  g.appendChild(svg('rect',{x:160,y:90,width:460,height:320,rx:2,fill:'#16202e',stroke:'#253550','stroke-width':'1.5'}));
+  g.appendChild(svg('rect',{x:60,y:228,width:100,height:44,rx:1,fill:'#16202e',stroke:'#253550','stroke-width':'1.5'}));
+  g.appendChild(svg('rect',{x:60,y:236,width:100,height:28,fill:'#243550',rx:1}));
+  g.appendChild(svg('rect',{x:60,y:236,width:100,height:28,fill:'none',stroke:'#3a5575','stroke-width':'0.8',rx:1}));
+  g.appendChild(svg('rect',{x:490,y:300,width:130,height:110,fill:'#1a2535',stroke:'#2d4060','stroke-width':'1'}));
+  for(let i=0;i<5;i++){
+    const y=308+i*16;
+    g.appendChild(svg('line',{x1:495,y1:y,x2:615,y2:y,stroke:'#2d4060','stroke-width':'1'}));
+  }
+  if(floor===6||floor===13){
+    g.appendChild(svg('line',{x1:160,y1:250,x2:620,y2:250,stroke:'#2d4060','stroke-width':'1.5','stroke-dasharray':'8,4'}));
+    const ta=svg('text',{x:390,y:185,'text-anchor':'middle',fill:'#253550','font-size':'15','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
+    ta.textContent='104A'; g.appendChild(ta);
+    const tb=svg('text',{x:390,y:305,'text-anchor':'middle',fill:'#253550','font-size':'15','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
+    tb.textContent='104B'; g.appendChild(tb);
+  }else{
+    g.appendChild(svg('line',{x1:380,y1:90,x2:380,y2:410,stroke:'#2d4060','stroke-width':'1.5'}));
+    g.appendChild(svg('line',{x1:160,y1:220,x2:380,y2:220,stroke:'#2d4060','stroke-width':'1.5','stroke-dasharray':'8,4'}));
+    const twc=svg('text',{x:270,y:160,'text-anchor':'middle',fill:'#253550','font-size':'12','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
+    twc.textContent='WC'; g.appendChild(twc);
+    if(floor===7){
+      const t209=svg('text',{x:270,y:320,'text-anchor':'middle',fill:'#253550','font-size':'14','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
+      t209.textContent='209'; g.appendChild(t209);
+      const t207=svg('text',{x:500,y:250,'text-anchor':'middle',fill:'#253550','font-size':'14','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
+      t207.textContent='207'; g.appendChild(t207);
+    }
+  }
+  g.appendChild(svg('rect',{x:160,y:236,width:330,height:28,fill:'#243550',rx:1,opacity:'0.6'}));
+  const ft=svg('text',{x:22,y:514,fill:'#2a4060','font-size':'11','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
+  ft.textContent=FLOORS[floor].title; g.appendChild(ft);
+  const arr=svg('text',{x:385,y:460,'text-anchor':'middle',fill:'#2a4060','font-size':'11','font-family':'Segoe UI,sans-serif'});
+  arr.textContent='← 通过连廊连接主楼 B7后座'; g.appendChild(arr);
+}
+
+// ── 渲染 ─────────────────────────────────────────────────────────
+function renderBuild(){
+  const g=document.getElementById('gBuild');g.innerHTML='';
+  if(floor===6||floor===7||floor===13){drawSmallBuilding(g);return;}
+  if(floor>=8){drawOfficeBuilding(g);return;}
+  const fd=getFloorView(floor);
+
+  // 有 PNG 底图时直接贴图（坐标系仍为 viewBox 760×520）
+  if(fd.planImage){
+    g.appendChild(svg('image',{
+      href:fd.planImage,x:0,y:0,
+      width:fd.planW||760,height:fd.planH||520,
+      preserveAspectRatio:'none'
+    }));
+    return;
+  }
+
+  // 无 PNG 时回退：矢量绘制示意
+  [[20,20,195,480],
+   [215,20,520,110],
+   [640,130,100,260],
+   [215,390,520,110]
+  ].forEach(([x,y,w,h])=>{
+    g.appendChild(svg('rect',{x,y,width:w,height:h,rx:2,fill:'#16202e',stroke:'#253550','stroke-width':'1'}));
+  });
+
+  // ② 庭院上空（内廊删除后向右扩大，直抵右外廊内壁）
+  g.appendChild(svg('rect',{x:215,y:130,width:425,height:260,fill:'#060a10',stroke:'#253550','stroke-width':'1'}));
+
+  // ③ 走廊（明显绘出）
+  [
+    [100, 25, 26, 470],   // 左翼 南北走廊
+    [20,  62, 640, 26],   // 顶部 东西走廊
+    [634, 75, 26, 372],   // 右外廊 南北走廊
+    [20, 432, 640, 26],   // 底部 东西走廊
+  ].forEach(([x,y,w,h])=>{
+    g.appendChild(svg('rect',{x,y,width:w,height:h,fill:'#243550',rx:1}));
+    g.appendChild(svg('rect',{x,y,width:w,height:h,fill:'none',stroke:'#3a5575','stroke-width':'0.8',rx:1}));
+  });
+
+  // 3F/4F：左翼缩窄 + 左翼与庭院间新增一排办公室
+  if([3,4].includes(floor)){
+    // 左翼实体（缩窄到 x=145）
+    g.appendChild(svg('rect',{x:20,y:20,width:125,height:480,rx:2,fill:'#16202e',stroke:'#253550','stroke-width':'1'}));
+    // 盖住原左翼多余部分（还原背景色，视觉上缩窄左翼）
+    g.appendChild(svg('rect',{x:145,y:20,width:70,height:110,fill:'#060a10',stroke:'none'}));
+    g.appendChild(svg('rect',{x:145,y:390,width:70,height:110,fill:'#060a10',stroke:'none'}));
+    // 办公室带实体块（x=145~215，y=130~390）
+    g.appendChild(svg('rect',{x:145,y:130,width:70,height:260,fill:'#192233',stroke:'#253550','stroke-width':'0.8'}));
+    // 办公室带走廊（贴庭院左边）
+    g.appendChild(svg('rect',{x:195,y:130,width:20,height:260,fill:'#243550',rx:1}));
+    g.appendChild(svg('rect',{x:195,y:130,width:20,height:260,fill:'none',stroke:'#3a5575','stroke-width':'0.8',rx:1}));
+    // 左翼走廊（缩窄后偏左，x=80）
+    g.appendChild(svg('rect',{x:78,y:25,width:20,height:470,fill:'#243550',rx:1}));
+    g.appendChild(svg('rect',{x:78,y:25,width:20,height:470,fill:'none',stroke:'#3a5575','stroke-width':'0.8',rx:1}));
+    const ot=svg('text',{x:183,y:268,'text-anchor':'middle',fill:'#1a2d45','font-size':'9',
+      'font-family':'Segoe UI,sans-serif','writing-mode':'vertical-rl'});
+    ot.textContent='办公室带'; g.appendChild(ot);
+  }
+
+  // ④ 标注
+  const ct=svg('text',{x:420,y:268,'text-anchor':'middle',fill:'#1a2d45','font-size':'12',
+    'font-family':'Segoe UI,sans-serif','letter-spacing':'2'});
+  ct.textContent='庭 院 上 空'; g.appendChild(ct);
+  const ft=svg('text',{x:22,y:514,fill:'#2a4060','font-size':'11',
+    'font-family':'Segoe UI,sans-serif','font-weight':'bold'});
+  ft.textContent=fd.title; g.appendChild(ft);
+  const arr=svg('text',{x:750,y:493,'font-size':'11',fill:'#f7f74f',
+    'text-anchor':'middle','font-family':'Segoe UI,sans-serif'});
+  arr.textContent='→A区'; g.appendChild(arr);
+}
+
+function renderEdges(){
+  const g=document.getElementById('gEdge');g.innerHTML='';
+  const fd=getFloorView(floor);
+  const nm={};for(const n of fd.nodes) nm[n.id]=n;
+  for(const[a,b] of fd.edges){
+    const na=nm[a],nb=nm[b];if(!na||!nb)continue;
+    g.appendChild(svg('line',{x1:na.x,y1:na.y,x2:nb.x,y2:nb.y,stroke:'#253550','stroke-width':'1.5',opacity:'0.7'}));
+  }
+}
+
+function renderPath(){
+  const g=document.getElementById('gPath');g.innerHTML='';
+  if(!curPath)return;
+  for(let i=0;i<curPath.path.length-1;i++){
+    const a=allNodes[curPath.path[i]],b=allNodes[curPath.path[i+1]];
+    if(!a||!b||a.floor!==floor||b.floor!==floor)continue;
+    const ln=svg('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'#f0883e','stroke-width':'3.5','stroke-dasharray':'9,4',opacity:'0.95'});
+    const an=document.createElementNS(NS,'animate');
+    an.setAttribute('attributeName','stroke-dashoffset');
+    an.setAttribute('values','0;-13');an.setAttribute('dur','0.7s');an.setAttribute('repeatCount','indefinite');
+    ln.appendChild(an);g.appendChild(ln);
+  }
+}
+
+function renderNodes(){
+  const gN=document.getElementById('gNode'),gL=document.getElementById('gLabel');
+  gN.innerHTML='';gL.innerHTML='';
+  const onPath=new Set(curPath?curPath.path:[]);
+  for(const n of getFloorView(floor).nodes){
+    const isS=n.id===startN,isE=n.id===endN,inP=onPath.has(n.id);
+    const col=RC[n.role]||'#888';
+    const r=isS||isE?9:6;
+    const grp=svg('g',{'data-id':n.id});
+    grp.style.cursor='pointer';
+    if(inP&&!isS&&!isE) grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:r+5,fill:col,opacity:'0.15'}));
+    if(isS||isE) grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:r+3,fill:'none',stroke:isS?'#3fb950':'#f85149','stroke-width':'2',opacity:'0.9'}));
+    grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r,
+      fill:inP?col:(n.role==='corridor'?'#162030':col),
+      stroke:col,'stroke-width':'1.5',opacity:inP?'1':'0.8'}));
+    grp.addEventListener('click',()=>onNodeClick(n.id));
+    gN.appendChild(grp);
+    if(n.role!=='corridor'){
+      const t=svg('text',{x:n.x+r+3,y:n.y+4,'font-size':'9',fill:inP?'#e8aa70':'#5a7a9a',
+        'font-family':'Segoe UI,sans-serif','pointer-events':'none'});
+      t.textContent=n.label;gL.appendChild(t);
+    }
+  }
+}
+
+function render(){renderBuild();renderEdges();renderPath();renderNodes();updateSide();}
+
+// ── 交互 ─────────────────────────────────────────────────────────
+function onNodeClick(id){
+  if(mode==='start'){startN=id;mode='end';document.getElementById('hint').textContent='已选起点，再点一个节点设为终点';}
+  else{endN=id;mode='start';document.getElementById('hint').textContent='点击节点重新设置起点';calcPath();}
+  render();
+}
+
+function calcPath(){
+  if(!startN||!endN)return;
+  curPath=runDijkstra(startN,endN);
+  render();showResult();
+}
+
+function showResult(){
+  const div=document.getElementById('routeResult');
+  if(!curPath){div.innerHTML='<div style="color:var(--red);font-size:12px;margin-top:8px;">❌ 未找到路径</div>';return;}
+  let steps=[],prevF=null;
+  for(let i=0;i<curPath.path.length;i++){
+    const n=allNodes[curPath.path[i]];if(!n)continue;
+    if(n.floor!==prevF){
+      if(prevF!==null){
+        const dest=FLOOR_TAB_LABELS[n.floor]||`${n.floor}F`;
+        const how=n.floor>=6?'通过连廊/楼梯':'乘楼梯';
+        steps.push({type:'floor',text:`前往 ${dest}（${how}）`});
+      }
+      prevF=n.floor;
+    }
+    if(n.role!=='corridor'||i===0||i===curPath.path.length-1)
+      steps.push({type:'node',text:n.label,role:n.role});
+  }
+  const html=steps.map((s,i)=>s.type==='floor'
+    ?`<div class="step"><span class="sfloor">🔼 ${s.text}</span></div>`
+    :`<div class="step"><span class="snum">${i+1}</span><span>${s.text}</span></div>`
+  ).join('');
+  div.innerHTML=`<div class="dist" style="margin-top:8px;">约 ${Math.round(curPath.distance)} 米</div><div class="steps">${html}</div>`;
+}
+
+function updateSide(){
+  document.getElementById('lblStart').textContent=startN?(allNodes[startN]?.label||startN):'点击地图选择';
+  document.getElementById('lblEnd').textContent=endN?(allNodes[endN]?.label||endN):'点击地图选择';
+  const fd=getFloorView(floor);
+  const rooms=fd.nodes.filter(n=>n.role==='room'||n.role==='facility'||n.role==='door');
+  document.getElementById('roomList').innerHTML=rooms.map(n=>
+    `<div class="room-item" onclick="onNodeClick('${n.id}')"><div class="rdot" style="background:${RC[n.role]||'#888'}"></div>${n.label}</div>`
+  ).join('');
+  const src=fd.source==='json'?' · JSON路网':' · 示意数据';
+  document.querySelector('.logo').textContent=`🏢 B7 软件学院 · 室内导航${src}`;
+}
+
+function nearestToilet(){
+  if(!startN){alert('请先点击地图选择当前位置（起点）');return;}
+  let best=null,bestId=null;
+  for(const f of FLOOR_ORDER){
+    const fd=getFloorView(f);
+    if(!fd) continue;
+    for(const tid of fd.toilets||[]){
+      const r=runDijkstra(startN,tid);
+      if(r&&(!best||r.distance<best.distance)){best=r;bestId=tid;}
+    }
+  }
+  if(!best){alert('未找到洗手间路径');return;}
+  endN=bestId;curPath=best;
+  const fn=allNodes[bestId]?.floor;if(fn)switchFloor(fn);
+  render();showResult();
+}
+
+function clearAll(){
+  startN=null;endN=null;curPath=null;mode='start';
+  document.getElementById('hint').textContent='点击节点设置起点';
+  document.getElementById('routeResult').innerHTML='';render();
+}
+
+function switchFloor(f){
+  floor=f;
+  startN=null;endN=null;curPath=null;mode='start';
+  document.querySelectorAll('.floor-tab').forEach(t=>t.classList.toggle('active',+t.dataset.f===f));
+  render();
+}
+
+async function init(){
+  await loadJsonGraphs();
+  buildNodeMap();
+  const tabs=document.getElementById('floorTabs');
+  for(const f of FLOOR_ORDER){
+    const b=document.createElement('button');
+    b.className='floor-tab'+(f===1?' active':'');
+    b.dataset.f=f;
+    b.textContent=FLOOR_TAB_LABELS[f];
+    b.onclick=()=>switchFloor(f);
+    tabs.appendChild(b);
+  }
+  render();
+}
+window.onload=init;
+</script>
+</body>
+</html>

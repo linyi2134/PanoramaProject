@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 520" width="760" height="520">
+<rect width="760" height="520" fill="#080c12"/>
+<rect x="20" y="20" width="195" height="480" rx="2" fill="#16202e" stroke="#253550" stroke-width="1"/>
+<rect x="215" y="20" width="520" height="110" rx="2" fill="#16202e" stroke="#253550" stroke-width="1"/>
+<rect x="640" y="130" width="100" height="260" rx="2" fill="#16202e" stroke="#253550" stroke-width="1"/>
+<rect x="215" y="390" width="520" height="110" rx="2" fill="#16202e" stroke="#253550" stroke-width="1"/>
+<rect x="215" y="130" width="425" height="260" fill="#060a10" stroke="#253550" stroke-width="1"/>
+<rect x="100" y="25" width="26" height="470" rx="1" fill="#243550"/>
+<rect x="100" y="25" width="26" height="470" rx="1" fill="none" stroke="#3a5575" stroke-width="0.8"/>
+<rect x="20" y="62" width="640" height="26" rx="1" fill="#243550"/>
+<rect x="20" y="62" width="640" height="26" rx="1" fill="none" stroke="#3a5575" stroke-width="0.8"/>
+<rect x="634" y="75" width="26" height="372" rx="1" fill="#243550"/>
+<rect x="634" y="75" width="26" height="372" rx="1" fill="none" stroke="#3a5575" stroke-width="0.8"/>
+<rect x="20" y="432" width="640" height="26" rx="1" fill="#243550"/>
+<rect x="20" y="432" width="640" height="26" rx="1" fill="none" stroke="#3a5575" stroke-width="0.8"/>
+<rect x="20" y="20" width="125" height="480" rx="2" fill="#16202e" stroke="#253550" stroke-width="1"/>
+<rect x="145" y="20" width="70" height="110" fill="#060a10"/>
+<rect x="145" y="390" width="70" height="110" fill="#060a10"/>
+<rect x="145" y="130" width="70" height="260" fill="#192233" stroke="#253550" stroke-width="0.8"/>
+<rect x="195" y="130" width="20" height="260" rx="1" fill="#243550"/>
+<rect x="78" y="25" width="20" height="470" rx="1" fill="#243550"/>
+<text x="420" y="268" text-anchor="middle" fill="#1a2d45" font-size="12" font-family="Segoe UI,sans-serif" letter-spacing="2">庭 院 上 空</text>
+<text x="22" y="514" fill="#2a4060" font-size="11" font-family="Segoe UI,sans-serif" font-weight="bold">4F · 软件学院</text>
+<text x="750" y="493" text-anchor="middle" fill="#f7f74f" font-size="11" font-family="Segoe UI,sans-serif">→A区</text>
+</svg>

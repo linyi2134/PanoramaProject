@@ -15,9 +15,13 @@ def add_data(src: str) -> str:
     return f"{src}{os.pathsep}."
 
 
-# 与 panorama.html 中引用的全景图一致
+# 静态资源（demo 五图在根目录；完整版在 panoramas/）
 ASSETS = [
+    "map.html",
     "panorama.html",
+    "panorama_full.html",
+    "panoramas",
+    "js/pathfind.browser.js",
     "corridor.jpg",
     "lobby.jpg",
     "outer_stair.jpg",
