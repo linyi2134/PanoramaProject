@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>B 座 CAD 节点坐标标注</title>
+<style>
+:root{
+  --bg:#0d1117;--surface:#161b22;--border:#21262d;
+  --accent:#58a6ff;--green:#3fb950;--orange:#f0883e;--muted:#6e7681;--text:#c9d1d9;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;flex-shrink:0;}
+header h1{font-size:15px;color:var(--accent);font-weight:700;margin-right:8px;}
+header select,header button,header label{font-size:12px;}
+select,button,input[type=file]{padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;}
+button:hover{border-color:var(--accent);color:var(--accent);}
+.btn-primary{border-color:var(--accent);color:var(--accent);font-weight:600;}
+.hint{font-size:11px;color:var(--muted);margin-left:auto;max-width:420px;line-height:1.4;}
+.main{display:flex;flex:1;min-height:0;}
+.map-pane{flex:1;position:relative;overflow:hidden;background:#080c12;display:flex;align-items:center;justify-content:center;}
+#wrap{width:100%;height:100%;cursor:grab;}
+#wrap.dragging-map{cursor:grabbing;}
+#canvas{display:block;max-width:100%;max-height:100%;touch-action:none;}
+.side{width:300px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
+.side-hd{padding:10px 12px;border-bottom:1px solid var(--border);}
+.side-hd h2{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+#search{width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;}
+.node-list{flex:1;overflow-y:auto;padding:6px;}
+.node-item{padding:6px 8px;border-radius:6px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;border:1px solid transparent;margin-bottom:2px;}
+.node-item:hover{background:var(--border);}
+.node-item.active{border-color:var(--accent);background:rgba(88,166,255,.12);}
+.ndot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.nid{color:var(--muted);font-size:10px;}
+.coords{padding:10px 12px;border-top:1px solid var(--border);font-size:11px;line-height:1.6;}
+.coords b{color:var(--accent);}
+.status{padding:8px 12px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);}
+.chk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;}
+footer{padding:6px 14px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);}
+a{color:var(--accent);}
+</style>
+</head>
+<body>
+<header>
+  <h1>CAD 取点</h1>
+  <label>楼层
+    <select id="floorSel">
+      <option value="1">1F B</option>
+      <option value="2">2F B</option>
+      <option value="3">3F B</option>
+      <option value="4">4F B</option>
+      <option value="5">5F B</option>
+    </select>
+  </label>
+  <label class="chk"><input type="checkbox" id="showEdges" checked> 显示边</label>
+  <label class="chk"><input type="checkbox" id="showLabels" checked> 显示标签</label>
+  <button type="button" id="btnReset">重置为网格（忽略旧坐标）</button>
+  <button type="button" id="btnImport">导入进度 JSON</button>
+  <input type="file" id="fileImport" accept=".json,application/json" hidden>
+  <button type="button" class="btn-primary" id="btnExport">导出 cad_pick JSON</button>
+  <button type="button" id="btnCopy">复制 JSON</button>
+  <p class="hint">须在 <code>http://localhost:8000/tools/pick-coords.html</code> 打开。拖动圆点对准 CAD 走廊/门口；导出后运行 <code>apply_cad_coords.py</code>。</p>
+</header>
+<div class="main">
+  <div class="map-pane">
+    <div id="wrap">
+      <svg id="canvas" xmlns="http://www.w3.org/2000/svg">
+        <g id="gPlan"></g>
+        <g id="gEdges"></g>
+        <g id="gNodes"></g>
+      </svg>
+    </div>
+  </div>
+  <aside class="side">
+    <div class="side-hd">
+      <h2>节点列表</h2>
+      <input type="search" id="search" placeholder="搜索 id / 中文名…">
+    </div>
+    <div class="node-list" id="nodeList"></div>
+    <div class="coords" id="coordPanel">未选中节点</div>
+    <div class="status" id="status">—</div>
+  </aside>
+</div>
+<footer>
+  底图：<span id="planInfo">—</span> · 路网：<span id="graphInfo">—</span> ·
+  <a href="../map.html">返回 map</a> ·
+  写回命令：<code id="cmdHint">python node_nav/scripts/apply_cad_coords.py map_data/cad_pick_f1_b.json</code>
+</footer>
+<script>
+const NS='http://www.w3.org/2000/svg';
+/** 楼层 → 路网 JSON + CAD PNG（2/5 共用 1F CAD，4 共用 3F CAD） */
+const FLOOR_CFG={
+  1:{graph:'../node_nav/data/f1_b_graph.json',plan:'../plans/f1_cad.png',exportName:'cad_pick_f1_b.json'},
+  2:{graph:'../node_nav/data/f2_b_graph.json',plan:'../plans/f1_cad.png',exportName:'cad_pick_f2_b.json'},
+  3:{graph:'../node_nav/data/f3_b_graph.json',plan:'../plans/f3_cad.png',exportName:'cad_pick_f3_b.json'},
+  4:{graph:'../node_nav/data/f4_b_graph.json',plan:'../plans/f3_cad.png',exportName:'cad_pick_f4_b.json'},
+  5:{graph:'../node_nav/data/f5_b_graph.json',plan:'../plans/f1_cad.png',exportName:'cad_pick_f5_b.json'},
+};
+const ROLE_COL={
+  corridor:'#58a6ff',door:'#f0883e',vertical:'#cf4fff',facility:'#3fb950',room:'#e8aa70'
+};
+const LS_PREFIX='cad_pick_v1_f';
+
+let floor=1,graph=null,planW=760,planH=520,planSrc='';
+let positions={}; // id -> {x,y}
+let selectedId=null;
+let dragNodeId=null,panning=false,panStart=null,viewPan={x:0,y:0},viewScale=1;
+
+const canvas=document.getElementById('canvas');
+const gPlan=document.getElementById('gPlan');
+const gEdges=document.getElementById('gEdges');
+const gNodes=document.getElementById('gNodes');
+
+function svg(tag,a,txt){
+  const e=document.createElementNS(NS,tag);
+  for(const[k,v] of Object.entries(a||{})) e.setAttribute(k,v);
+  if(txt!=null) e.textContent=txt;
+  return e;
+}
+
+function storageKey(){ return LS_PREFIX+floor; }
+
+function saveLocal(){
+  const payload=buildExportPayload();
+  try{ localStorage.setItem(storageKey(), JSON.stringify(payload)); }catch(e){}
+}
+
+function loadLocal(){
+  try{
+    const raw=localStorage.getItem(storageKey());
+    if(!raw) return false;
+    const data=JSON.parse(raw);
+    if(data.coords){
+      for(const[id,c] of Object.entries(data.coords)){
+        if(c&&c.x_px!=null) positions[id]={x:+c.x_px,y:+c.y_px};
+      }
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+function initialGrid(){
+  if(!graph) return;
+  const ids=graph.nodes.map(n=>n.id);
+  const cols=Math.ceil(Math.sqrt(ids.length));
+  const margin=24;
+  const cellW=(planW-margin*2)/cols;
+  const rows=Math.ceil(ids.length/cols);
+  const cellH=(planH-margin*2)/rows;
+  ids.forEach((id,i)=>{
+    const col=i%cols, row=Math.floor(i/cols);
+    positions[id]={
+      x:Math.round(margin+cellW*(col+0.5)),
+      y:Math.round(margin+cellH*(row+0.5)),
+    };
+  });
+}
+
+function svgPoint(clientX,clientY){
+  const pt=canvas.createSVGPoint();
+  pt.x=clientX; pt.y=clientY;
+  const ctm=canvas.getScreenCTM();
+  if(!ctm) return {x:0,y:0};
+  const p=pt.matrixTransform(ctm.inverse());
+  return {x:Math.round(p.x),y:Math.round(p.y)};
+}
+
+function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
+
+function setViewBox(){
+  const w=planW/viewScale, h=planH/viewScale;
+  canvas.setAttribute('viewBox',`${viewPan.x} ${viewPan.y} ${w} ${h}`);
+}
+
+async function loadFloor(f){
+  floor=f;
+  const cfg=FLOOR_CFG[f];
+  document.getElementById('planInfo').textContent=cfg.plan.replace('../','');
+  document.getElementById('graphInfo').textContent=cfg.graph.replace('../','');
+  document.getElementById('cmdHint').textContent=
+    `python node_nav/scripts/apply_cad_coords.py map_data/${cfg.exportName}`;
+
+  const [gr,img]=await Promise.all([
+    fetch(cfg.graph).then(r=>{if(!r.ok)throw new Error('graph '+r.status);return r.json();}),
+    loadImage(cfg.plan),
+  ]);
+  graph=gr;
+  planSrc=cfg.plan;
+  planW=img.naturalWidth;
+  planH=img.naturalHeight;
+  viewPan={x:0,y:0}; viewScale=1;
+
+  gPlan.innerHTML='';
+  gPlan.appendChild(svg('image',{
+    href:cfg.plan, x:0, y:0, width:planW, height:planH,
+    preserveAspectRatio:'none'
+  }));
+
+  positions={};
+  if(loadLocal()){
+    setStatus('已恢复浏览器本地草稿');
+  }else{
+    initialGrid();
+    setStatus('已用网格初始位置（旧示意坐标未采用）');
+  }
+  render();
+  buildNodeList();
+}
+
+function loadImage(src){
+  return new Promise((res,rej)=>{
+    const im=new Image();
+    im.onload=()=>res(im);
+    im.onerror=()=>rej(new Error('底图加载失败: '+src));
+    im.src=src;
+  });
+}
+
+function render(){
+  setViewBox();
+  const showE=document.getElementById('showEdges').checked;
+  const showL=document.getElementById('showLabels').checked;
+  gEdges.innerHTML='';
+  if(showE&&graph){
+    const nm=positions;
+    for(const e of graph.edges||[]){
+      const a=nm[e.from],b=nm[e.to];
+      if(!a||!b) continue;
+      gEdges.appendChild(svg('line',{
+        x1:a.x,y1:a.y,x2:b.x,y2:b.y,
+        stroke:'#3fb950','stroke-width':'1.2',opacity:'0.45'
+      }));
+    }
+  }
+  gNodes.innerHTML='';
+  if(!graph) return;
+  const q=(document.getElementById('search').value||'').trim().toLowerCase();
+  for(const n of graph.nodes){
+    if(q && !n.id.toLowerCase().includes(q) && !(n.label||'').includes(q)) continue;
+    const p=positions[n.id];
+    if(!p) continue;
+    const col=ROLE_COL[n.role]||'#888';
+    const sel=n.id===selectedId;
+    const g=svg('g',{'data-id':n.id,class:'node-g'});
+    if(sel) g.appendChild(svg('circle',{cx:p.x,cy:p.y,r:14,fill:col,opacity:'0.2'}));
+    const c=svg('circle',{
+      cx:p.x,cy:p.y,r:sel?9:7,
+      fill:sel?col:'#0d1117',
+      stroke:col,'stroke-width':sel?'2.5':'1.5',
+      opacity:'0.95',style:'cursor:grab'
+    });
+    g.appendChild(c);
+    if(showL){
+      const t=svg('text',{
+        x:p.x+10,y:p.y+4,'font-size':'10',fill:'#c9d1d9',
+        'font-family':'Segoe UI,sans-serif','pointer-events':'none'
+      },n.label||n.id);
+      g.appendChild(t);
+    }
+    g.addEventListener('pointerdown',ev=>onNodeDown(ev,n.id));
+    gNodes.appendChild(g);
+  }
+  highlightListItem();
+  updateCoordPanel();
+}
+
+function buildNodeList(){
+  const el=document.getElementById('nodeList');
+  el.innerHTML='';
+  if(!graph) return;
+  const q=(document.getElementById('search').value||'').trim().toLowerCase();
+  for(const n of graph.nodes){
+    if(q && !n.id.toLowerCase().includes(q) && !(n.label||'').includes(q)) continue;
+    const row=document.createElement('div');
+    row.className='node-item'+(n.id===selectedId?' active':'');
+    row.dataset.id=n.id;
+    const dot=document.createElement('span');
+    dot.className='ndot';
+    dot.style.background=ROLE_COL[n.role]||'#888';
+    row.appendChild(dot);
+    const txt=document.createElement('span');
+    txt.innerHTML=`<b>${n.label||n.id}</b><br><span class="nid">${n.id}</span>`;
+    row.appendChild(txt);
+    row.addEventListener('click',()=>{ selectedId=n.id; render(); buildNodeList(); });
+    el.appendChild(row);
+  }
+}
+
+function highlightListItem(){
+  document.querySelectorAll('.node-item').forEach(el=>{
+    el.classList.toggle('active',el.dataset.id===selectedId);
+  });
+}
+
+function updateCoordPanel(){
+  const el=document.getElementById('coordPanel');
+  if(!selectedId||!positions[selectedId]){ el.textContent='点击左侧列表或地图上的点'; return; }
+  const n=graph.nodes.find(x=>x.id===selectedId);
+  const p=positions[selectedId];
+  el.innerHTML=`<b>${n?.label||selectedId}</b><br>
+    id: <code>${selectedId}</code><br>
+    x_px: <b>${p.x}</b> · y_px: <b>${p.y}</b><br>
+    role: ${n?.role||'—'}`;
+}
+
+function setStatus(msg){ document.getElementById('status').textContent=msg; }
+
+function buildExportPayload(){
+  const coords={};
+  for(const[id,p] of Object.entries(positions)){
+    coords[id]={x_px:p.x,y_px:p.y};
+  }
+  return{
+    schemaVersion:1,
+    floor,
+    zone:'B',
+    description:graph?.description||`${floor}F-B`,
+    planImage:planSrc.replace(/^\.\.\//,''),
+    planWidth:planW,
+    planHeight:planH,
+    graphFile:`node_nav/data/f${floor}_b_graph.json`,
+    note:'由 tools/pick-coords.html 导出；示意底图坐标已作废，请 apply_cad_coords.py 写回 graph。',
+    coords,
+  };
+}
+
+function downloadExport(){
+  const payload=buildExportPayload();
+  const cfg=FLOOR_CFG[floor];
+  const blob=new Blob([JSON.stringify(payload,null,2)+'\n'],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=cfg.exportName;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  setStatus('已下载 '+cfg.exportName+' → 放到 map_data/ 后运行 apply 脚本');
+}
+
+function onNodeDown(ev,id){
+  ev.preventDefault();
+  ev.stopPropagation();
+  selectedId=id;
+  dragNodeId=id;
+  ev.target.setPointerCapture?.(ev.pointerId);
+  render();
+  buildNodeList();
+}
+
+function onPointerMove(ev){
+  if(dragNodeId){
+    const p=svgPoint(ev.clientX,ev.clientY);
+    positions[dragNodeId]={
+      x:clamp(p.x,0,planW),
+      y:clamp(p.y,0,planH),
+    };
+    render();
+    saveLocal();
+    return;
+  }
+  if(panning&&panStart){
+    const p=svgPoint(ev.clientX,ev.clientY);
+    const dx=(panStart.x-p.x)/viewScale, dy=(panStart.y-p.y)/viewScale;
+    viewPan.x=clamp(panStart.vx+dx,0,Math.max(0,planW-planW/viewScale));
+    viewPan.y=clamp(panStart.vy+dy,0,Math.max(0,planH-planH/viewScale));
+    setViewBox();
+  }
+}
+
+function onPointerUp(ev){
+  if(dragNodeId){
+    dragNodeId=null;
+    saveLocal();
+    setStatus('已保存本地草稿');
+  }
+  panning=false;
+  panStart=null;
+  document.getElementById('wrap').classList.remove('dragging-map');
+}
+
+document.addEventListener('pointermove',onPointerMove);
+document.addEventListener('pointerup',onPointerUp);
+document.addEventListener('pointercancel',onPointerUp);
+
+document.getElementById('wrap').addEventListener('pointerdown',ev=>{
+  if(ev.target.closest('.node-g')) return;
+  if(ev.button!==0) return;
+  panning=true;
+  const p=svgPoint(ev.clientX,ev.clientY);
+  panStart={x:p.x,y:p.y,vx:viewPan.x,vy:viewPan.y};
+  document.getElementById('wrap').classList.add('dragging-map');
+  ev.target.setPointerCapture?.(ev.pointerId);
+});
+
+canvas.addEventListener('wheel',ev=>{
+  ev.preventDefault();
+  const factor=ev.deltaY<0?1.12:1/1.12;
+  const next=clamp(viewScale*factor,0.5,4);
+  const p=svgPoint(ev.clientX,ev.clientY);
+  const w=planW/viewScale,h=planH/viewScale;
+  const nx=planW/next, ny=planH/next;
+  viewPan.x=clamp(p.x-(p.x-viewPan.x)*nx/w,0,Math.max(0,planW-nx));
+  viewPan.y=clamp(p.y-(p.y-viewPan.y)*ny/h,0,Math.max(0,planH-ny));
+  viewScale=next;
+  setViewBox();
+},{passive:false});
+
+document.getElementById('floorSel').addEventListener('change',e=>{
+  loadFloor(+e.target.value).catch(err=>setStatus('加载失败: '+err.message));
+});
+document.getElementById('showEdges').addEventListener('change',render);
+document.getElementById('showLabels').addEventListener('change',render);
+document.getElementById('search').addEventListener('input',()=>{ render(); buildNodeList(); });
+document.getElementById('btnReset').addEventListener('click',()=>{
+  if(!confirm('将所有节点重置为网格？本地草稿也会被覆盖。')) return;
+  initialGrid();
+  saveLocal();
+  render();
+  setStatus('已重置为网格初始位置');
+});
+document.getElementById('btnExport').addEventListener('click',downloadExport);
+document.getElementById('btnCopy').addEventListener('click',async()=>{
+  await navigator.clipboard.writeText(JSON.stringify(buildExportPayload(),null,2));
+  setStatus('JSON 已复制到剪贴板');
+});
+document.getElementById('btnImport').addEventListener('click',()=>document.getElementById('fileImport').click());
+document.getElementById('fileImport').addEventListener('change',ev=>{
+  const f=ev.target.files?.[0];
+  if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const data=JSON.parse(r.result);
+      if(data.planWidth) planW=data.planWidth;
+      if(data.planHeight) planH=data.planHeight;
+      for(const[id,c] of Object.entries(data.coords||{})){
+        positions[id]={x:+c.x_px,y:+c.y_px};
+      }
+      saveLocal();
+      render();
+      buildNodeList();
+      setStatus('已导入 '+f.name);
+    }catch(e){ setStatus('导入失败: '+e.message); }
+  };
+  r.readAsText(f,'utf-8');
+  ev.target.value='';
+});
+
+document.getElementById('floorSel').value='1';
+loadFloor(1).catch(err=>setStatus('加载失败: '+err.message));
+</script>
+</body>
+</html>

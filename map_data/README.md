@@ -110,6 +110,21 @@ python node_nav/scripts/export_map_png.py --all --svg
 2. 建立 `id` 对照表（`f1_rm138` ↔ `room137_front` 等）  
 3. 或将 `FLOORS` 抽离为 `map_data/schematic_b.json`，与 `pathfind.browser.js` 共用
 
+## CAD 底图重新标点（B 座 1–5F）
+
+示意底图上的 `x_px/y_px` **不再沿用**。组员在 CAD 上拖点标注：
+
+1. `python server_main.py` → 打开 http://localhost:8000/tools/pick-coords.html  
+2. 选楼层，将每个节点拖到走廊/门口对应位置（可开「显示边」对照路网）  
+3. **导出** `cad_pick_f{n}_b.json`，保存到 `map_data/`  
+4. 写回 graph：
+
+```bash
+python node_nav/scripts/apply_cad_coords.py map_data/cad_pick_f1_b.json
+```
+
+底图对应关系：1F/2F/5F → `plans/f1_cad.png`；3F/4F → `plans/f3_cad.png`（与 DWG 分组一致）。
+
 ## 启动
 
 ```bash
