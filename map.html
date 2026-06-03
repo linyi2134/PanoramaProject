@@ -472,11 +472,16 @@ for(let f=1;f<=4;f++){
 const JSON_GRAPHS={1:'node_nav/data/f1_b_graph.json'};
 // 各层示意 PNG（760×520）；JSON 未合并时仍可用 FLOORS 坐标叠在上面
 const PLAN_IMAGES={
-  1:{src:'plans/f1_b.png',w:760,h:520},
-  2:{src:'plans/f2_b.png',w:760,h:520},
-  3:{src:'plans/f3_b.png',w:760,h:520},
-  4:{src:'plans/f4_b.png',w:760,h:520},
-  5:{src:'plans/f5_b.png',w:760,h:520},
+  1:{src:'plans/f1_b_cad.png',w:925,h:844},
+  2:{src:'plans/f2_b_cad.png',w:925,h:844},
+  3:{src:'plans/f3_b_cad.png',w:917,h:838},
+  4:{src:'plans/f4_b_cad.png',w:917,h:838},
+  5:{src:'plans/f5_b_cad.png',w:925,h:844},
+  8:{src:'plans/f1_a_cad.png',w:2820,h:2774},
+  9:{src:'plans/f2_a_cad.png',w:2887,h:2838},
+  10:{src:'plans/f3_a_cad.png',w:2847,h:2799},
+  11:{src:'plans/f4_a_cad.png',w:2856,h:2809},
+  12:{src:'plans/f5_a_cad.png',w:2158,h:2715},
 };
 const graphCache={};
 
@@ -629,13 +634,18 @@ function drawSmallBuilding(g){
 }
 
 // ── 渲染 ─────────────────────────────────────────────────────────
+function updateMapViewBox(){
+  const fd=getFloorView(floor);
+  const w=fd?.planW||760,h=fd?.planH||520;
+  document.getElementById('mapSvg').setAttribute('viewBox',`0 0 ${w} ${h}`);
+}
+
 function renderBuild(){
   const g=document.getElementById('gBuild');g.innerHTML='';
   if(floor===6||floor===7||floor===13){drawSmallBuilding(g);return;}
-  if(floor>=8){drawOfficeBuilding(g);return;}
   const fd=getFloorView(floor);
 
-  // 有 PNG 底图时直接贴图（坐标系仍为 viewBox 760×520）
+  // CAD / 示意 PNG 底图（A 座 8–12 = A1F–A5F）
   if(fd.planImage){
     g.appendChild(svg('image',{
       href:fd.planImage,x:0,y:0,
@@ -645,7 +655,9 @@ function renderBuild(){
     return;
   }
 
-  // 无 PNG 时回退：矢量绘制示意
+  if(floor>=8){drawOfficeBuilding(g);return;}
+
+  // 无 PNG 时回退：矢量绘制示意（B 座）
   [[20,20,195,480],
    [215,20,520,110],
    [640,130,100,260],
@@ -749,7 +761,7 @@ function renderNodes(){
   }
 }
 
-function render(){renderBuild();renderEdges();renderPath();renderNodes();updateSide();}
+function render(){updateMapViewBox();renderBuild();renderEdges();renderPath();renderNodes();updateSide();}
 
 // ── 交互 ─────────────────────────────────────────────────────────
 function onNodeClick(id){

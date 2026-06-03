@@ -7,8 +7,8 @@
   3. 否则报错并提示安装 ODA
 
 用法：
-  python node_nav/scripts/dwg_or_pdf_to_png.py "1F(1).dwg"
-  python node_nav/scripts/dwg_or_pdf_to_png.py "1F(1).dwg" -o plans/f1_cad.png --width 760
+  python node_nav/scripts/dwg_or_pdf_to_png.py "1F-A.pdf" -o plans/f1_a_cad.png --dpi 400
+  python node_nav/scripts/export_all_cad_plans.py   # 批量，见 map_data/cad_sources.json
 """
 
 from __future__ import annotations

@@ -110,20 +110,33 @@ python node_nav/scripts/export_map_png.py --all --svg
 2. 建立 `id` 对照表（`f1_rm138` ↔ `room137_front` 等）  
 3. 或将 `FLOORS` 抽离为 `map_data/schematic_b.json`，与 `pathfind.browser.js` 共用
 
-## CAD 底图重新标点（B 座 1–5F）
+## CAD 底图（PDF 统一命名，见 `cad_sources.json`）
 
-示意底图上的 `x_px/y_px` **不再沿用**。组员在 CAD 上拖点标注：
+| 根目录 PDF | 用途 | 导出 PNG |
+|------------|------|----------|
+| `1F-A.pdf` … `5F-A.pdf` | A 座各层 | `plans/f1_a_cad.png` … `f5_a_cad.png` |
+| `1_2_5F-B.pdf` | B 座 1/2/5 层 | `plans/f1_b_cad.png`（2F/5F 同图复制） |
+| `3_4F-B.pdf` | B 座 3/4 层 | `plans/f3_b_cad.png`（4F 同图复制） |
 
-1. `python server_main.py` → 打开 http://localhost:8000/tools/pick-coords.html  
-2. 选楼层，将每个节点拖到走廊/门口对应位置（可开「显示边」对照路网）  
-3. **导出** `cad_pick_f{n}_b.json`，保存到 `map_data/`  
-4. 写回 graph：
+批量转 PNG：
 
 ```bash
+python node_nav/scripts/export_all_cad_plans.py --dpi 400
+```
+
+## CAD 重新标点（A/B 座 1–5F）
+
+1. `python server_main.py` → http://localhost:8000/tools/pick-coords.html  
+2. 选 **A 座 / B 座** 与楼层，拖点；可用 **←/→** 或键盘 `n`/`p` 切换节点  
+3. 导出 `cad_pick_f{n}_a.json` 或 `cad_pick_f{n}_b.json` → 放入 `map_data/`  
+4. 写回：
+
+```bash
+python node_nav/scripts/apply_cad_coords.py map_data/cad_pick_f1_a.json
 python node_nav/scripts/apply_cad_coords.py map_data/cad_pick_f1_b.json
 ```
 
-底图对应关系：1F/2F/5F → `plans/f1_cad.png`；3F/4F → `plans/f3_cad.png`（与 DWG 分组一致）。
+`map.html`：B 座 1–5F、A 座（标签 A1F–A5F，内部楼层 8–12）已默认贴 CAD PNG；**节点位置**需在 pick-coords 标完后 `apply`，再在 `JSON_GRAPHS` 启用算路。
 
 ## 启动
 
