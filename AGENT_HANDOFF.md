@@ -7,72 +7,80 @@
 ## Prompt 正文（复制起点）
 
 ```
-你正在接手 B7 教学楼「校园导览与信息导航系统」代码库。
+你正在接手 B7 教学楼「校园导览与信息导航系统」（课程项目「知途」）。
 
-【必读】先阅读仓库内：
-- PanoramaProject/PROJECT_CONTEXT.md（项目全貌，部分条目可能滞后）
-- PanoramaProject/AGENT_HANDOFF.md（本文件，最新交接摘要）
-- PanoramaProject/node_nav/data/README.md（路网 JSON 规范）
-- PanoramaProject/map_data/README.md（map 与 JSON 双轨、PNG 坐标流程）
+【产品状态】系统已可端到端演示：二维为主、全景为辅；接近可交付，剩余为数据对齐与体验优化。
+第四周仅数据搜集；第五周完成 final_map 合并、52 场景全景、1F JSON+PNG 试点、文档与周报。
 
-【仓库路径】
-- 主项目：c:\Users\yoimi\indoor_navigator\PanoramaProject（**唯一运行目录**）
-- 上级 `indoor_navigator/` 根目录的 `final_map .html`、`panorama(1).html`、`全景图/` 已并入主项目，可删原件
+【必读】
+- PanoramaProject/AGENT_HANDOFF.md（本文件）
+- PanoramaProject/PROJECT_CONTEXT.md
+- PanoramaProject/map_data/README.md（双轨与坐标，必读）
+- PanoramaProject/node_nav/data/README.md（JSON 规范）
 
-【GitHub】
-https://github.com/linyi2134/PanoramaProject （分支 main）
-不要未经用户要求 commit/push。
+【路径与 Git】
+- 唯一运行目录：c:\Users\yoimi\indoor_navigator\PanoramaProject
+- GitHub：https://github.com/linyi2134/PanoramaProject （main）
+- 本地可能有未 push 提交（含 panoramas ~300MB）；push 前 git status
+- 上级 indoor_navigator 的 final_map .html、panorama(1).html、全景图/ 已并入，可删
+- 不要未经用户要求 commit/push
 
-【运行方式】
-cd PanoramaProject && python server_main.py
-→ http://localhost:8000/map.html（二维地图，默认；13 层 + 跨楼）
-→ http://localhost:8000/panorama_full.html（全景完整版，52 场景）
-→ http://localhost:8000/panorama.html（全景 demo，5 场景）
-→ http://localhost:8000/tools/export_floor_png.html（导出示意 SVG/PNG）
+【运行】
+cd PanoramaProject
+python server_main.py
+→ map.html（默认，13 层 + 跨楼算路）
+→ panorama_full.html（52 场景）
+→ panorama.html（5 场景 demo）
+⚠️ 必须在 PanoramaProject 下启动；禁止 file://；勿在 indoor_navigator 根目录跑 server
 
-⚠️ 必须在 PanoramaProject 下启动 server；不要用 file:// 打开 HTML。
-⚠️ 不要在 indoor_navigator 根目录跑 server_main.py。
+【坐标系 · 极易误解】
+- 当前二维底图与点位统一为 SVG viewBox 760×520（map.html FLOORS 的 x,y）
+- plans/f{n}_b.png 是同坐标系的示意 PNG 贴图，不是 CAD 真实比例
+- f1_cad.png 等尺寸不同，不可直接套用 FLOORS 的 x,y
+- 未启用 JSON 的楼层：节点/边/算路用 FLOORS（id 如 f2_wash）
+- 启用 JSON 的楼层（仅 1F）：节点位置仍来自示意 xy（写入 JSON 的 x_px/y_px），
+  算路 id/边用 f1_b_graph.json（如 washroom）；跨楼边在 map.html 中映射 fork_se/link_to_a
 
-【技术事实 · 算路与数据】
-- Dijkstra 三处同逻辑：indoor_nav/、node_nav/src/pathfind.js、js/pathfind.browser.js
-- 课程路网：node_nav/data/f{1-5}_{a|b}_graph.json（10 文件）
-- map.html 内嵌 FLOORS（示意 SVG 760×520，id 如 f1_wash）与 JSON（id 如 washroom）仍双轨
-- 1F B 区试点已合并坐标：map_data/id_map_f1_b.json → f1_b_graph.json 含 x_px/y_px + meta.planImage
-- map.html 已支持：plans/f{n}_b.png 底图；JSON_GRAPHS 目前仅启用 1F（f1_b_graph.json）
-- 示意 PNG 760×520 可与 FLOORS 坐标照搬；CAD 图（f1_cad.png 等）尺寸不同，需重标坐标
-- 不做自动定位（手动选点/搜索）
+【双轨数据】
+| 层 | 示意图 map.html FLOORS | 课程 JSON node_nav/data |
+|----|------------------------|-------------------------|
+| id | f1_wash, f1_rm138 | washroom, room137_front |
+| 1F 桥接 | map_data/id_map_f1_b.json（整合时编写，非组员原件） |
+| 应用 | apply_layout_coords.py → f1_b_graph.json 的 x_px/y_px |
+| 启用 | map.html 的 JSON_GRAPHS 仅 {1: f1_b_graph.json} |
+注意：id_map 中 match=inferred 为语义近似/手填坐标，非实地测绘。
 
-【技术事实 · 全景（已整合）】
-| 文件 | 说明 |
-|------|------|
-| `panorama_full.html` | 52 场景 + BFS 导航面板；图片路径 `panoramas/*.jpg` |
-| `panoramas/` | 52 张全景 jpg（体积较大，clone 需注意） |
-| `tools/build_panorama_full.py` | 从根目录 `panorama(1).html` 重生 HTML（原件删除后需改脚本路径） |
+【已完成】
+- map.html：13 层（B7 1–5F + 小楼 + A 区）、CROSS、drawSmallBuilding/drawOfficeBuilding
+- pathfind.browser.js + PNG 底图 + 1F JSON 试点
+- panorama_full.html + panoramas/（52 jpg）+ 与 map 互链
+- 脚本：apply_layout_coords、export_map_png、dwg_or_pdf_to_png、build_panorama_full
+- 文档：AGENT_HANDOFF、README、项目进展备忘.docx、每周进展报告-第5周.docx
 
-【已有脚本（PanoramaProject 内）】
-- node_nav/scripts/apply_layout_coords.py — 对照表 + map.html 坐标 → JSON x_px/y_px
-- node_nav/scripts/export_map_png.py — 示意 PNG/SVG（--all --svg）
-- node_nav/scripts/dwg_or_pdf_to_png.py — DWG 经同名 PDF 转 PNG（无 ODA 时）；3F 用 3F(3).pdf
-- tools/export_floor_png.html — 浏览器导出示意 PNG/SVG
+【待办 · 建议优先级】
+1. 2F–5F B 区：新建 id_map_f{n}_b.json（勿复制 1F）→ apply_layout_coords → JSON_GRAPHS 逐层启用
+2. 连通性：python -m indoor_nav route 校验各层；isFinished
+3. 可选：tools/pick-coords.html（CAD 底图标点）
+4. 可选：二维房间 ↔ 全景场景绑点；A 区/小楼 JSON 图
+不做：BLE 定位、Qt 客户端
 
-【CAD / 平面图】
-- 根目录：1F(1).dwg/pdf、3F(1).dwg、3F(3).pdf
-- plans/：f1_b.png…f5_b.png（示意）、f1_cad.png、f3_cad.png 等（CAD 裁切版）
-- ODA File Converter（winget）安装失败 exit 1603；直转 DWG 暂不可用，用 PDF 中转即可
+【关键文件】
+map.html | panorama_full.html | js/pathfind.browser.js
+node_nav/data/f*_graph.json | map_data/id_map_f1_b.json | plans/
 
-【代码约束】
-- 最小改动；匹配现有风格
-- 不要引入 Qt；优先 Web + Python 静态服务
-- 改 map.html 时注意只保留一份 FLOORS，</html> 后不要粘重复 JS（final_map .html 第 834 行后有垃圾块需删）
+【验证】
+python -m indoor_nav route node_nav/data/f1_b_graph.json room137_front washroom
+浏览器 1F：PNG +「JSON路网」；试跨楼路径（如 1F → 小楼）
+
+【约束】中文回复；最小改动；改 map.html 勿重复 </html> 后 JS 块
 
 【本次请你】
-（在此填写具体任务，例如：）
-- 整合 final_map .html 进 PanoramaProject/map.html，并保留 JSON/PNG 能力
-- 或：移入 panorama(1).html + 全景图/，修路径，与 map 互链
-- 或：继续做 2F–5F 的 id_map + apply_layout_coords
-- 或：做 pick-coords.html 在 f1_cad.png 上标点
+（填写任务，例如：）
+- 做 2F：id_map_f2_b.json 初稿 + apply_layout_coords + JSON_GRAPHS 启用 2F
+- 或：校验 f1_b/f2_b 连通性并修 CROSS
+- 或：git push / 更新周报
 
-完成后说明：改了哪些文件、如何验证、对应哪条待办。
+完成后：改了哪些文件、如何验证、对应哪条待办。
 ```
 
 ---
@@ -99,7 +107,7 @@ cd PanoramaProject && python server_main.py
 4. **CAD 底图坐标** — f1_cad / f3_cad 与示意坐标不通用；需 pick-coords 或手工重标  
 5. **FLOORS ↔ JSON 单源** — 长期：抽离 schematic_floors.json 或统一 id  
 6. **连通性校验** — 各层 graph JSON isFinished、python -m indoor_nav route 样例  
-7. ~~**Git push**~~ — 已与 GitHub 同步（含 panoramas；仓库体积较大）
+7. **Git push** — 本地 commit `3ec3422` 可能仍 ahead of origin（含 panoramas ~300MB）；需用户环境 `git push` 确认
 
 ### 文件对照（避免混淆）
 
@@ -193,14 +201,15 @@ python node_nav/scripts/apply_layout_coords.py id_map_f2_b.json f2_b_graph.json
 
 ## 给 Agent 的提醒
 
-1. 用户环境：**Windows + PowerShell**；旧版 PowerShell 不支持 `&&`，用 `;` 分隔命令  
-2. **760×520** 是示意坐标系（viewBox / 示意 PNG），不是浏览器窗口像素尺寸  
-3. **CAD PNG**（如 698×637）与示意坐标**不能**直接混用  
-4. `map.html` 有效内容应在单个 `</html>` 内；`final_map .html` 末尾有重复 FLOORS 需删  
-5. 全景 `panorama(1).html` 默认认为 jpg 与 html **同目录**；图片实际在 `全景图/`  
-6. 用户偏好：**中文回复**；最小改动；不主动 commit/push  
-7. 详细背景以 `PROJECT_CONTEXT.md` + 本文件为准；`PROJECT_CONTEXT.md` 中「待办/二维状态」可能略滞后  
+1. 用户环境：**Windows + PowerShell**；用 `;` 分隔命令，不用 `&&`  
+2. **760×520 = map.html 示意 xy**；PNG 底图同系；JSON x_px/y_px 从 FLOORS 抄入（经 id_map）  
+3. **id_map_f1_b.json** 为整合时编写的桥接表（direct/inferred），不是组员原始交付  
+4. 1F JSON 模式下算路边以 **f1_b_graph.json** 为准（边较少），不是 FLOORS 全走廊网  
+5. **CAD PNG** 与示意坐标不可混用；换 CAD 主底图需重标  
+6. `map.html` 仅保留单个 `</html>`；勿粘贴 final_map 末尾垃圾块  
+7. 用户偏好：**中文**；最小改动；不主动 commit/push  
+8. 备忘 Word：`项目进展备忘-已完成与待办.docx`、`每周进展报告-第5周.docx`
 
 ---
 
-*最后更新：2026-06，final_map / 全景完整版已并入并 push。*
+*最后更新：2026-06-01，交接 Prompt 刷新（坐标系 / id_map / 可运行状态）。*
