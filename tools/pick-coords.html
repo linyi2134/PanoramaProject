@@ -72,6 +72,7 @@ code{font-size:10px;}
   <label class="chk"><input type="checkbox" id="showLabels" checked> 标签</label>
   <label class="chk"><input type="checkbox" id="loadFromJson"> 从 graph 读已有坐标</label>
   <button type="button" id="btnReset">重置网格</button>
+  <button type="button" id="btnReload">重新加载 JSON</button>
   <button type="button" id="btnImport">导入 JSON</button>
   <input type="file" id="fileImport" accept=".json,application/json" hidden>
   <button type="button" class="btn-primary" id="btnExport">导出 cad_pick</button>
@@ -217,9 +218,10 @@ function loadFromGraphCoords(){
   return n>0;
 }
 
-function initialGrid(){
+function initialGrid(onlyIds=null){
   if(!graph) return;
-  const ids=graph.nodes.map(n=>n.id);
+  const ids=onlyIds||graph.nodes.map(n=>n.id);
+  if(!ids.length) return;
   const cols=Math.ceil(Math.sqrt(ids.length));
   const margin=24;
   const cellW=(planW-margin*2)/cols;
@@ -232,6 +234,17 @@ function initialGrid(){
       y:Math.round(margin+cellH*(row+0.5)),
     };
   });
+}
+
+/** 与 graph.nodes 对齐：删掉已不存在的 id，为新节点补网格位置 */
+function syncPositionsWithGraph(){
+  if(!graph) return;
+  const ids=new Set(graph.nodes.map(n=>n.id));
+  for(const id of Object.keys(positions)){
+    if(!ids.has(id)) delete positions[id];
+  }
+  const missing=graph.nodes.filter(n=>positions[n.id]==null).map(n=>n.id);
+  if(missing.length) initialGrid(missing);
 }
 
 function svgPoint(clientX,clientY){
@@ -285,11 +298,15 @@ async function loadLayer(z,f){
   positions={};
   const fromLs=loadLocal();
   const fromJson=document.getElementById('loadFromJson').checked && loadFromGraphCoords();
-  if(fromLs) setStatus('已恢复浏览器草稿');
-  else if(fromJson) setStatus('已从 graph JSON 加载已有 x_px/y_px');
-  else{
+  if(fromLs){
+    syncPositionsWithGraph();
+    setStatus('已恢复浏览器草稿，并与 graph JSON 节点列表同步');
+  }else if(fromJson){
+    syncPositionsWithGraph();
+    setStatus('已从 graph JSON 加载 x_px/y_px');
+  }else{
     initialGrid();
-    setStatus('网格初始位置（示意坐标未使用）');
+    setStatus('网格初始位置（节点来自 graph JSON）');
   }
   if(!selectedId||!positions[selectedId]) selectedId=graph.nodes[0]?.id||null;
   rebuildOrder();
@@ -394,8 +411,10 @@ function setStatus(msg){ document.getElementById('status').textContent=msg; }
 
 function buildExportPayload(){
   const coords={};
-  for(const[id,p] of Object.entries(positions)){
-    coords[id]={x_px:p.x,y_px:p.y};
+  if(!graph) return {schemaVersion:2,floor,zone:zone.toUpperCase(),coords};
+  for(const n of graph.nodes){
+    const p=positions[n.id];
+    if(p) coords[n.id]={x_px:p.x,y_px:p.y};
   }
   const z=zone.toUpperCase();
   return{
@@ -505,6 +524,11 @@ document.getElementById('btnReset').addEventListener('click',()=>{
   if(!confirm('重置为网格？')) return;
   initialGrid(); saveLocal(); render(); buildNodeList();
   setStatus('已重置网格');
+});
+document.getElementById('btnReload').addEventListener('click',()=>{
+  if(!confirm('清除本层浏览器草稿并重新读取 graph JSON？未导出的拖点将丢失。')) return;
+  try{ localStorage.removeItem(storageKey()); }catch(e){}
+  loadLayer(zone,floor).catch(err=>setStatus('加载失败: '+err.message));
 });
 document.getElementById('btnExport').addEventListener('click',downloadExport);
 document.getElementById('btnCopy').addEventListener('click',async()=>{
