@@ -108,6 +108,20 @@ def resize_to_width(img: Image.Image, width: int | None) -> Image.Image:
     return img.resize((width, height), Image.Resampling.LANCZOS)
 
 
+def rotate_cw(img: Image.Image, degrees: int) -> Image.Image:
+    """顺时针旋转 90/180/270 度。"""
+    d = degrees % 360
+    if d == 0:
+        return img
+    if d == 90:
+        return img.transpose(Image.Transpose.ROTATE_270)
+    if d == 180:
+        return img.transpose(Image.Transpose.ROTATE_180)
+    if d == 270:
+        return img.transpose(Image.Transpose.ROTATE_90)
+    raise ValueError(f"仅支持 0/90/180/270，收到 {degrees}")
+
+
 def companion_pdf(dwg: Path) -> Path | None:
     pdf = dwg.with_suffix(".pdf")
     if pdf.is_file():
@@ -130,6 +144,13 @@ def main() -> int:
     parser.add_argument("--width", type=int, default=0, help="输出宽度像素，0=保持裁剪后原尺寸")
     parser.add_argument("--dpi", type=int, default=300, help="PDF 渲染 DPI")
     parser.add_argument("--no-crop", action="store_true", help="不裁白边")
+    parser.add_argument(
+        "--rotate-cw",
+        type=int,
+        default=0,
+        choices=[0, 90, 180, 270],
+        help="顺时针旋转角度（如上方为东、要北在上则用 90）",
+    )
     args = parser.parse_args()
 
     src = Path(args.input)
@@ -150,6 +171,8 @@ def main() -> int:
         img = Image.open(out)
         if not args.no_crop:
             img = crop_white(img)
+        if args.rotate_cw:
+            img = rotate_cw(img, args.rotate_cw)
         img = resize_to_width(img, args.width or None)
         out.parent.mkdir(parents=True, exist_ok=True)
         img.save(out, format="PNG")
@@ -163,10 +186,13 @@ def main() -> int:
         img = render_pdf(pdf, dpi=args.dpi)
         if not args.no_crop:
             img = crop_white(img)
+        if args.rotate_cw:
+            img = rotate_cw(img, args.rotate_cw)
         img = resize_to_width(img, args.width or None)
         out.parent.mkdir(parents=True, exist_ok=True)
         img.save(out, format="PNG")
-        print(f"已导出 {out.relative_to(ROOT)} ({img.width}×{img.height}) [PDF]")
+        rot = f", 顺时针{args.rotate_cw}°" if args.rotate_cw else ""
+        print(f"已导出 {out.relative_to(ROOT)} ({img.width}×{img.height}) [PDF{rot}]")
         if src.suffix.lower() == ".dwg" and not oda:
             print(
                 "提示: 安装免费 ODA File Converter 后可直转 DWG →",

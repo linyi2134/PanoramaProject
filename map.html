@@ -471,12 +471,13 @@ for(let f=1;f<=4;f++){
 // 已写入 x_px/y_px 的楼层 → fetch JSON，算路与节点 id 以 JSON 为准
 const JSON_GRAPHS={1:'node_nav/data/f1_b_graph.json'};
 // 各层示意 PNG（760×520）；JSON 未合并时仍可用 FLOORS 坐标叠在上面
+const PLAN_CACHE_VER='20260604-b125-north-up';
 const PLAN_IMAGES={
-  1:{src:'plans/f1_b_cad.png',w:925,h:844},
-  2:{src:'plans/f2_b_cad.png',w:925,h:844},
-  3:{src:'plans/f3_b_cad.png',w:917,h:838},
-  4:{src:'plans/f4_b_cad.png',w:917,h:838},
-  5:{src:'plans/f5_b_cad.png',w:925,h:844},
+  1:{src:'plans/f1_b_cad.png',w:844,h:925},
+  2:{src:'plans/f2_b_cad.png',w:844,h:925},
+  3:{src:'plans/f3_b_cad.png',w:795,h:871},
+  4:{src:'plans/f4_b_cad.png',w:795,h:871},
+  5:{src:'plans/f5_b_cad.png',w:844,h:925},
   8:{src:'plans/f1_a_cad.png',w:2820,h:2774},
   9:{src:'plans/f2_a_cad.png',w:2887,h:2838},
   10:{src:'plans/f3_a_cad.png',w:2847,h:2799},
@@ -647,8 +648,9 @@ function renderBuild(){
 
   // CAD / 示意 PNG 底图（A 座 8–12 = A1F–A5F）
   if(fd.planImage){
+    const planHref=fd.planImage+(fd.planImage.includes('?')?'&':'?')+'_cv='+encodeURIComponent(PLAN_CACHE_VER);
     g.appendChild(svg('image',{
-      href:fd.planImage,x:0,y:0,
+      href:planHref,x:0,y:0,
       width:fd.planW||760,height:fd.planH||520,
       preserveAspectRatio:'none'
     }));

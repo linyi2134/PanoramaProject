@@ -116,8 +116,8 @@ const NS='http://www.w3.org/2000/svg';
 const PICK_CFG={
   'b_1':{graph:'../node_nav/data/f1_b_graph.json',plan:'../plans/f1_b_cad.png',pdf:'1_2_5F-B.pdf',exportName:'cad_pick_f1_b.json'},
   'b_2':{graph:'../node_nav/data/f2_b_graph.json',plan:'../plans/f2_b_cad.png',pdf:'1_2_5F-B.pdf',exportName:'cad_pick_f2_b.json'},
-  'b_3':{graph:'../node_nav/data/f3_b_graph.json',plan:'../plans/f3_b_cad.png',pdf:'3_4F-B.pdf',exportName:'cad_pick_f3_b.json'},
-  'b_4':{graph:'../node_nav/data/f4_b_graph.json',plan:'../plans/f4_b_cad.png',pdf:'3_4F-B.pdf',exportName:'cad_pick_f4_b.json'},
+  'b_3':{graph:'../node_nav/data/f3_b_graph.json',plan:'../plans/f3_b_cad.png',pdf:'3F-B.pdf',exportName:'cad_pick_f3_b.json'},
+  'b_4':{graph:'../node_nav/data/f4_b_graph.json',plan:'../plans/f4_b_cad.png',pdf:'3F-B.pdf',exportName:'cad_pick_f4_b.json'},
   'b_5':{graph:'../node_nav/data/f5_b_graph.json',plan:'../plans/f5_b_cad.png',pdf:'1_2_5F-B.pdf',exportName:'cad_pick_f5_b.json'},
   'a_1':{graph:'../node_nav/data/f1_a_graph.json',plan:'../plans/f1_a_cad.png',pdf:'1F-A.pdf',exportName:'cad_pick_f1_a.json'},
   'a_2':{graph:'../node_nav/data/f2_a_graph.json',plan:'../plans/f2_a_cad.png',pdf:'2F-A.pdf',exportName:'cad_pick_f2_a.json'},
@@ -130,8 +130,12 @@ const ROLE_COL={
   corridor:'#58a6ff',door:'#f0883e',vertical:'#cf4fff',facility:'#3fb950',room:'#e8aa70'
 };
 
+/** 底图更新后改此版本号，避免浏览器沿用旧 PNG 缓存 */
+const PLAN_CACHE_VER='20260604-b125-north-up';
+
 let zone='b', floor=1, graph=null, cfg=null;
-let planW=760, planH=520, planSrc='';
+let planW=760, planH=520, planSrc='', planDisplayUrl='';
+let planObjectUrl=null;
 let positions={};
 let selectedId=null, dragNodeId=null;
 let panning=false, panStart=null, viewPan={x:0,y:0}, viewScale=1;
@@ -274,25 +278,28 @@ async function loadLayer(z,f){
   cfg=getCfg();
   if(!cfg) throw new Error('无配置 '+cfgKey());
 
-  document.getElementById('planInfo').textContent=cfg.plan.replace('../','');
   document.getElementById('graphInfo').textContent=cfg.graph.replace('../','');
   document.getElementById('pdfSrc').textContent='源 PDF: '+cfg.pdf;
   document.getElementById('cmdHint').textContent=
     `python node_nav/scripts/apply_cad_coords.py map_data/${cfg.exportName}`;
 
-  const [gr,img]=await Promise.all([
+  const [gr,plan]=await Promise.all([
     fetch(cfg.graph).then(r=>{if(!r.ok)throw new Error('graph '+r.status);return r.json();}),
-    loadImage(cfg.plan),
+    loadPlanImage(cfg.plan),
   ]);
   graph=gr;
   planSrc=cfg.plan;
-  planW=img.naturalWidth;
-  planH=img.naturalHeight;
+  planDisplayUrl=plan.url;
+  planW=plan.width;
+  planH=plan.height;
   viewPan={x:0,y:0}; viewScale=1;
+
+  document.getElementById('planInfo').textContent=
+    `${cfg.plan.replace('../','')} · ${planW}×${planH}px`;
 
   gPlan.innerHTML='';
   gPlan.appendChild(svg('image',{
-    href:cfg.plan,x:0,y:0,width:planW,height:planH,preserveAspectRatio:'none'
+    href:planDisplayUrl,x:0,y:0,width:planW,height:planH,preserveAspectRatio:'none'
   }));
 
   positions={};
@@ -315,13 +322,28 @@ async function loadLayer(z,f){
   updateStatusLine();
 }
 
-function loadImage(src){
-  return new Promise((res,rej)=>{
-    const im=new Image();
-    im.onload=()=>res(im);
-    im.onerror=()=>rej(new Error('底图加载失败: '+src+'（先运行 export_all_cad_plans.py）'));
-    im.src=src;
+function bustPlanUrl(src){
+  const sep=src.includes('?')?'&':'?';
+  return `${src}${sep}_cv=${encodeURIComponent(PLAN_CACHE_VER)}`;
+}
+
+async function loadPlanImage(src){
+  if(planObjectUrl){
+    URL.revokeObjectURL(planObjectUrl);
+    planObjectUrl=null;
+  }
+  const url=bustPlanUrl(src);
+  const r=await fetch(url,{cache:'no-store'});
+  if(!r.ok) throw new Error('底图加载失败: '+src+' HTTP '+r.status+'（先运行 export_all_cad_plans.py）');
+  const blob=await r.blob();
+  planObjectUrl=URL.createObjectURL(blob);
+  const im=await new Promise((res,rej)=>{
+    const i=new Image();
+    i.onload=()=>res(i);
+    i.onerror=()=>rej(new Error('底图解码失败: '+src));
+    i.src=planObjectUrl;
   });
+  return {url:planObjectUrl,width:im.naturalWidth,height:im.naturalHeight};
 }
 
 function render(){

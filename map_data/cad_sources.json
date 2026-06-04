@@ -11,14 +11,11 @@
       "pdf": "1_2_5F-B.pdf",
       "zone": "B",
       "floors": [1, 2, 5],
+      "rotateCw": 90,
+      "note": "原图上方为东，导出时顺时针90°使北向上",
       "outputs": ["plans/f1_b_cad.png", "plans/f2_b_cad.png", "plans/f5_b_cad.png"]
     },
-    {
-      "pdf": "3_4F-B.pdf",
-      "zone": "B",
-      "floors": [3, 4],
-      "outputs": ["plans/f3_b_cad.png", "plans/f4_b_cad.png"]
-    }
+    { "pdf": "3F-B.pdf", "zone": "B", "floors": [3, 4], "outputs": ["plans/f3_b_cad.png", "plans/f4_b_cad.png"] }
   ],
   "pickCoords": "http://localhost:8000/tools/pick-coords.html",
   "applyScript": "python node_nav/scripts/apply_cad_coords.py map_data/cad_pick_f{n}_{zone}.json"

@@ -1,6 +1,8 @@
 # 全景图资源
 
-52 张 `.jpg`，与 `panorama_full.html` 中场景 id 对应（如 `连廊-1f.jpg`）。
+52 张 `.jpg`，与 `panorama_full.html` 中场景 id 对应（如 `连廊-1f.jpg`、`二栋-1f-1.jpg`）。
+
+**房间标注**（二栋蓝点）见 `js/room_labels_erdong.js` 与 `panorama_data/README.md`。
 
 来源：`indoor_navigator/全景图/`（组员交付）。重新同步：
 

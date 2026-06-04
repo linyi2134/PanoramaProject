@@ -115,8 +115,8 @@ python node_nav/scripts/export_map_png.py --all --svg
 | 根目录 PDF | 用途 | 导出 PNG |
 |------------|------|----------|
 | `1F-A.pdf` … `5F-A.pdf` | A 座各层 | `plans/f1_a_cad.png` … `f5_a_cad.png` |
-| `1_2_5F-B.pdf` | B 座 1/2/5 层 | `plans/f1_b_cad.png`（2F/5F 同图复制） |
-| `3_4F-B.pdf` | B 座 3/4 层 | `plans/f3_b_cad.png`（4F 同图复制） |
+| `1_2_5F-B.pdf` | B 座 1/2/5 层 | `plans/f1_b_cad.png`（导出时**顺时针 90°**，北向上；2F/5F 同图复制） |
+| `3F-B.pdf` | B 座 3/4 层（修订 CAD，同图） | `plans/f3_b_cad.png`、`f4_b_cad.png` |
 
 批量转 PNG：
 
