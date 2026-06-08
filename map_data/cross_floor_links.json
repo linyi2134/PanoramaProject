@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 2,
+  "description": "B7 跨楼层连接。每上下一层 crossFloorWeight=6（电梯/楼梯/连廊户外梯均适用，相邻 tab 一条边）。",
+  "crossFloorWeight": 6,
+  "bZone": {
+    "note": "B 座 tab 1–5：elevator+stair_east（东侧井）、stair_west（西侧井，1/3F 平面在南侧）各层同 nodeId，跨层靠 map 合并。东侧井同层 elevator↔stair_east weight=1。",
+    "unifiedVertical": {
+      "elevator": { "label": "东侧电梯", "tabs": [1, 2, 3, 4, 5] },
+      "stair_east": { "label": "东侧楼梯", "tabs": [1, 2, 3, 4, 5] },
+      "stair_west": { "label": "西侧楼梯", "tabs": [1, 2, 3, 4, 5] }
+    }
+  },
+  "aZone": {
+    "note": "A 座 tab 8–12（1–5F）。同 nodeId 跨层由 map 合并图自动连通，weight=crossFloorWeight。",
+    "unifiedVertical": {
+      "stair_south": {
+        "label": "南侧楼梯",
+        "tabs": [8, 9, 10, 11, 12],
+        "note": "1F 东南侧、2/4/5F 南侧、3F 大楼楼梯，同一楼梯井"
+      },
+      "stair_small": {
+        "label": "小楼楼梯",
+        "tabs": [8, 9, 10],
+        "note": "1F 南侧、2F 楼梯、3F 小楼楼梯，仅跨 3 层。A1F 主楼与小楼 1F 层内不互通，主楼↔小楼须经 A2F 通道转，勿补 1F 同层直连"
+      }
+    }
+  },
+  "zoneLinks": {
+    "description": "A/B 座与连廊（LINK）同层跨区边，由 map.html crossEdges() 生成",
+    "crossZoneWeight": 15,
+    "pairs": [
+      { "floor": 1, "bNode": "link_to_a", "bTab": 1, "linkNode": "link_to_b", "linkTab": 14, "aNode": "link_to_b", "aTab": 8 },
+      { "floor": 2, "bNode": "link_to_a", "bTab": 2, "linkNode": "link_to_b", "linkTab": 15, "aNode": "link_to_b", "aTab": 9 },
+      { "floor": 3, "bNode": "link_to_a", "bTab": 3, "linkNode": "link_to_b", "linkTab": 16, "aNode": "link_to_b", "aTab": 10 },
+      { "floor": 4, "bNode": "link_to_a", "bTab": 4, "linkNode": "link_to_b", "linkTab": 17, "aNode": "link_to_b", "aTab": 11 },
+      { "floor": 5, "bNode": "link_to_a", "bTab": 5, "linkNode": "link_to_b", "linkTab": 18, "aNode": "link_to_b", "aTab": 12 }
+    ]
+  },
+  "linkCorridor": {
+    "description": "A-B 连廊五层户外楼梯（tab 14–18，map 内 id 为 lk{n}_outdoor_stair）",
+    "nodeId": "outdoor_stair",
+    "label": "户外楼梯",
+    "tabs": [14, 15, 16, 17, 18]
+  },
+  "campusCrossFloor": {
+    "note": "A 座示意层换层（JSON 启用时无效；正式跨层见 aZone.unifiedVertical）",
+    "pairs": [
+      ["a1_nw", "a2_nw"],
+      ["a2_nw", "a3_nw"],
+      ["a3_nw", "a4_nw"],
+      ["a4_nw", "a5_nw"],
+      ["a1_ne", "a2_ne"],
+      ["a2_ne", "a3_ne"],
+      ["a3_ne", "a4_ne"],
+      ["a4_ne", "a5_ne"],
+      ["a1_se", "a2_se"],
+      ["a2_se", "a3_se"],
+      ["a3_se", "a4_se"],
+      ["a4_se", "a5_se"],
+      ["a1_sw", "a2_sw"],
+      ["a2_sw", "a3_sw"],
+      ["a3_sw", "a4_sw"],
+      ["a4_sw", "a5_sw"]
+    ]
+  }
+}

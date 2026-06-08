@@ -3,13 +3,13 @@
   "isFinished": false,
   "meta": {
     "floor": 1,
-    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；门节点贴在走廊侧，后门按实际连通性增删边。 坐标基于示意 PNG 760×520（map.html FLOORS），CAD 底图待替换。",
+    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；门节点贴在走廊侧，后门按实际连通性增删边。 坐标基于 CAD 底图（tools/pick-coords.html 标注）。",
     "building": "B7",
     "zone": "B",
     "units": "meter",
-    "planImage": "plans/f1_b.png",
-    "planWidth": 760,
-    "planHeight": 520
+    "planImage": "plans/f1_b_cad.png",
+    "planWidth": 844,
+    "planHeight": 925
   },
   "nodes": [
     {
@@ -17,282 +17,347 @@
       "label": "西北分叉",
       "floor": 1,
       "role": "corridor",
-      "x_px": 215,
-      "y_px": 75
+      "x_px": 205,
+      "y_px": 331
     },
     {
       "id": "fork_ne",
       "label": "东北分叉",
       "floor": 1,
       "role": "corridor",
-      "x_px": 640,
-      "y_px": 75
+      "x_px": 587,
+      "y_px": 333
     },
     {
       "id": "fork_se",
       "label": "东南分叉",
       "floor": 1,
       "role": "corridor",
-      "x_px": 640,
-      "y_px": 445
+      "x_px": 585,
+      "y_px": 690
     },
     {
       "id": "fork_sw",
       "label": "西南分叉",
       "floor": 1,
       "role": "corridor",
-      "x_px": 215,
-      "y_px": 445
+      "x_px": 209,
+      "y_px": 677
     },
     {
       "id": "end_sww",
       "label": "西南分叉向西延伸",
       "floor": 1,
       "role": "corridor",
-      "x_px": 117,
-      "y_px": 445
+      "x_px": 43,
+      "y_px": 674
     },
     {
-      "id": "end_nww",
-      "label": "西北分叉向北延伸",
+      "id": "end_nen",
+      "label": "东北分叉向北延伸",
       "floor": 1,
       "role": "corridor",
-      "x_px": 117,
-      "y_px": 75
+      "x_px": 584,
+      "y_px": 52
     },
     {
       "id": "end_see",
       "label": "东南分叉向东延伸",
       "floor": 1,
       "role": "corridor",
-      "x_px": 650,
-      "y_px": 445
+      "x_px": 746,
+      "y_px": 695
     },
     {
       "id": "link_to_a",
       "label": "连廊（接A区）",
       "floor": 1,
       "role": "corridor",
-      "x_px": 745,
-      "y_px": 420
+      "x_px": 208,
+      "y_px": 842
     },
     {
       "id": "room137_front",
       "label": "微机室前门",
       "floor": 1,
       "role": "door",
-      "x_px": 50,
-      "y_px": 280
+      "x_px": 206,
+      "y_px": 303
     },
     {
       "id": "room137_back",
       "label": "微机室后门",
       "floor": 1,
       "role": "door",
-      "x_px": 35,
-      "y_px": 300
+      "x_px": 555,
+      "y_px": 303
     },
     {
-      "id": "ws_stair",
-      "label": "南侧楼梯",
+      "id": "stair_west",
+      "label": "西侧楼梯",
       "floor": 1,
       "role": "vertical",
-      "x_px": 630,
-      "y_px": 465
-    },
-    {
-      "id": "out_stair",
-      "label": "户外楼梯",
-      "floor": 1,
-      "role": "vertical",
-      "x_px": 195,
-      "y_px": 65
+      "x_px": 137,
+      "y_px": 607
     },
     {
       "id": "washroom",
       "label": "洗手间",
       "floor": 1,
       "role": "facility",
-      "x_px": 530,
-      "y_px": 75
+      "x_px": 583,
+      "y_px": 588
     },
     {
-      "id": "sn_elec",
-      "label": "西北侧电梯",
+      "id": "elevator",
+      "label": "东侧电梯",
       "floor": 1,
-      "role": "facility",
-      "x_px": 210,
-      "y_px": 70
+      "role": "vertical",
+      "x_px": 596,
+      "y_px": 266
+    },
+    {
+      "id": "stair_east",
+      "label": "东侧楼梯",
+      "floor": 1,
+      "role": "vertical",
+      "x_px": 630,
+      "y_px": 266
     },
     {
       "id": "teacher_room",
       "label": "教师办公室门",
       "floor": 1,
       "role": "door",
-      "x_px": 680,
-      "y_px": 175
+      "x_px": 423,
+      "y_px": 697
     },
     {
       "id": "mobile_room",
       "label": "移动计算与软件实验室",
       "floor": 1,
       "role": "door",
-      "x_px": 680,
-      "y_px": 45
+      "x_px": 499,
+      "y_px": 699
     },
     {
       "id": "ai_room",
       "label": "人工智能与机器学习工作室门",
       "floor": 1,
       "role": "door",
-      "x_px": 680,
-      "y_px": 290
+      "x_px": 209,
+      "y_px": 610
     },
     {
       "id": "b_door",
       "label": "B区大门",
       "floor": 1,
       "role": "door",
-      "x_px": 40,
-      "y_px": 445
+      "x_px": 44,
+      "y_px": 612
     },
     {
       "id": "elec_room",
       "label": "配电室门",
       "floor": 1,
       "role": "door",
-      "x_px": 680,
-      "y_px": 415
+      "x_px": 235,
+      "y_px": 743
     },
     {
       "id": "restarea",
       "label": "休息区",
       "floor": 1,
       "role": "facility",
-      "x_px": 117,
-      "y_px": 45
+      "x_px": 398,
+      "y_px": 496
     },
     {
       "id": "desk",
       "label": "座椅",
       "floor": 1,
       "role": "facility",
-      "x_px": 60,
-      "y_px": 45
+      "x_px": 205,
+      "y_px": 437
     },
     {
-      "id": "wn_door",
-      "label": "西北门",
+      "id": "en_door",
+      "label": "东北门",
       "floor": 1,
       "role": "door",
-      "x_px": 40,
-      "y_px": 75
+      "x_px": 790,
+      "y_px": 181
     },
     {
       "id": "lab_door",
       "label": "实验室门",
       "floor": 1,
       "role": "door",
-      "x_px": 665,
-      "y_px": 60
+      "x_px": 341,
+      "y_px": 695
     },
     {
       "id": "st_elec",
       "label": "强电井",
       "floor": 1,
       "role": "room",
-      "x_px": 695,
-      "y_px": 400
+      "x_px": 210,
+      "y_px": 742
     },
     {
       "id": "weak_elec",
       "label": "弱电井",
       "floor": 1,
       "role": "room",
-      "x_px": 670,
-      "y_px": 410
+      "x_px": 208,
+      "y_px": 795
     }
   ],
   "edges": [
     {
       "from": "b_door",
-      "to": "ai_room",
-      "weight": 10
+      "to": "end_sww",
+      "weight": 2
     },
     {
-      "from": "ai_room",
+      "from": "end_sww",
       "to": "fork_sw",
-      "weight": 2
+      "weight": 8
     },
     {
       "from": "fork_sw",
       "to": "desk",
-      "weight": 4
+      "weight": 10
     },
     {
-      "from": "desk",
-      "to": "room137_front",
-      "weight": 3
+      "from": "room137_front",
+      "to": "fork_nw",
+      "weight": 0.6
+    },
+    {
+      "from": "fork_nw",
+      "to": "desk",
+      "weight": 2.4
     },
     {
       "from": "room137_front",
       "to": "room137_back",
-      "weight": 16.5
+      "weight": 18
     },
     {
       "from": "room137_back",
-      "to": "sn_elec",
-      "weight": 5.7
+      "to": "elevator",
+      "weight": 6
     },
     {
-      "from": "sn_elec",
+      "from": "elevator",
+      "to": "end_nen",
+      "weight": 5
+    },
+    {
+      "from": "elevator",
+      "to": "en_door",
+      "weight": 8
+    },
+    {
+      "from": "fork_ne",
       "to": "washroom",
-      "weight": 12
-    },
-    {
-      "from": "washroom",
-      "to": "mobile_room",
       "weight": 10
     },
     {
-      "from": "mobile_room",
-      "to": "teacher_room",
-      "weight": 1.5
+      "from": "fork_se",
+      "to": "mobile_room",
+      "weight": 9
     },
     {
-      "from": "teacher_room",
+      "from": "mobile_room",
       "to": "lab_door",
       "weight": 2
     },
     {
       "from": "lab_door",
-      "to": "elec_room",
+      "to": "teacher_room",
       "weight": 2
     },
     {
-      "from": "restarea",
+      "from": "teacher_room",
       "to": "fork_sw",
       "weight": 5
     },
     {
+      "from": "fork_sw",
+      "to": "stair_west",
+      "weight": 3
+    },
+    {
+      "from": "fork_se",
+      "to": "end_see",
+      "weight": 5
+    },
+    {
+      "from": "fork_sw",
+      "to": "link_to_a",
+      "weight": 10
+    },
+    {
+      "from": "fork_sw",
+      "to": "elec_room",
+      "weight": 1
+    },
+    {
+      "from": "elec_room",
+      "to": "weak_elec",
+      "weight": 1
+    },
+    {
+      "from": "weak_elec",
+      "to": "st_elec",
+      "weight": 1
+    },
+    {
+      "from": "st_elec",
+      "to": "ai_room",
+      "weight": 4
+    },
+    {
+      "from": "ai_room",
+      "to": "b_door",
+      "weight": 5
+    },
+    {
+      "from": "fork_ne",
+      "to": "room137_back",
+      "weight": 2
+    },
+    {
+      "from": "washroom",
+      "to": "fork_se",
+      "weight": 3
+    },
+    {
+      "from": "elevator",
+      "to": "stair_east",
+      "weight": 1
+    },
+    {
       "from": "restarea",
-      "to": "room137_front",
+      "to": "fork_nw",
       "weight": 8
     },
     {
       "from": "restarea",
-      "to": "washroom",
-      "weight": 5
+      "to": "fork_ne",
+      "weight": 8
     },
     {
       "from": "restarea",
-      "to": "sn_elec",
-      "weight": 10
+      "to": "fork_se",
+      "weight": 8
     },
     {
-      "from": "room137_back",
-      "to": "sn_elec",
-      "weight": 5
+      "from": "restarea",
+      "to": "fork_sw",
+      "weight": 8
     }
   ],
   "facilities": [
@@ -309,22 +374,22 @@
       "label": "座椅"
     },
     {
-      "id": "poi_sn_elec",
+      "id": "poi_elevator",
       "type": "电梯",
-      "nodeId": "sn_elec",
-      "label": "西北侧电梯"
+      "nodeId": "elevator",
+      "label": "东侧电梯"
     },
     {
-      "id": "poi_stair_s",
+      "id": "poi_stair_east",
       "type": "楼梯",
-      "nodeId": "ws_stair",
-      "label": "西南侧楼梯"
+      "nodeId": "stair_east",
+      "label": "东侧楼梯"
     },
     {
-      "id": "poi_stair_out",
+      "id": "poi_stair_west",
       "type": "楼梯",
-      "nodeId": "out_stair",
-      "label": "户外楼梯"
+      "nodeId": "stair_west",
+      "label": "西侧楼梯"
     }
   ]
 }

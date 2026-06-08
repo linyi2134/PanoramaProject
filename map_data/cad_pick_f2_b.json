@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 2,
+  "floor": 2,
+  "zone": "B",
+  "description": "2F-B座",
+  "planImage": "plans/f2_b_cad.png",
+  "planWidth": 844,
+  "planHeight": 925,
+  "pdfSource": "1_2_5F-B.pdf",
+  "graphFile": "node_nav/data/f2_b_graph.json",
+  "graphNodeCount": 26,
+  "note": "tools/pick-coords.html 导出；运行 apply_cad_coords.py 写回。",
+  "coords": {
+    "230": {
+      "x_px": 205,
+      "y_px": 839
+    },
+    "232": {
+      "x_px": 478,
+      "y_px": 694
+    },
+    "234": {
+      "x_px": 737,
+      "y_px": 181
+    },
+    "237": {
+      "x_px": 597,
+      "y_px": 181
+    },
+    "fork_nw": {
+      "x_px": 205,
+      "y_px": 319
+    },
+    "fork_ne": {
+      "x_px": 597,
+      "y_px": 319
+    },
+    "fork_se": {
+      "x_px": 597,
+      "y_px": 694
+    },
+    "fork_sw": {
+      "x_px": 205,
+      "y_px": 694
+    },
+    "stair_west": {
+      "x_px": 205,
+      "y_px": 589
+    },
+    "stair_east": {
+      "x_px": 597,
+      "y_px": 293
+    },
+    "elevator": {
+      "x_px": 597,
+      "y_px": 236
+    },
+    "washroom": {
+      "x_px": 597,
+      "y_px": 609
+    },
+    "water": {
+      "x_px": 717,
+      "y_px": 694
+    },
+    "weak": {
+      "x_px": 205,
+      "y_px": 736
+    },
+    "strong": {
+      "x_px": 205,
+      "y_px": 788
+    },
+    "link_to_a": {
+      "x_px": 205,
+      "y_px": 869
+    },
+    "238_front": {
+      "x_px": 205,
+      "y_px": 319
+    },
+    "238_back": {
+      "x_px": 559,
+      "y_px": 319
+    },
+    "233_back": {
+      "x_px": 757,
+      "y_px": 694
+    },
+    "233_front": {
+      "x_px": 520,
+      "y_px": 694
+    },
+    "231_front": {
+      "x_px": 281,
+      "y_px": 694
+    },
+    "240_front": {
+      "x_px": 169,
+      "y_px": 694
+    },
+    "236_front": {
+      "x_px": 629,
+      "y_px": 181
+    },
+    "236_back": {
+      "x_px": 821,
+      "y_px": 181
+    },
+    "235_back": {
+      "x_px": 821,
+      "y_px": 181
+    },
+    "235_front": {
+      "x_px": 774,
+      "y_px": 181
+    }
+  }
+}

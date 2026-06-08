@@ -53,6 +53,7 @@ code{font-size:10px;}
     <select id="zoneSel">
       <option value="b">B 座（软件学院）</option>
       <option value="a">A 座（办公楼）</option>
+      <option value="link">连廊（A-B）</option>
     </select>
   </label>
   <label>楼层
@@ -124,6 +125,11 @@ const PICK_CFG={
   'a_3':{graph:'../node_nav/data/f3_a_graph.json',plan:'../plans/f3_a_cad.png',pdf:'3F-A.pdf',exportName:'cad_pick_f3_a.json'},
   'a_4':{graph:'../node_nav/data/f4_a_graph.json',plan:'../plans/f4_a_cad.png',pdf:'4F-A.pdf',exportName:'cad_pick_f4_a.json'},
   'a_5':{graph:'../node_nav/data/f5_a_graph.json',plan:'../plans/f5_a_cad.png',pdf:'5F-A.pdf',exportName:'cad_pick_f5_a.json'},
+  'link_1':{graph:'../node_nav/data/link_f1_graph.json',plan:'../plans/link_f1_cad.png',pdf:'A-B连廊_1F.pdf',exportName:'cad_pick_link_f1.json'},
+  'link_2':{graph:'../node_nav/data/link_f2_graph.json',plan:'../plans/link_f2_cad.png',pdf:'A-B连廊_1-5F共享.pdf',exportName:'cad_pick_link_f2.json'},
+  'link_3':{graph:'../node_nav/data/link_f3_graph.json',plan:'../plans/link_f3_cad.png',pdf:'A-B连廊_1-5F共享.pdf',exportName:'cad_pick_link_f3.json'},
+  'link_4':{graph:'../node_nav/data/link_f4_graph.json',plan:'../plans/link_f4_cad.png',pdf:'A-B连廊_1-5F共享.pdf',exportName:'cad_pick_link_f4.json'},
+  'link_5':{graph:'../node_nav/data/link_f5_graph.json',plan:'../plans/link_f5_cad.png',pdf:'A-B连廊_1-5F共享.pdf',exportName:'cad_pick_link_f5.json'},
 };
 
 const ROLE_COL={
@@ -131,7 +137,9 @@ const ROLE_COL={
 };
 
 /** 底图更新后改此版本号，避免浏览器沿用旧 PNG 缓存 */
-const PLAN_CACHE_VER='20260604-b125-north-up';
+const PLAN_CACHE_VER='20260606-link-cad';
+/** graph JSON 结构变更后改此版本号，避免 fetch 命中旧缓存 */
+const GRAPH_CACHE_VER='20260608-zone-wired';
 
 let zone='b', floor=1, graph=null, cfg=null;
 let planW=760, planH=520, planSrc='', planDisplayUrl='';
@@ -140,6 +148,7 @@ let positions={};
 let selectedId=null, dragNodeId=null;
 let panning=false, panStart=null, viewPan={x:0,y:0}, viewScale=1;
 let orderedIds=[];
+let draftDroppedMsg=null;
 
 const canvas=document.getElementById('canvas');
 const gPlan=document.getElementById('gPlan');
@@ -195,17 +204,33 @@ function saveLocal(){
   try{ localStorage.setItem(storageKey(), JSON.stringify(buildExportPayload())); }catch(e){}
 }
 
+function bustGraphUrl(src){
+  const sep=src.includes('?')?'&':'?';
+  return `${src}${sep}_gv=${encodeURIComponent(GRAPH_CACHE_VER)}`;
+}
+
 function loadLocal(){
   try{
     const raw=localStorage.getItem(storageKey());
     if(!raw) return false;
     const data=JSON.parse(raw);
-    if(data.coords){
-      for(const[id,c] of Object.entries(data.coords)){
-        if(c&&c.x_px!=null) positions[id]={x:+c.x_px,y:+c.y_px};
-      }
-      return true;
+    if(!data.coords||!graph) return false;
+    const currentIds=new Set(graph.nodes.map(n=>n.id));
+    const storedIds=Object.keys(data.coords);
+    const stale=storedIds.filter(id=>!currentIds.has(id));
+    const countMismatch=data.graphNodeCount!=null&&data.graphNodeCount!==graph.nodes.length;
+    if(stale.length||countMismatch){
+      localStorage.removeItem(storageKey());
+      draftDroppedMsg=
+        countMismatch
+          ? `graph 已更新（${data.graphNodeCount}→${graph.nodes.length} 节点），已丢弃旧草稿`
+          : `graph 已更新，已丢弃 ${stale.length} 个过时坐标`;
+      return false;
     }
+    for(const[id,c] of Object.entries(data.coords)){
+      if(c&&c.x_px!=null) positions[id]={x:+c.x_px,y:+c.y_px};
+    }
+    return true;
   }catch(e){}
   return false;
 }
@@ -284,7 +309,7 @@ async function loadLayer(z,f){
     `python node_nav/scripts/apply_cad_coords.py map_data/${cfg.exportName}`;
 
   const [gr,plan]=await Promise.all([
-    fetch(cfg.graph).then(r=>{if(!r.ok)throw new Error('graph '+r.status);return r.json();}),
+    fetch(bustGraphUrl(cfg.graph),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('graph '+r.status);return r.json();}),
     loadPlanImage(cfg.plan),
   ]);
   graph=gr;
@@ -303,6 +328,7 @@ async function loadLayer(z,f){
   }));
 
   positions={};
+  draftDroppedMsg=null;
   const fromLs=loadLocal();
   const fromJson=document.getElementById('loadFromJson').checked && loadFromGraphCoords();
   if(fromLs){
@@ -313,7 +339,7 @@ async function loadLayer(z,f){
     setStatus('已从 graph JSON 加载 x_px/y_px');
   }else{
     initialGrid();
-    setStatus('网格初始位置（节点来自 graph JSON）');
+    setStatus(draftDroppedMsg||'网格初始位置（节点来自 graph JSON）');
   }
   if(!selectedId||!positions[selectedId]) selectedId=graph.nodes[0]?.id||null;
   rebuildOrder();
@@ -446,7 +472,10 @@ function buildExportPayload(){
     planImage:planSrc.replace(/^\.\.\//,''),
     planWidth:planW,planHeight:planH,
     pdfSource:cfg?.pdf,
-    graphFile:`node_nav/data/f${floor}_${zone}_graph.json`,
+    graphFile:zone==='link'
+      ?`node_nav/data/link_f${floor}_graph.json`
+      :`node_nav/data/f${floor}_${zone}_graph.json`,
+    graphNodeCount:graph.nodes.length,
     note:'tools/pick-coords.html 导出；运行 apply_cad_coords.py 写回。',
     coords,
   };

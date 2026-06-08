@@ -35,6 +35,12 @@
         .nav-panel select { width: 100%; padding: 8px; border-radius: 8px; background: #2c3e50; color: white; border: none; margin-bottom: 12px; }
         .nav-panel button { width: 100%; padding: 8px; background: #e67e22; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
         .nav-panel button:hover { background: #f39c12; }
+        .nav-panel .btn-row { display: flex; gap: 8px; margin-bottom: 0; }
+        .nav-panel .btn-row button { flex: 1; }
+        .nav-panel button.btn-jump { background: #27ae60; }
+        .nav-panel button.btn-jump:hover { background: #2ecc71; }
+        .nav-panel button.btn-guide { background: #34495e; font-size: 12px; }
+        .nav-panel button.btn-guide:hover { background: #4a6278; }
         .route-info { margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); font-size: 13px; }
         .next-step { background: #27ae60; border-radius: 8px; padding: 8px; margin-top: 10px; text-align: center; font-weight: bold; }
         .current-scene { margin-bottom: 8px; font-size: 12px; opacity: 0.8; }
@@ -73,7 +79,7 @@
 <body>
     <div id="panorama"></div>
     <div id="roomTooltip"></div>
-    <div id="info">🔍 52 场景全景 | 蓝点=房间标注 | 箭头=场景跳转 | 右侧可按场景或房间号导航</div>
+    <div id="info">🔍 52 场景全景 | 蓝点=房间标注 | 右侧选场景/房间号可一键直达</div>
     <div id="roomInfoPanel" class="room-panel">🏢 点击蓝色圆点查看房间详情（一栋 / 二栋 / 三栋）</div>
     <!-- 智能导航面板 -->
     <div class="nav-panel">
@@ -83,11 +89,14 @@
         <select id="destinationSelect"><option value="">— 选择目的地场景 —</option></select>
         <label style="font-size:11px;opacity:0.85;display:block;margin:8px 0 4px;">按房间号</label>
         <select id="roomSelect"><option value="">— 选择房间号 —</option></select>
-        <button id="navigateBtn">🚀 开始导航</button>
+        <div class="btn-row">
+            <button type="button" id="jumpBtn" class="btn-jump">⚡ 立即跳转</button>
+            <button type="button" id="guideBtn" class="btn-guide">🚶 逐步引导</button>
+        </div>
         <p style="margin-top:10px;font-size:12px;text-align:center;">
             <a href="map.html" style="color:#58a6ff;text-decoration:none;">🗺️ 二维地图导航</a>
             <span style="opacity:0.5;margin:0 6px;">|</span>
-            <a href="panorama.html" style="color:#aaa;text-decoration:none;font-size:11px;">简易 demo</a>
+            <a href="panorama.html" style="color:#aaa;text-decoration:none;font-size:11px;">5场景 demo</a>
         </p>
 
         <div id="routeResult" class="route-info" style="display: none;"></div>
@@ -491,12 +500,16 @@ addLink("三栋-2f", "一栋-2f-1");
         window.viewer = pannellum.viewer('panorama', config);
 
         let currentSceneId = firstScene;
+        let guideModeActive = false;
         window.viewer.on('scenechange', function(newSceneId) {
             currentSceneId = newSceneId;
             roomTooltip.style.display = 'none';
             document.getElementById('currentSceneLabel').innerHTML = `📍 当前场景：${newSceneId}`;
             const dest = document.getElementById("destinationSelect").value;
-            if (dest && dest !== "") navigateTo(dest);
+            if (dest) {
+                if (dest === newSceneId) showArrived(dest, document.getElementById('roomSelect').value || '');
+                else if (guideModeActive) onSceneGuideUpdate();
+            }
             addRoomHotspotsForScene(newSceneId);
             resetRoomPanel(newSceneId);
         });
@@ -591,21 +604,65 @@ addLink("三栋-2f", "一栋-2f-1");
             }
         }
 
-        function navigateToRoom(roomId) {
+        function showArrived(sceneId, roomLabel) {
+            const roomHint = roomLabel ? `（房间 ${roomLabel}，请点击蓝点查看详情）` : '';
+            document.getElementById('routeResult').style.display = 'block';
+            document.getElementById('routeResult').innerHTML =
+                `<div style="color:#2ecc71;">✅ 已到达 ${sceneId}${roomHint}</div>`;
+        }
+
+        function getSelectedTarget() {
+            const room = document.getElementById('roomSelect').value;
+            if (room) {
+                const targetScene = roomToScene.get(room);
+                if (!targetScene) return { error: '无法定位该房间所在的场景！' };
+                return { sceneId: targetScene, roomLabel: room };
+            }
+            const dest = document.getElementById('destinationSelect').value;
+            if (!dest) return { error: '请选择目的地场景或房间号！' };
+            return { sceneId: dest, roomLabel: '' };
+        }
+
+        function jumpToScene(destinationId, roomLabel) {
+            if (!destinationId) {
+                document.getElementById('routeResult').style.display = 'none';
+                return;
+            }
+            if (!scenesConfig[destinationId]) {
+                alert('场景不存在：' + destinationId);
+                return;
+            }
+            document.getElementById('destinationSelect').value = destinationId;
+            if (currentSceneId === destinationId) {
+                showArrived(destinationId, roomLabel);
+                return;
+            }
+            window.viewer.loadScene(destinationId);
+        }
+
+        function jumpToRoom(roomId) {
+            const targetScene = roomToScene.get(roomId);
+            if (!targetScene) {
+                alert('无法定位该房间所在的场景！');
+                return;
+            }
+            jumpToScene(targetScene, roomId);
+        }
+
+        function guideToRoom(roomId) {
             const targetScene = roomToScene.get(roomId);
             if (!targetScene) {
                 alert('无法定位该房间所在的场景！');
                 return;
             }
             if (currentSceneId === targetScene) {
-                document.getElementById('routeResult').style.display = 'block';
-                document.getElementById('routeResult').innerHTML = `<div style="color:#2ecc71;">✅ 您已在 ${roomId} 所在场景（${targetScene}），请点击蓝点查看详情。</div>`;
+                showArrived(targetScene, roomId);
                 return;
             }
-            navigateTo(targetScene, roomId);
+            guideTo(targetScene, roomId);
         }
 
-        // ======================= 5. 智能导航（BFS） =======================
+        // ======================= 5. 智能导航（BFS 逐步引导） =======================
         function findShortestPath(start, target) {
             if (start === target) return [start];
             let queue = [[start]], visited = new Set([start]);
@@ -626,12 +683,11 @@ addLink("三栋-2f", "一栋-2f-1");
             const found = hs.find(h => h.sceneId === to);
             return found ? found.text : `前往 ${to}`;
         }
-        function navigateTo(destinationId, roomLabel) {
+        function guideTo(destinationId, roomLabel) {
             if (!destinationId) { document.getElementById("routeResult").style.display = "none"; return; }
             const roomHint = roomLabel ? `（房间 ${roomLabel}）` : '';
             if (currentSceneId === destinationId) {
-                document.getElementById("routeResult").style.display = "block";
-                document.getElementById("routeResult").innerHTML = `<div style="color:#2ecc71;">✅ 您已在目标场景 ${destinationId}${roomHint}</div>`;
+                showArrived(destinationId, roomLabel);
                 return;
             }
             const path = findShortestPath(currentSceneId, destinationId);
@@ -650,12 +706,30 @@ addLink("三栋-2f", "一栋-2f-1");
                 <div style="margin-top:8px; font-size:12px; opacity:0.7;">💡 跟随提示点击热点，即可按路径到达目的地${roomLabel ? '，到达后点击蓝点查看 ' + roomLabel : ''}。</div>
             `;
         }
-        document.getElementById("navigateBtn").addEventListener("click", function() {
-            const room = document.getElementById("roomSelect").value;
-            if (room) { navigateToRoom(room); return; }
+
+        function onSceneGuideUpdate() {
             const dest = document.getElementById("destinationSelect").value;
-            if (!dest) { alert("请选择目的地场景或房间号！"); return; }
-            navigateTo(dest);
+            if (dest) guideTo(dest);
+        }
+
+        document.getElementById("jumpBtn").addEventListener("click", function() {
+            const target = getSelectedTarget();
+            if (target.error) { alert(target.error); return; }
+            guideModeActive = false;
+            jumpToScene(target.sceneId, target.roomLabel);
+        });
+        document.getElementById("guideBtn").addEventListener("click", function() {
+            const target = getSelectedTarget();
+            if (target.error) { alert(target.error); return; }
+            guideModeActive = true;
+            if (target.roomLabel) guideToRoom(target.roomLabel);
+            else guideTo(target.sceneId);
+        });
+        document.getElementById("roomSelect").addEventListener("change", function() {
+            if (this.value) document.getElementById("destinationSelect").value = roomToScene.get(this.value) || '';
+        });
+        document.getElementById("destinationSelect").addEventListener("change", function() {
+            if (this.value) document.getElementById("roomSelect").value = '';
         });
 
         let roomPointTotal = 0;

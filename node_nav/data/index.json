@@ -9,8 +9,8 @@
       "zone": "A",
       "description": "1F-A座",
       "isFinished": false,
-      "nodeCount": 14,
-      "edgeCount": 7
+      "nodeCount": 17,
+      "edgeCount": 19
     },
     {
       "file": "f1_b_graph.json",
@@ -49,8 +49,8 @@
       "zone": "A",
       "description": "3F-A座",
       "isFinished": false,
-      "nodeCount": 38,
-      "edgeCount": 38
+      "nodeCount": 25,
+      "edgeCount": 25
     },
     {
       "file": "f3_b_graph.json",
@@ -59,8 +59,8 @@
       "zone": "B",
       "description": "3F-B座",
       "isFinished": false,
-      "nodeCount": 42,
-      "edgeCount": 42
+      "nodeCount": 40,
+      "edgeCount": 40
     },
     {
       "file": "f4_a_graph.json",
@@ -101,6 +101,56 @@
       "isFinished": false,
       "nodeCount": 36,
       "edgeCount": 34
+    },
+    {
+      "file": "link_f1_graph.json",
+      "building": "B7",
+      "floor": 1,
+      "zone": "LINK",
+      "description": "1F·A-B连廊",
+      "isFinished": false,
+      "nodeCount": 4,
+      "edgeCount": 3
+    },
+    {
+      "file": "link_f2_graph.json",
+      "building": "B7",
+      "floor": 2,
+      "zone": "LINK",
+      "description": "2F·A-B连廊",
+      "isFinished": false,
+      "nodeCount": 3,
+      "edgeCount": 2
+    },
+    {
+      "file": "link_f3_graph.json",
+      "building": "B7",
+      "floor": 3,
+      "zone": "LINK",
+      "description": "3F·A-B连廊",
+      "isFinished": false,
+      "nodeCount": 3,
+      "edgeCount": 2
+    },
+    {
+      "file": "link_f4_graph.json",
+      "building": "B7",
+      "floor": 4,
+      "zone": "LINK",
+      "description": "4F·A-B连廊",
+      "isFinished": false,
+      "nodeCount": 3,
+      "edgeCount": 2
+    },
+    {
+      "file": "link_f5_graph.json",
+      "building": "B7",
+      "floor": 5,
+      "zone": "LINK",
+      "description": "5F·A-B连廊",
+      "isFinished": false,
+      "nodeCount": 3,
+      "edgeCount": 2
     }
   ]
 }

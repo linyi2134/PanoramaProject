@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 2,
+  "floor": 4,
+  "zone": "A",
+  "description": "4F-A座",
+  "planImage": "plans/f4_a_cad.png",
+  "planWidth": 537,
+  "planHeight": 529,
+  "pdfSource": "4F-A.pdf",
+  "graphFile": "node_nav/data/f4_a_graph.json",
+  "graphNodeCount": 32,
+  "note": "tools/pick-coords.html 导出；运行 apply_cad_coords.py 写回。",
+  "coords": {
+    "fork_nw": {
+      "x_px": 129,
+      "y_px": 151
+    },
+    "fork_ne": {
+      "x_px": 254,
+      "y_px": 213
+    },
+    "fork_se": {
+      "x_px": 188,
+      "y_px": 340
+    },
+    "fork_sw": {
+      "x_px": 61,
+      "y_px": 269
+    },
+    "end_nww": {
+      "x_px": 105,
+      "y_px": 140
+    },
+    "end_nwn": {
+      "x_px": 140,
+      "y_px": 124
+    },
+    "end_nee": {
+      "x_px": 314,
+      "y_px": 245
+    },
+    "end_see": {
+      "x_px": 243,
+      "y_px": 372
+    },
+    "end_sww": {
+      "x_px": 38,
+      "y_px": 256
+    },
+    "stair_south": {
+      "x_px": 256,
+      "y_px": 340
+    },
+    "stair_outdoor": {
+      "x_px": 208,
+      "y_px": 9
+    },
+    "water": {
+      "x_px": 101,
+      "y_px": 136
+    },
+    "washroom": {
+      "x_px": 140,
+      "y_px": 122
+    },
+    "weak_elec": {
+      "x_px": 229,
+      "y_px": 266
+    },
+    "strong_elec": {
+      "x_px": 239,
+      "y_px": 242
+    },
+    "link_to_b": {
+      "x_px": 190,
+      "y_px": 38
+    },
+    "lab400": {
+      "x_px": 241,
+      "y_px": 374
+    },
+    "office401": {
+      "x_px": 36,
+      "y_px": 257
+    },
+    "office402": {
+      "x_px": 59,
+      "y_px": 272
+    },
+    "room403_front": {
+      "x_px": 129,
+      "y_px": 309
+    },
+    "room403_back": {
+      "x_px": 83,
+      "y_px": 285
+    },
+    "room404": {
+      "x_px": 217,
+      "y_px": 357
+    },
+    "office405": {
+      "x_px": 311,
+      "y_px": 244
+    },
+    "office406": {
+      "x_px": 312,
+      "y_px": 242
+    },
+    "office407": {
+      "x_px": 294,
+      "y_px": 231
+    },
+    "office408": {
+      "x_px": 274,
+      "y_px": 222
+    },
+    "office409": {
+      "x_px": 251,
+      "y_px": 208
+    },
+    "office410": {
+      "x_px": 228,
+      "y_px": 195
+    },
+    "office411": {
+      "x_px": 198,
+      "y_px": 179
+    },
+    "office412": {
+      "x_px": 162,
+      "y_px": 161
+    },
+    "office413": {
+      "x_px": 108,
+      "y_px": 191
+    },
+    "lab414": {
+      "x_px": 87,
+      "y_px": 228
+    }
+  }
+}

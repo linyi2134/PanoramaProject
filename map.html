@@ -22,6 +22,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:8
 .btn:hover{border-color:var(--accent);color:var(--accent);}
 .btn-toilet{border-color:var(--accent2);color:var(--accent2);}
 .btn-toilet:hover{background:var(--accent2);color:#0d1117;}
+.btn-on{border-color:var(--accent);color:var(--accent);background:rgba(88,166,255,.1);}
 .main{display:flex;flex:1;overflow:hidden;}
 .map-wrap{flex:1;position:relative;overflow:hidden;background:#080c12;}
 #mapSvg{width:100%;height:100%;display:block;}
@@ -29,7 +30,10 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:8
 .side{width:255px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
 .sec{padding:13px;border-bottom:1px solid var(--border);}
 .sec h3{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
-.pt-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.pt-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;padding:6px 8px;margin-left:-8px;margin-right:-8px;border-radius:6px;border:1px solid transparent;cursor:pointer;transition:background .12s,border-color .12s;}
+.pt-row:hover{background:var(--border);}
+.pt-row.active{border-color:var(--accent);background:rgba(88,166,255,.08);}
+.pt-row.active-end{border-color:var(--red);background:rgba(248,81,73,.08);}
 .pt-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
 .pt-val{font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .pt-lbl{font-size:11px;color:var(--muted);flex-shrink:0;}
@@ -54,7 +58,9 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:8
   <div class="logo">🏢 B7 软件学院 · 室内导航</div>
   <div class="floor-tabs" id="floorTabs"></div>
   <div class="hdr-btns">
-    <a class="btn" href="panorama_full.html" style="text-decoration:none;display:inline-flex;align-items:center;">🌐 全景</a>
+    <a class="btn" href="panorama_full.html" style="text-decoration:none;display:inline-flex;align-items:center;" title="52场景完整版，含立即跳转">🌐 全景(完整)</a>
+    <button class="btn" id="btnToggleEdges" onclick="toggleShowEdges()" title="显示/隐藏路网边线（CAD 底图已可辨识通道；导航路径仍会高亮）">⬡ 路网线</button>
+    <button class="btn" onclick="forceRender()" title="重新绘制地图与起终点标记">↻ 刷新</button>
     <button class="btn btn-toilet" onclick="nearestToilet()">🚻 最近厕所</button>
     <button class="btn" onclick="clearAll()">✕ 清除</button>
   </div>
@@ -63,15 +69,23 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:8
   <div class="map-wrap">
     <svg id="mapSvg" viewBox="0 0 760 520" preserveAspectRatio="xMidYMid meet">
       <g id="gBuild"></g><g id="gEdge"></g><g id="gPath"></g>
-      <g id="gNode"></g><g id="gLabel"></g>
+      <g id="gNode"></g><g id="gLabel"></g><g id="gMarkers"></g>
     </svg>
-    <div class="hint" id="hint">点击节点设置起点</div>
+    <div class="hint" id="hint">先点右侧「起点」，再在地图上选点（可切换楼层）</div>
   </div>
   <div class="side">
     <div class="sec">
       <h3>路径规划</h3>
-      <div class="pt-row"><div class="pt-dot" style="background:var(--green)"></div><div class="pt-lbl">起点</div><div class="pt-val" id="lblStart">点击地图选择</div></div>
-      <div class="pt-row"><div class="pt-dot" style="background:var(--red)"></div><div class="pt-lbl">终点</div><div class="pt-val" id="lblEnd">点击地图选择</div></div>
+      <div class="pt-row active" id="pickStart" onclick="setPickMode('start')" title="点击激活，再在地图上选起点">
+        <div class="pt-dot" style="background:var(--green)"></div>
+        <div class="pt-lbl">起点</div>
+        <div class="pt-val" id="lblStart">点击地图选择</div>
+      </div>
+      <div class="pt-row" id="pickEnd" onclick="setPickMode('end')" title="点击激活，再在地图上选终点">
+        <div class="pt-dot" style="background:var(--red)"></div>
+        <div class="pt-lbl">终点</div>
+        <div class="pt-val" id="lblEnd">点击地图选择</div>
+      </div>
       <div id="routeResult"></div>
     </div>
     <div class="sec">
@@ -88,7 +102,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:8
     <div class="room-list" id="roomList"></div>
   </div>
 </div>
-<script src="js/pathfind.browser.js"></script>
+<script src="js/pathfind.browser.js?v=20260609"></script>
 <script>
 const RC={corridor:'#58a6ff',facility:'#f0883e',room:'#3fb950',vertical:'#cf4fff',door:'#f7f74f'};
 const NS='http://www.w3.org/2000/svg';
@@ -291,59 +305,7 @@ const FLOORS = {
   ],
   toilets:['f5_wash']},
 
-// ── 小楼 1F / 2F / 3F ────────────────────────────────────────────
-6:{title:'小楼 · 1F',
-  nodes:[
-    {id:'sb1_entry',  label:'小楼入口/连廊', role:'door',     x:180,y:250},
-    {id:'sb1_stairs', label:'小楼楼梯',      role:'vertical', x:555,y:360},
-    {id:'sb1_rm104',  label:'104A / 104B',   role:'room',     x:370,y:250},
-  ],
-  edges:[
-    ['sb1_entry',  'sb1_rm104',  12],
-    ['sb1_entry',  'sb1_stairs', 22],
-    ['sb1_rm104',  'sb1_stairs', 12],
-  ],
-  toilets:[]},
-
-7:{title:'小楼 · 2F',
-  nodes:[
-    {id:'sb2_entry',  label:'小楼入口/连廊', role:'door',     x:180,y:250},
-    {id:'sb2_stairs', label:'小楼楼梯',      role:'vertical', x:555,y:360},
-    {id:'sb2_rm209',  label:'209',           role:'room',     x:280,y:210},
-    {id:'sb2_rm207',  label:'207',           role:'room',     x:490,y:300},
-    {id:'sb2_wash',   label:'WC 厕所',       role:'facility', x:250,y:155},
-  ],
-  edges:[
-    ['sb2_entry',  'sb2_rm209',  10],
-    ['sb2_entry',  'sb2_stairs', 22],
-    ['sb2_rm209',  'sb2_stairs', 18],
-    ['sb2_rm209',  'sb2_wash',   15],
-    ['sb2_rm207',  'sb2_stairs',  8],
-    ['sb2_rm207',  'sb2_wash',   15],
-    ['sb2_rm209',  'sb2_rm207',  14],
-  ],
-  toilets:['sb2_wash']},
-
-13:{title:'小楼 · 3F',
-  nodes:[
-    {id:'sb3_entry',  label:'小楼入口/连廊', role:'door',     x:180,y:250},
-    {id:'sb3_stairs', label:'小楼楼梯',      role:'vertical', x:555,y:360},
-    {id:'sb3_roomA',  label:'房间',          role:'room',     x:280,y:320},
-    {id:'sb3_roomB',  label:'房间',          role:'room',     x:490,y:250},
-    {id:'sb3_wash',   label:'WC 厕所',       role:'facility', x:250,y:155},
-  ],
-  edges:[
-    ['sb3_entry',  'sb3_roomA',  12],
-    ['sb3_entry',  'sb3_stairs', 22],
-    ['sb3_roomA',  'sb3_stairs', 18],
-    ['sb3_roomA',  'sb3_wash',   15],
-    ['sb3_roomB',  'sb3_stairs',  8],
-    ['sb3_roomB',  'sb3_wash',   15],
-    ['sb3_roomA',  'sb3_roomB',  14],
-  ],
-  toilets:['sb3_wash']},
-
-// ── 办公楼(A区) 1F–5F ────────────────────────────────────────────
+// ── 办公楼(A区) 1F–5F 示意（JSON 未加载时回退；正常以 JSON_GRAPHS 为准）──
 8:{title:'办公楼(A区) · 1F',
   nodes:[
     {id:'a1_entry', label:'连廊入口',   role:'door',     x:80, y:260},
@@ -351,7 +313,6 @@ const FLOORS = {
     {id:'a1_ne',    label:'东北角走廊', role:'corridor', x:605,y:90},
     {id:'a1_se',    label:'东南角走廊', role:'corridor', x:605,y:430},
     {id:'a1_sw',    label:'西南角走廊', role:'corridor', x:155,y:430},
-    {id:'a1_link_sb', label:'→ 小楼连廊',   role:'door',     x:670,y:55},
   ],
   edges:[
     ['a1_entry','a1_sw',    5],
@@ -359,8 +320,6 @@ const FLOORS = {
     ['a1_ne',   'a1_se',  25],
     ['a1_se',   'a1_sw',  22],
     ['a1_sw',   'a1_nw',  25],
-    ['a1_ne',   'a1_link_sb', 5],
-    ['a1_entry','a1_link_sb',20],
   ],
   toilets:[]},
 
@@ -371,7 +330,6 @@ const FLOORS = {
     {id:'a2_ne',    label:'东北角走廊', role:'corridor', x:605,y:90},
     {id:'a2_se',    label:'东南角走廊', role:'corridor', x:605,y:430},
     {id:'a2_sw',    label:'西南角走廊', role:'corridor', x:155,y:430},
-    {id:'a2_link_sb', label:'→ 小楼连廊',   role:'door',     x:670,y:55},
   ],
   edges:[
     ['a2_entry','a2_sw',    5],
@@ -379,8 +337,6 @@ const FLOORS = {
     ['a2_ne',   'a2_se',  25],
     ['a2_se',   'a2_sw',  22],
     ['a2_sw',   'a2_nw',  25],
-    ['a2_ne',   'a2_link_sb', 5],
-    ['a2_entry','a2_link_sb',20],
   ],
   toilets:[]},
 
@@ -391,7 +347,6 @@ const FLOORS = {
     {id:'a3_ne',    label:'东北角走廊', role:'corridor', x:605,y:90},
     {id:'a3_se',    label:'东南角走廊', role:'corridor', x:605,y:430},
     {id:'a3_sw',    label:'西南角走廊', role:'corridor', x:155,y:430},
-    {id:'a3_link_sb', label:'→ 小楼连廊',   role:'door',     x:670,y:55},
   ],
   edges:[
     ['a3_entry','a3_sw',    5],
@@ -399,8 +354,6 @@ const FLOORS = {
     ['a3_ne',   'a3_se',  25],
     ['a3_se',   'a3_sw',  22],
     ['a3_sw',   'a3_nw',  25],
-    ['a3_ne',   'a3_link_sb', 5],
-    ['a3_entry','a3_link_sb',20],
   ],
   toilets:[]},
 
@@ -439,57 +392,67 @@ const FLOORS = {
   toilets:[]},
 };
 
-const FLOOR_TAB_LABELS={1:'1F',2:'2F',3:'3F',4:'4F',5:'5F',6:'小楼1F',7:'小楼2F',13:'小楼3F',8:'A1F',9:'A2F',10:'A3F',11:'A4F',12:'A5F'};
-const FLOOR_ORDER=[1,2,3,4,5,6,7,13,8,9,10,11,12];
+const FLOOR_TAB_LABELS={1:'B1F',2:'B2F',3:'B3F',4:'B4F',5:'B5F',8:'A1F',9:'A2F',10:'A3F',11:'A4F',12:'A5F',14:'连廊1F',15:'连廊2F',16:'连廊3F',17:'连廊4F',18:'连廊5F'};
+const FLOOR_ORDER=[1,2,3,4,5,14,15,16,17,18,8,9,10,11,12];
+const CORRIDOR_FLOOR={14:1,15:2,16:3,17:4,18:5};
+function graphIdPrefix(f){
+  if(f>=1&&f<=5) return `b${f}_`;
+  const lk=CORRIDOR_FLOOR[f];
+  if(lk) return `lk${lk}_`;
+  if(f>=8&&f<=12) return `a${f-7}_`;
+  return '';
+}
 
-// 跨楼层 / 跨楼连接
-const CROSS_STAIRS=[];
-for(let f=1;f<=4;f++){
-  CROSS_STAIRS.push([`f${f}_stN`,`f${f+1}_stN`,15],[`f${f}_stS`,`f${f+1}_stS`,15]);
-}
-const CROSS_CAMPUS=[
-  ['sb1_stairs','sb2_stairs',15],
-  ['f1_jse','sb1_entry',30],
-  ['sb2_stairs','sb3_stairs',15],
-  ['a1_link_sb','sb1_entry',30],
-  ['a2_link_sb','sb2_entry',30],
-  ['a3_link_sb','sb3_entry',30],
-  ['a1_entry','sb1_entry',30],
-];
-for(let f=1;f<=4;f++){
-  CROSS_CAMPUS.push([`f${f}_link_a`,`a${f}_entry`,30]);
-}
-CROSS_CAMPUS.push(['f5_link','a5_entry',30]);
-for(let f=1;f<=4;f++){
-  CROSS_CAMPUS.push(
-    [`a${f}_nw`,`a${f+1}_nw`,15],[`a${f}_ne`,`a${f+1}_ne`,15],
-    [`a${f}_se`,`a${f+1}_se`,15],[`a${f}_sw`,`a${f+1}_sw`,15]
-  );
-}
+// 跨层定义见 map_data/cross_floor_links.json + cross_floor_links.md
+let crossFloorSpec=null;
+// 同层跨区仅走 zoneLinks（B↔连廊↔A）；已删除示意 CROSS_CAMPUS 直连
 
 // ── PNG 底图 + JSON 路网（合并层）────────────────────────────────
 // 已写入 x_px/y_px 的楼层 → fetch JSON，算路与节点 id 以 JSON 为准
-const JSON_GRAPHS={1:'node_nav/data/f1_b_graph.json'};
+const JSON_GRAPHS={
+  1:'node_nav/data/f1_b_graph.json',
+  2:'node_nav/data/f2_b_graph.json',
+  3:'node_nav/data/f3_b_graph.json',
+  4:'node_nav/data/f4_b_graph.json',
+  5:'node_nav/data/f5_b_graph.json',
+  8:'node_nav/data/f1_a_graph.json',
+  9:'node_nav/data/f2_a_graph.json',
+  10:'node_nav/data/f3_a_graph.json',
+  11:'node_nav/data/f4_a_graph.json',
+  12:'node_nav/data/f5_a_graph.json',
+  14:'node_nav/data/link_f1_graph.json',
+  15:'node_nav/data/link_f2_graph.json',
+  16:'node_nav/data/link_f3_graph.json',
+  17:'node_nav/data/link_f4_graph.json',
+  18:'node_nav/data/link_f5_graph.json',
+};
+const GRAPH_CACHE_VER='20260609-floor-w6';
 // 各层示意 PNG（760×520）；JSON 未合并时仍可用 FLOORS 坐标叠在上面
-const PLAN_CACHE_VER='20260604-b125-north-up';
+const PLAN_CACHE_VER='20260607-all-cad';
 const PLAN_IMAGES={
   1:{src:'plans/f1_b_cad.png',w:844,h:925},
   2:{src:'plans/f2_b_cad.png',w:844,h:925},
-  3:{src:'plans/f3_b_cad.png',w:795,h:871},
+  3:{src:'plans/f3_b_cad.png',w:1027,h:1125},
   4:{src:'plans/f4_b_cad.png',w:795,h:871},
   5:{src:'plans/f5_b_cad.png',w:844,h:925},
-  8:{src:'plans/f1_a_cad.png',w:2820,h:2774},
-  9:{src:'plans/f2_a_cad.png',w:2887,h:2838},
-  10:{src:'plans/f3_a_cad.png',w:2847,h:2799},
-  11:{src:'plans/f4_a_cad.png',w:2856,h:2809},
-  12:{src:'plans/f5_a_cad.png',w:2158,h:2715},
+  8:{src:'plans/f1_a_cad.png',w:816,h:720},
+  9:{src:'plans/f2_a_cad.png',w:933,h:918},
+  10:{src:'plans/f3_a_cad.png',w:603,h:593},
+  11:{src:'plans/f4_a_cad.png',w:537,h:529},
+  12:{src:'plans/f5_a_cad.png',w:587,h:709},
+  14:{src:'plans/link_f1_cad.png',w:205,h:624},
+  15:{src:'plans/link_f2_cad.png',w:138,h:407},
+  16:{src:'plans/link_f3_cad.png',w:138,h:407},
+  17:{src:'plans/link_f4_cad.png',w:138,h:407},
+  18:{src:'plans/link_f5_cad.png',w:138,h:407},
 };
 const graphCache={};
 
 async function loadJsonGraphs(){
   for(const[f,url] of Object.entries(JSON_GRAPHS)){
     try{
-      const r=await fetch(url);
+      const sep=url.includes('?')?'&':'?';
+      const r=await fetch(`${url}${sep}_gv=${encodeURIComponent(GRAPH_CACHE_VER)}`,{cache:'no-store'});
       if(!r.ok) continue;
       const g=await r.json();
       if(g.nodes.every(n=>n.x_px!=null&&n.y_px!=null)) graphCache[f]=g;
@@ -498,14 +461,15 @@ async function loadJsonGraphs(){
 }
 
 function jsonToFloorView(g,f){
+  const px=graphIdPrefix(f);
   return{
     title:g.description||`${f}F`,
-    nodes:g.nodes.map(n=>({id:n.id,label:n.label,role:n.role,x:n.x_px,y:n.y_px})),
-    edges:g.edges.map(e=>[e.from,e.to,e.weight]),
-    toilets:(g.facilities||[]).filter(x=>x.type==='洗手间').map(x=>x.nodeId),
+    nodes:g.nodes.map(n=>({id:px+n.id,label:n.label,role:n.role,x:n.x_px,y:n.y_px})),
+    edges:g.edges.map(e=>[px+e.from,px+e.to,e.weight]),
+    toilets:(g.facilities||[]).filter(x=>x.type==='洗手间').map(x=>px+x.nodeId),
     planImage:g.meta?.planImage||PLAN_IMAGES[f]?.src,
-    planW:g.meta?.planWidth||760,
-    planH:g.meta?.planHeight||520,
+    planW:g.meta?.planWidth||PLAN_IMAGES[f]?.w||760,
+    planH:g.meta?.planHeight||PLAN_IMAGES[f]?.h||520,
     source:'json',
   };
 }
@@ -523,21 +487,49 @@ function getFloorView(f){
   };
 }
 
-function remapCrossNode(id){
-  if(!graphCache[1]) return id;
-  if(id==='f1_jse') return 'fork_se';
-  if(id==='f1_link_a') return 'link_to_a';
-  return id;
+function navNodeId(tab,nodeId){return graphIdPrefix(tab)+nodeId;}
+async function loadCrossFloorSpec(){
+  try{
+    const r=await fetch(`map_data/cross_floor_links.json?_cf=${encodeURIComponent(GRAPH_CACHE_VER)}`,{cache:'no-store'});
+    if(r.ok) crossFloorSpec=await r.json();
+  }catch(e){ console.warn('cross_floor_links load failed',e); }
+}
+function pushChainEdges(out,chain,w){
+  const nodes=chain.nodes||[];
+  for(let i=0;i<nodes.length-1;i++){
+    const a=navNodeId(nodes[i].tab,nodes[i].nodeId);
+    const b=navNodeId(nodes[i+1].tab,nodes[i+1].nodeId);
+    if(a!==b) out.push([a,b,w]);
+  }
 }
 function crossEdges(){
   const out=[];
-  if(graphCache[1]){
-    out.push(['sn_elec','f2_stN',15],['ws_stair','f2_stS',15]);
-    for(let f=2;f<=4;f++){
-      out.push([`f${f}_stN`,`f${f+1}_stN`,15],[`f${f}_stS`,`f${f+1}_stS`,15]);
+  const w0=crossFloorSpec?.crossFloorWeight??6;
+  const bVert=crossFloorSpec?.bZone?.unifiedVertical||{};
+  for(const[nodeId,spec] of Object.entries(bVert)){
+    const tabs=spec.tabs||[];
+    for(let i=0;i<tabs.length-1;i++){
+      const a=navNodeId(tabs[i],nodeId), b=navNodeId(tabs[i+1],nodeId);
+      if(a!==b) out.push([a,b,w0]);
     }
-  }else out.push(...CROSS_STAIRS);
-  for(const[a,b,w] of CROSS_CAMPUS) out.push([remapCrossNode(a),remapCrossNode(b),w]);
+  }
+  if(crossFloorSpec?.linkCorridor){
+    const{tabs,nodeId}=crossFloorSpec.linkCorridor;
+    for(let i=0;i<tabs.length-1;i++) out.push([navNodeId(tabs[i],nodeId),navNodeId(tabs[i+1],nodeId),w0]);
+  }
+  const zw=crossFloorSpec?.zoneLinks?.crossZoneWeight??15;
+  for(const z of crossFloorSpec?.zoneLinks?.pairs||[]){
+    out.push([navNodeId(z.bTab,z.bNode),navNodeId(z.linkTab,z.linkNode),zw]);
+    out.push([navNodeId(z.aTab,z.aNode),navNodeId(z.linkTab,'link_to_a'),zw]);
+  }
+  const aVert=crossFloorSpec?.aZone?.unifiedVertical||{};
+  for(const[nodeId,spec] of Object.entries(aVert)){
+    const tabs=spec.tabs||[];
+    for(let i=0;i<tabs.length-1;i++){
+      const a=navNodeId(tabs[i],nodeId), b=navNodeId(tabs[i+1],nodeId);
+      if(a!==b) out.push([a,b,w0]);
+    }
+  }
   return out;
 }
 
@@ -559,13 +551,22 @@ function buildGraph(){
   return {nodes,edges};
 }
 function runDijkstra(s,e){
-  const r=IndoorPathfind.dijkstra(buildGraph(),s,e);
-  if(!r.pathNodeIds.length) return null;
-  return { distance: r.distance, path: r.pathNodeIds };
+  if(typeof IndoorPathfind==='undefined'){
+    console.error('IndoorPathfind 未加载，请 Ctrl+F5 强刷页面');
+    return null;
+  }
+  try{
+    const r=IndoorPathfind.dijkstra(buildGraph(),s,e);
+    if(!r.pathNodeIds.length) return null;
+    return { distance: r.distance, path: r.pathNodeIds };
+  }catch(err){
+    console.warn('runDijkstra',s,e,err);
+    return null;
+  }
 }
 
 // ── 状态 ─────────────────────────────────────────────────────────
-let floor=1,startN=null,endN=null,curPath=null,mode='start';
+let floor=1,startN=null,endN=null,curPath=null,pickMode='start',showEdges=false;
 let allNodes={};
 function buildNodeMap(){
   allNodes={};
@@ -591,47 +592,6 @@ function drawOfficeBuilding(g){
   ft.textContent=FLOORS[floor].title; g.appendChild(ft);
   const ar=svg('text',{x:380,y:490,'text-anchor':'middle',fill:'#2a4060','font-size':'11','font-family':'Segoe UI,sans-serif'});
   ar.textContent='← 通过连廊连接 B7后座'; g.appendChild(ar);
-  if(floor>=8&&floor<=10){
-    g.appendChild(svg('rect',{x:618,y:35,width:85,height:25,rx:1,fill:'#16202e',stroke:'#253550','stroke-width':'1'}));
-    g.appendChild(svg('rect',{x:618,y:41,width:85,height:13,fill:'#243550',rx:1}));
-    const sl=svg('text',{x:660,y:33,'text-anchor':'middle',fill:'#f7f74f','font-size':'9','font-family':'Segoe UI,sans-serif'});
-    sl.textContent='→ 小楼连廊'; g.appendChild(sl);
-  }
-}
-
-function drawSmallBuilding(g){
-  g.appendChild(svg('rect',{x:160,y:90,width:460,height:320,rx:2,fill:'#16202e',stroke:'#253550','stroke-width':'1.5'}));
-  g.appendChild(svg('rect',{x:60,y:228,width:100,height:44,rx:1,fill:'#16202e',stroke:'#253550','stroke-width':'1.5'}));
-  g.appendChild(svg('rect',{x:60,y:236,width:100,height:28,fill:'#243550',rx:1}));
-  g.appendChild(svg('rect',{x:60,y:236,width:100,height:28,fill:'none',stroke:'#3a5575','stroke-width':'0.8',rx:1}));
-  g.appendChild(svg('rect',{x:490,y:300,width:130,height:110,fill:'#1a2535',stroke:'#2d4060','stroke-width':'1'}));
-  for(let i=0;i<5;i++){
-    const y=308+i*16;
-    g.appendChild(svg('line',{x1:495,y1:y,x2:615,y2:y,stroke:'#2d4060','stroke-width':'1'}));
-  }
-  if(floor===6||floor===13){
-    g.appendChild(svg('line',{x1:160,y1:250,x2:620,y2:250,stroke:'#2d4060','stroke-width':'1.5','stroke-dasharray':'8,4'}));
-    const ta=svg('text',{x:390,y:185,'text-anchor':'middle',fill:'#253550','font-size':'15','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
-    ta.textContent='104A'; g.appendChild(ta);
-    const tb=svg('text',{x:390,y:305,'text-anchor':'middle',fill:'#253550','font-size':'15','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
-    tb.textContent='104B'; g.appendChild(tb);
-  }else{
-    g.appendChild(svg('line',{x1:380,y1:90,x2:380,y2:410,stroke:'#2d4060','stroke-width':'1.5'}));
-    g.appendChild(svg('line',{x1:160,y1:220,x2:380,y2:220,stroke:'#2d4060','stroke-width':'1.5','stroke-dasharray':'8,4'}));
-    const twc=svg('text',{x:270,y:160,'text-anchor':'middle',fill:'#253550','font-size':'12','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
-    twc.textContent='WC'; g.appendChild(twc);
-    if(floor===7){
-      const t209=svg('text',{x:270,y:320,'text-anchor':'middle',fill:'#253550','font-size':'14','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
-      t209.textContent='209'; g.appendChild(t209);
-      const t207=svg('text',{x:500,y:250,'text-anchor':'middle',fill:'#253550','font-size':'14','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
-      t207.textContent='207'; g.appendChild(t207);
-    }
-  }
-  g.appendChild(svg('rect',{x:160,y:236,width:330,height:28,fill:'#243550',rx:1,opacity:'0.6'}));
-  const ft=svg('text',{x:22,y:514,fill:'#2a4060','font-size':'11','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
-  ft.textContent=FLOORS[floor].title; g.appendChild(ft);
-  const arr=svg('text',{x:385,y:460,'text-anchor':'middle',fill:'#2a4060','font-size':'11','font-family':'Segoe UI,sans-serif'});
-  arr.textContent='← 通过连廊连接主楼 B7后座'; g.appendChild(arr);
 }
 
 // ── 渲染 ─────────────────────────────────────────────────────────
@@ -643,7 +603,6 @@ function updateMapViewBox(){
 
 function renderBuild(){
   const g=document.getElementById('gBuild');g.innerHTML='';
-  if(floor===6||floor===7||floor===13){drawSmallBuilding(g);return;}
   const fd=getFloorView(floor);
 
   // CAD / 示意 PNG 底图（A 座 8–12 = A1F–A5F）
@@ -715,7 +674,11 @@ function renderBuild(){
 }
 
 function renderEdges(){
-  const g=document.getElementById('gEdge');g.innerHTML='';
+  const g=document.getElementById('gEdge');
+  g.innerHTML='';
+  g.style.pointerEvents='none';
+  g.style.display=showEdges?'':'none';
+  if(!showEdges) return;
   const fd=getFloorView(floor);
   const nm={};for(const n of fd.nodes) nm[n.id]=n;
   for(const[a,b] of fd.edges){
@@ -724,16 +687,41 @@ function renderEdges(){
   }
 }
 
+function toggleShowEdges(){
+  showEdges=!showEdges;
+  const btn=document.getElementById('btnToggleEdges');
+  if(btn){
+    btn.classList.toggle('btn-on',showEdges);
+    btn.textContent=showEdges?'⬡ 隐藏路网':'⬡ 路网线';
+  }
+  renderEdges();
+}
+
 function renderPath(){
-  const g=document.getElementById('gPath');g.innerHTML='';
+  const g=document.getElementById('gPath');
+  g.innerHTML='';
+  g.style.pointerEvents='none';
   if(!curPath)return;
+  const nm={};
+  for(const n of getFloorView(floor).nodes) nm[n.id]=n;
+  const PATH='#ffb347';
+  const PATH_GLOW='#ff8c42';
   for(let i=0;i<curPath.path.length-1;i++){
-    const a=allNodes[curPath.path[i]],b=allNodes[curPath.path[i+1]];
-    if(!a||!b||a.floor!==floor||b.floor!==floor)continue;
-    const ln=svg('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'#f0883e','stroke-width':'3.5','stroke-dasharray':'9,4',opacity:'0.95'});
+    const idA=curPath.path[i],idB=curPath.path[i+1];
+    const a=nm[idA],b=nm[idB];
+    if(!a||!b) continue;
+    g.appendChild(svg('line',{
+      x1:a.x,y1:a.y,x2:b.x,y2:b.y,
+      stroke:PATH_GLOW,'stroke-width':'14','stroke-linecap':'round',opacity:'0.35'
+    }));
+    const ln=svg('line',{
+      x1:a.x,y1:a.y,x2:b.x,y2:b.y,
+      stroke:PATH,'stroke-width':'7','stroke-linecap':'round',
+      'stroke-dasharray':'12,6',opacity:'1'
+    });
     const an=document.createElementNS(NS,'animate');
     an.setAttribute('attributeName','stroke-dashoffset');
-    an.setAttribute('values','0;-13');an.setAttribute('dur','0.7s');an.setAttribute('repeatCount','indefinite');
+    an.setAttribute('values','0;-18');an.setAttribute('dur','0.65s');an.setAttribute('repeatCount','indefinite');
     ln.appendChild(an);g.appendChild(ln);
   }
 }
@@ -746,48 +734,137 @@ function renderNodes(){
     const isS=n.id===startN,isE=n.id===endN,inP=onPath.has(n.id);
     const col=RC[n.role]||'#888';
     const r=isS||isE?9:6;
-    const grp=svg('g',{'data-id':n.id});
+    const grp=svg('g',{'data-node-id':n.id});
     grp.style.cursor='pointer';
-    if(inP&&!isS&&!isE) grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:r+5,fill:col,opacity:'0.15'}));
-    if(isS||isE) grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:r+3,fill:'none',stroke:isS?'#3fb950':'#f85149','stroke-width':'2',opacity:'0.9'}));
+    if(inP&&!isS&&!isE) grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:r+8,fill:'#ffb347',opacity:'0.28','pointer-events':'none'}));
     grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r,
-      fill:inP?col:(n.role==='corridor'?'#162030':col),
-      stroke:col,'stroke-width':'1.5',opacity:inP?'1':'0.8'}));
-    grp.addEventListener('click',()=>onNodeClick(n.id));
+      fill:inP?(isS||isE?col:'#ffb347'):(n.role==='corridor'?'#162030':col),
+      stroke:inP?'#ff8c42':col,'stroke-width':inP?'2.5':'1.5',opacity:inP?'1':'0.8','pointer-events':'none'}));
+    grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:18,fill:'transparent',stroke:'none','pointer-events':'all'}));
     gN.appendChild(grp);
     if(n.role!=='corridor'){
-      const t=svg('text',{x:n.x+r+3,y:n.y+4,'font-size':'9',fill:inP?'#e8aa70':'#5a7a9a',
+      const t=svg('text',{x:n.x+r+3,y:n.y+4,'font-size':'9',fill:inP?'#ffd699':'#5a7a9a',
         'font-family':'Segoe UI,sans-serif','pointer-events':'none'});
       t.textContent=n.label;gL.appendChild(t);
     }
   }
 }
 
-function render(){updateMapViewBox();renderBuild();renderEdges();renderPath();renderNodes();updateSide();}
+function renderMarkers(){
+  const g=document.getElementById('gMarkers');
+  g.innerHTML='';
+  g.style.pointerEvents='none';
+  const nm={};
+  for(const n of getFloorView(floor).nodes) nm[n.id]=n;
+  for(const[id,color,lbl] of [[startN,'#3fb950','起'],[endN,'#f85149','终']]){
+    if(!id||!nm[id]) continue;
+    const n=nm[id];
+    g.appendChild(svg('circle',{cx:n.x,cy:n.y,r:16,fill:color,opacity:'0.2'}));
+    g.appendChild(svg('circle',{cx:n.x,cy:n.y,r:11,fill:'none',stroke:color,'stroke-width':'4',opacity:'1'}));
+    g.appendChild(svg('circle',{cx:n.x,cy:n.y,r:7,fill:color,opacity:'0.95'}));
+    const tx=svg('text',{x:n.x,y:n.y-20,'text-anchor':'middle','font-size':'11','font-weight':'700',
+      fill:color,'font-family':'Segoe UI,sans-serif','pointer-events':'none'});
+    tx.textContent=lbl; g.appendChild(tx);
+  }
+}
+
+function render(){updateMapViewBox();renderBuild();renderEdges();renderPath();renderNodes();renderMarkers();updateSide();}
+
+function forceRender(){render();requestAnimationFrame(()=>render());}
+
+function syncViewToNode(id){
+  const loc=findNodeOnAnyFloor(id);
+  if(!loc||loc.floor===floor) return;
+  floor=loc.floor;
+  document.querySelectorAll('.floor-tab').forEach(t=>t.classList.toggle('active',+t.dataset.f===floor));
+}
 
 // ── 交互 ─────────────────────────────────────────────────────────
+function findNodeOnAnyFloor(id){
+  for(const f of FLOOR_ORDER){
+    const n=getFloorView(f).nodes.find(x=>x.id===id);
+    if(n) return {...n,floor:f};
+  }
+  return null;
+}
+
+function nodePickLabel(id){
+  if(!id) return '点击地图选择';
+  const n=findNodeOnAnyFloor(id);
+  if(!n) return id;
+  const fl=FLOOR_TAB_LABELS[n.floor]||'';
+  return fl ? `${n.label} · ${fl}` : n.label;
+}
+
+function setPickMode(m){
+  pickMode=m;
+  updatePickRows();
+  const hints={
+    start:'选起点：在地图上点击节点（可切换楼层/tab）',
+    end:'选终点：在地图上点击节点（可切换楼层/tab）',
+  };
+  document.getElementById('hint').textContent=hints[m];
+}
+
+function updatePickRows(){
+  const ps=document.getElementById('pickStart'),pe=document.getElementById('pickEnd');
+  ps.classList.toggle('active',pickMode==='start');
+  pe.classList.toggle('active-end',pickMode==='end');
+}
+
 function onNodeClick(id){
-  if(mode==='start'){startN=id;mode='end';document.getElementById('hint').textContent='已选起点，再点一个节点设为终点';}
-  else{endN=id;mode='start';document.getElementById('hint').textContent='点击节点重新设置起点';calcPath();}
-  render();
+  if(pickMode==='start'){
+    startN=id;
+    curPath=null;
+    setPickMode('end');
+  }else{
+    endN=id;
+  }
+  syncViewToNode(id);
+  curPath=(startN&&endN)?runDijkstra(startN,endN):null;
+  forceRender();
+  showResult();
 }
 
 function calcPath(){
   if(!startN||!endN)return;
   curPath=runDijkstra(startN,endN);
-  render();showResult();
+  forceRender();
+  showResult();
+}
+
+function floorChangeHow(viaNode,destTab){
+  if(destTab>=14&&destTab<=18) return '经连廊';
+  if(!viaNode) return '换层';
+  const id=viaNode.id||'';
+  if(id.includes('elevator')) return '乘电梯';
+  if(id.includes('outdoor_stair')) return '经连廊户外楼梯';
+  if(viaNode.role==='vertical'||id.includes('stair')) return '走楼梯';
+  return '换层';
 }
 
 function showResult(){
   const div=document.getElementById('routeResult');
+  if(!startN&&!endN){div.innerHTML='';return;}
+  if(!startN||!endN){
+    div.innerHTML=startN
+      ?'<div style="color:var(--muted);font-size:11px;margin-top:8px;">已选起点，请在地图上选终点</div>'
+      :'<div style="color:var(--muted);font-size:11px;margin-top:8px;">已选终点，请先选起点</div>';
+    return;
+  }
+  if(typeof IndoorPathfind==='undefined'){
+    div.innerHTML='<div style="color:var(--red);font-size:12px;margin-top:8px;">⚠️ 算路模块未加载，请 Ctrl+F5 强刷</div>';
+    return;
+  }
   if(!curPath){div.innerHTML='<div style="color:var(--red);font-size:12px;margin-top:8px;">❌ 未找到路径</div>';return;}
   let steps=[],prevF=null;
   for(let i=0;i<curPath.path.length;i++){
-    const n=allNodes[curPath.path[i]];if(!n)continue;
+    const n=findNodeOnAnyFloor(curPath.path[i]);if(!n)continue;
     if(n.floor!==prevF){
       if(prevF!==null){
+        const via=findNodeOnAnyFloor(curPath.path[i-1]);
         const dest=FLOOR_TAB_LABELS[n.floor]||`${n.floor}F`;
-        const how=n.floor>=6?'通过连廊/楼梯':'乘楼梯';
+        const how=floorChangeHow(via,n.floor);
         steps.push({type:'floor',text:`前往 ${dest}（${how}）`});
       }
       prevF=n.floor;
@@ -803,8 +880,9 @@ function showResult(){
 }
 
 function updateSide(){
-  document.getElementById('lblStart').textContent=startN?(allNodes[startN]?.label||startN):'点击地图选择';
-  document.getElementById('lblEnd').textContent=endN?(allNodes[endN]?.label||endN):'点击地图选择';
+  document.getElementById('lblStart').textContent=nodePickLabel(startN);
+  document.getElementById('lblEnd').textContent=nodePickLabel(endN);
+  updatePickRows();
   const fd=getFloorView(floor);
   const rooms=fd.nodes.filter(n=>n.role==='room'||n.role==='facility'||n.role==='door');
   document.getElementById('roomList').innerHTML=rooms.map(n=>
@@ -826,27 +904,33 @@ function nearestToilet(){
     }
   }
   if(!best){alert('未找到洗手间路径');return;}
-  endN=bestId;curPath=best;
-  const fn=allNodes[bestId]?.floor;if(fn)switchFloor(fn);
-  render();showResult();
+  endN=bestId;pickMode='end';curPath=best;
+  syncViewToNode(bestId);
+  forceRender();showResult();
 }
 
 function clearAll(){
-  startN=null;endN=null;curPath=null;mode='start';
-  document.getElementById('hint').textContent='点击节点设置起点';
-  document.getElementById('routeResult').innerHTML='';render();
+  startN=null;endN=null;curPath=null;pickMode='start';
+  document.getElementById('routeResult').innerHTML='';
+  setPickMode('start');
+  render();
 }
 
 function switchFloor(f){
   floor=f;
-  startN=null;endN=null;curPath=null;mode='start';
   document.querySelectorAll('.floor-tab').forEach(t=>t.classList.toggle('active',+t.dataset.f===f));
-  render();
+  forceRender();
 }
 
 async function init(){
-  await loadJsonGraphs();
+  await Promise.all([loadJsonGraphs(),loadCrossFloorSpec()]);
   buildNodeMap();
+  document.getElementById('gNode').addEventListener('click',(e)=>{
+    const el=e.target.closest('[data-node-id]');
+    if(el) onNodeClick(el.getAttribute('data-node-id'));
+  });
+  document.getElementById('gPath').style.pointerEvents='none';
+  document.getElementById('gEdge').style.pointerEvents='none';
   const tabs=document.getElementById('floorTabs');
   for(const f of FLOOR_ORDER){
     const b=document.createElement('button');
@@ -857,6 +941,7 @@ async function init(){
     tabs.appendChild(b);
   }
   render();
+  setPickMode('start');
 }
 window.onload=init;
 </script>

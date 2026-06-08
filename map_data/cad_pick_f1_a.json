@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 2,
+  "floor": 1,
+  "zone": "A",
+  "description": "1F-A座",
+  "planImage": "plans/f1_a_cad.png",
+  "planWidth": 816,
+  "planHeight": 720,
+  "pdfSource": "1F-A.pdf",
+  "graphFile": "node_nav/data/f1_a_graph.json",
+  "graphNodeCount": 17,
+  "note": "tools/pick-coords.html 导出；运行 apply_cad_coords.py 写回。",
+  "coords": {
+    "fork_nw": {
+      "x_px": 185,
+      "y_px": 195
+    },
+    "fork_ne": {
+      "x_px": 268,
+      "y_px": 33
+    },
+    "fork_se": {
+      "x_px": 314,
+      "y_px": 494
+    },
+    "fork_sw": {
+      "x_px": 68,
+      "y_px": 371
+    },
+    "washroom": {
+      "x_px": 184,
+      "y_px": 195
+    },
+    "office_room": {
+      "x_px": 184,
+      "y_px": 196
+    },
+    "restarea": {
+      "x_px": 68,
+      "y_px": 367
+    },
+    "a_door": {
+      "x_px": 265,
+      "y_px": 39
+    },
+    "office101_front": {
+      "x_px": 239,
+      "y_px": 231
+    },
+    "office101_back": {
+      "x_px": 340,
+      "y_px": 283
+    },
+    "office102": {
+      "x_px": 417,
+      "y_px": 322
+    },
+    "se_stair": {
+      "x_px": 351,
+      "y_px": 482
+    },
+    "south_stair": {
+      "x_px": 617,
+      "y_px": 656
+    },
+    "link_to_b": {
+      "x_px": 269,
+      "y_px": 29
+    },
+    "fireboard": {
+      "x_px": 148,
+      "y_px": 237
+    },
+    "room_104A": {
+      "x_px": 560,
+      "y_px": 571
+    },
+    "room_104B": {
+      "x_px": 616,
+      "y_px": 603
+    }
+  }
+}

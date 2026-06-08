@@ -22,7 +22,7 @@
       dist.set(id, Infinity);
       prev.set(id, null);
     }
-    dist.set(startId, 0;
+    dist.set(startId, 0);
 
     const pq = [{ id: startId, d: 0 }];
     const seen = new Set();

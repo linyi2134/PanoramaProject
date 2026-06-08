@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 2,
+  "floor": 3,
+  "zone": "B",
+  "description": "3F-B座",
+  "planImage": "plans/f3_b_cad.png",
+  "planWidth": 1027,
+  "planHeight": 1125,
+  "pdfSource": "3F-B.pdf",
+  "graphFile": "node_nav/data/f3_b_graph.json",
+  "graphNodeCount": 40,
+  "note": "tools/pick-coords.html 导出；运行 apply_cad_coords.py 写回。",
+  "coords": {
+    "fork_nw": {
+      "x_px": 243,
+      "y_px": 228
+    },
+    "fork_ne": {
+      "x_px": 725,
+      "y_px": 235
+    },
+    "fork_se": {
+      "x_px": 725,
+      "y_px": 849
+    },
+    "fork_sw": {
+      "x_px": 246,
+      "y_px": 838
+    },
+    "end_nw": {
+      "x_px": 36,
+      "y_px": 229
+    },
+    "end_ne": {
+      "x_px": 1001,
+      "y_px": 226
+    },
+    "end_se": {
+      "x_px": 914,
+      "y_px": 842
+    },
+    "end_sw": {
+      "x_px": 29,
+      "y_px": 846
+    },
+    "stair_north": {
+      "x_px": 740,
+      "y_px": 351
+    },
+    "stair_south": {
+      "x_px": 212,
+      "y_px": 746
+    },
+    "elevator": {
+      "x_px": 778,
+      "y_px": 280
+    },
+    "north_cctv": {
+      "x_px": 726,
+      "y_px": 218
+    },
+    "washroom": {
+      "x_px": 730,
+      "y_px": 747
+    },
+    "weak_elec": {
+      "x_px": 270,
+      "y_px": 898
+    },
+    "strong_elec": {
+      "x_px": 260,
+      "y_px": 962
+    },
+    "storage": {
+      "x_px": 255,
+      "y_px": 1033
+    },
+    "link_to_a": {
+      "x_px": 256,
+      "y_px": 1089
+    },
+    "room331_front": {
+      "x_px": 336,
+      "y_px": 849
+    },
+    "room331_back": {
+      "x_px": 523,
+      "y_px": 852
+    },
+    "room332": {
+      "x_px": 569,
+      "y_px": 846
+    },
+    "room333_front": {
+      "x_px": 618,
+      "y_px": 854
+    },
+    "room333_back": {
+      "x_px": 910,
+      "y_px": 860
+    },
+    "room335": {
+      "x_px": 927,
+      "y_px": 232
+    },
+    "lab336_front": {
+      "x_px": 771,
+      "y_px": 229
+    },
+    "lab336_back": {
+      "x_px": 1001,
+      "y_px": 206
+    },
+    "lab338a": {
+      "x_px": 681,
+      "y_px": 221
+    },
+    "lab338b_front": {
+      "x_px": 390,
+      "y_px": 219
+    },
+    "lab338b_back": {
+      "x_px": 75,
+      "y_px": 227
+    },
+    "conf339_front": {
+      "x_px": 183,
+      "y_px": 230
+    },
+    "conf339_back": {
+      "x_px": 58,
+      "y_px": 235
+    },
+    "director340": {
+      "x_px": 296,
+      "y_px": 229
+    },
+    "expert341": {
+      "x_px": 355,
+      "y_px": 233
+    },
+    "teacher342": {
+      "x_px": 410,
+      "y_px": 230
+    },
+    "teacher343": {
+      "x_px": 455,
+      "y_px": 226
+    },
+    "teacher344": {
+      "x_px": 502,
+      "y_px": 227
+    },
+    "teacher345": {
+      "x_px": 556,
+      "y_px": 225
+    },
+    "teacher346": {
+      "x_px": 607,
+      "y_px": 223
+    },
+    "deputy347": {
+      "x_px": 661,
+      "y_px": 227
+    },
+    "room349_front": {
+      "x_px": 202,
+      "y_px": 846
+    },
+    "room349_back": {
+      "x_px": 29,
+      "y_px": 849
+    }
+  }
+}

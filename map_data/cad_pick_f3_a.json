@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 2,
+  "floor": 3,
+  "zone": "A",
+  "description": "3F-A座",
+  "planImage": "plans/f3_a_cad.png",
+  "planWidth": 603,
+  "planHeight": 593,
+  "pdfSource": "3F-A.pdf",
+  "graphFile": "node_nav/data/f3_a_graph.json",
+  "graphNodeCount": 25,
+  "note": "tools/pick-coords.html 导出；运行 apply_cad_coords.py 写回。",
+  "coords": {
+    "fork_nw": {
+      "x_px": 149,
+      "y_px": 176
+    },
+    "fork_ne": {
+      "x_px": 285,
+      "y_px": 240
+    },
+    "fork_se": {
+      "x_px": 219,
+      "y_px": 379
+    },
+    "fork_sw": {
+      "x_px": 81,
+      "y_px": 310
+    },
+    "end_se": {
+      "x_px": 478,
+      "y_px": 512
+    },
+    "elec": {
+      "x_px": 310,
+      "y_px": 262
+    },
+    "stair_big": {
+      "x_px": 287,
+      "y_px": 385
+    },
+    "stair_small": {
+      "x_px": 534,
+      "y_px": 502
+    },
+    "washroom": {
+      "x_px": 171,
+      "y_px": 136
+    },
+    "water": {
+      "x_px": 128,
+      "y_px": 162
+    },
+    "link_to_b": {
+      "x_px": 206,
+      "y_px": 61
+    },
+    "office302": {
+      "x_px": 50,
+      "y_px": 299
+    },
+    "meeting303_front": {
+      "x_px": 102,
+      "y_px": 325
+    },
+    "meeting303_back": {
+      "x_px": 148,
+      "y_px": 350
+    },
+    "office304": {
+      "x_px": 175,
+      "y_px": 363
+    },
+    "office305": {
+      "x_px": 239,
+      "y_px": 393
+    },
+    "meeting306": {
+      "x_px": 468,
+      "y_px": 469
+    },
+    "office309": {
+      "x_px": 343,
+      "y_px": 281
+    },
+    "lab310": {
+      "x_px": 351,
+      "y_px": 267
+    },
+    "lab311": {
+      "x_px": 318,
+      "y_px": 244
+    },
+    "office312": {
+      "x_px": 253,
+      "y_px": 218
+    },
+    "office313": {
+      "x_px": 209,
+      "y_px": 199
+    },
+    "lab314": {
+      "x_px": 187,
+      "y_px": 181
+    },
+    "office315": {
+      "x_px": 125,
+      "y_px": 210
+    },
+    "office316": {
+      "x_px": 103,
+      "y_px": 265
+    }
+  }
+}

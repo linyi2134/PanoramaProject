@@ -1,0 +1,60 @@
+{
+  "description": "2F·A-B连廊",
+  "isFinished": false,
+  "meta": {
+    "floor": 2,
+    "zone": "LINK",
+    "building": "B7",
+    "units": "meter",
+    "planImage": "plans/link_f2_cad.png",
+    "planWidth": 138,
+    "planHeight": 407,
+    "note": "2–5F 共用底图；边权占位 1，请按实地丈量替换。 坐标基于 CAD 底图（tools/pick-coords.html 标注）。"
+  },
+  "nodes": [
+    {
+      "id": "link_to_b",
+      "label": "通往B区",
+      "floor": 2,
+      "role": "corridor",
+      "x_px": 52,
+      "y_px": 42
+    },
+    {
+      "id": "outdoor_stair",
+      "label": "户外楼梯",
+      "floor": 2,
+      "role": "vertical",
+      "x_px": 57,
+      "y_px": 218
+    },
+    {
+      "id": "link_to_a",
+      "label": "通往A区",
+      "floor": 2,
+      "role": "corridor",
+      "x_px": 44,
+      "y_px": 350
+    }
+  ],
+  "edges": [
+    {
+      "from": "link_to_b",
+      "to": "outdoor_stair",
+      "weight": 15
+    },
+    {
+      "from": "outdoor_stair",
+      "to": "link_to_a",
+      "weight": 10
+    }
+  ],
+  "facilities": [
+    {
+      "id": "poi_stair_out",
+      "type": "楼梯",
+      "nodeId": "outdoor_stair",
+      "label": "户外楼梯"
+    }
+  ]
+}

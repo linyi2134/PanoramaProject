@@ -19,9 +19,11 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections import deque
 from pathlib import Path
 
 import fitz
+import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -77,20 +79,49 @@ def render_pdf(pdf: Path, dpi: int = 300) -> Image.Image:
     return img
 
 
-def crop_white(img: Image.Image, margin: int = 8, threshold: int = 250) -> Image.Image:
-    gray = img.convert("L")
-    w, h = gray.size
-    pixels = gray.load()
+def crop_white(
+    img: Image.Image,
+    margin: int = 8,
+    threshold: int = 250,
+    min_component: int = 40,
+) -> Image.Image:
+    """裁掉四周白边；忽略孤立小噪点（如 PDF 角落脏点），避免裁切框被撑大。"""
+    arr = np.array(img.convert("L"))
+    ink = arr < threshold
+    h, w = ink.shape
+    visited = np.zeros_like(ink, dtype=bool)
     min_x, min_y, max_x, max_y = w, h, 0, 0
     found = False
-    for y in range(h):
-        for x in range(w):
-            if pixels[x, y] < threshold:
-                found = True
+
+    for sy in range(h):
+        for sx in range(w):
+            if not ink[sy, sx] or visited[sy, sx]:
+                continue
+            q: deque[tuple[int, int]] = deque([(sx, sy)])
+            visited[sy, sx] = True
+            comp: list[tuple[int, int]] = []
+            while q:
+                x, y = q.popleft()
+                comp.append((x, y))
+                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    nx, ny = x + dx, y + dy
+                    if (
+                        0 <= nx < w
+                        and 0 <= ny < h
+                        and ink[ny, nx]
+                        and not visited[ny, nx]
+                    ):
+                        visited[ny, nx] = True
+                        q.append((nx, ny))
+            if len(comp) < min_component:
+                continue
+            found = True
+            for x, y in comp:
                 min_x = min(min_x, x)
-                min_y = min(min_y, y)
                 max_x = max(max_x, x)
+                min_y = min(min_y, y)
                 max_y = max(max_y, y)
+
     if not found:
         return img
     min_x = max(0, min_x - margin)
@@ -106,6 +137,19 @@ def resize_to_width(img: Image.Image, width: int | None) -> Image.Image:
     ratio = width / img.width
     height = max(1, round(img.height * ratio))
     return img.resize((width, height), Image.Resampling.LANCZOS)
+
+
+def resize_to_box(img: Image.Image, tw: int, th: int) -> Image.Image:
+    """裁切后等比缩放，再居中裁剪到 tw×th（铺满画布、不拉伸变形）。"""
+    if img.width == tw and img.height == th:
+        return img
+    scale = max(tw / img.width, th / img.height)
+    nw = max(1, round(img.width * scale))
+    nh = max(1, round(img.height * scale))
+    img = img.resize((nw, nh), Image.Resampling.LANCZOS)
+    left = max(0, (nw - tw) // 2)
+    top = max(0, (nh - th) // 2)
+    return img.crop((left, top, left + tw, top + th))
 
 
 def rotate_cw(img: Image.Image, degrees: int) -> Image.Image:
@@ -141,7 +185,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="DWG/PDF → PNG")
     parser.add_argument("input", help="DWG 或 PDF 路径")
     parser.add_argument("-o", "--output", help="输出 PNG（默认 plans/<stem>.png）")
-    parser.add_argument("--width", type=int, default=0, help="输出宽度像素，0=保持裁剪后原尺寸")
+    parser.add_argument("--width", type=int, default=0, help="输出宽度像素，0=不指定（与 --target-size 二选一）")
+    parser.add_argument(
+        "--target-size",
+        metavar="WxH",
+        help="裁白边后等比缩放并居中裁剪到精确尺寸，如 587x709",
+    )
     parser.add_argument("--dpi", type=int, default=300, help="PDF 渲染 DPI")
     parser.add_argument("--no-crop", action="store_true", help="不裁白边")
     parser.add_argument(
@@ -173,10 +222,21 @@ def main() -> int:
             img = crop_white(img)
         if args.rotate_cw:
             img = rotate_cw(img, args.rotate_cw)
-        img = resize_to_width(img, args.width or None)
+        if args.target_size:
+            parts = args.target_size.lower().split("x")
+            if len(parts) != 2:
+                print("--target-size 格式应为 WxH，如 587x709", file=sys.stderr)
+                return 1
+            img = resize_to_box(img, int(parts[0]), int(parts[1]))
+        else:
+            img = resize_to_width(img, args.width or None)
         out.parent.mkdir(parents=True, exist_ok=True)
         img.save(out, format="PNG")
-        print(f"已导出 {out.relative_to(ROOT)} ({img.width}×{img.height}) [ODA/DWG]")
+        try:
+            rel = out.relative_to(ROOT)
+        except ValueError:
+            rel = out
+        print(f"已导出 {rel} ({img.width}x{img.height}) [ODA/DWG]")
         return 0
 
     pdf = src if src.suffix.lower() == ".pdf" else companion_pdf(src)
@@ -188,11 +248,22 @@ def main() -> int:
             img = crop_white(img)
         if args.rotate_cw:
             img = rotate_cw(img, args.rotate_cw)
-        img = resize_to_width(img, args.width or None)
+        if args.target_size:
+            parts = args.target_size.lower().split("x")
+            if len(parts) != 2:
+                print("--target-size 格式应为 WxH，如 587x709", file=sys.stderr)
+                return 1
+            img = resize_to_box(img, int(parts[0]), int(parts[1]))
+        else:
+            img = resize_to_width(img, args.width or None)
         out.parent.mkdir(parents=True, exist_ok=True)
         img.save(out, format="PNG")
         rot = f", 顺时针{args.rotate_cw}°" if args.rotate_cw else ""
-        print(f"已导出 {out.relative_to(ROOT)} ({img.width}×{img.height}) [PDF{rot}]")
+        try:
+            rel = out.relative_to(ROOT)
+        except ValueError:
+            rel = out
+        print(f"已导出 {rel} ({img.width}x{img.height}) [PDF{rot}]")
         if src.suffix.lower() == ".dwg" and not oda:
             print(
                 "提示: 安装免费 ODA File Converter 后可直转 DWG →",

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 2,
+  "floor": 2,
+  "zone": "LINK",
+  "description": "2F·A-B连廊",
+  "planImage": "plans/link_f2_cad.png",
+  "planWidth": 138,
+  "planHeight": 407,
+  "pdfSource": "A-B连廊_1-5F共享.pdf",
+  "graphFile": "node_nav/data/link_f2_graph.json",
+  "graphNodeCount": 3,
+  "note": "tools/pick-coords.html 导出；运行 apply_cad_coords.py 写回。",
+  "coords": {
+    "link_to_b": {
+      "x_px": 52,
+      "y_px": 42
+    },
+    "outdoor_stair": {
+      "x_px": 57,
+      "y_px": 218
+    },
+    "link_to_a": {
+      "x_px": 44,
+      "y_px": 350
+    }
+  }
+}

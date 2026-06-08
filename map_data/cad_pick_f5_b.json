@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 2,
+  "floor": 5,
+  "zone": "B",
+  "description": "5F-B座",
+  "planImage": "plans/f5_b_cad.png",
+  "planWidth": 844,
+  "planHeight": 925,
+  "pdfSource": "1_2_5F-B.pdf",
+  "graphFile": "node_nav/data/f5_b_graph.json",
+  "graphNodeCount": 36,
+  "note": "tools/pick-coords.html 导出；运行 apply_cad_coords.py 写回。",
+  "coords": {
+    "fork_nw": {
+      "x_px": 201,
+      "y_px": 184
+    },
+    "fork_ne": {
+      "x_px": 592,
+      "y_px": 187
+    },
+    "fork_se": {
+      "x_px": 596,
+      "y_px": 693
+    },
+    "fork_sw": {
+      "x_px": 208,
+      "y_px": 685
+    },
+    "end_nww": {
+      "x_px": 25,
+      "y_px": 182
+    },
+    "end_sww": {
+      "x_px": 23,
+      "y_px": 687
+    },
+    "end_sws": {
+      "x_px": 215,
+      "y_px": 857
+    },
+    "end_see": {
+      "x_px": 762,
+      "y_px": 693
+    },
+    "end_nee": {
+      "x_px": 823,
+      "y_px": 182
+    },
+    "stair_west": {
+      "x_px": 196,
+      "y_px": 617
+    },
+    "stair_east": {
+      "x_px": 597,
+      "y_px": 287
+    },
+    "stair_outdoor": {
+      "x_px": 216,
+      "y_px": 913
+    },
+    "elevator": {
+      "x_px": 643,
+      "y_px": 230
+    },
+    "water": {
+      "x_px": 695,
+      "y_px": 696
+    },
+    "washroom": {
+      "x_px": 600,
+      "y_px": 612
+    },
+    "weak_elec": {
+      "x_px": 217,
+      "y_px": 750
+    },
+    "strong_elec": {
+      "x_px": 217,
+      "y_px": 798
+    },
+    "link_to_a": {
+      "x_px": 215,
+      "y_px": 886
+    },
+    "lab531_front": {
+      "x_px": 287,
+      "y_px": 703
+    },
+    "lab531_medium": {
+      "x_px": 473,
+      "y_px": 703
+    },
+    "lab531_back": {
+      "x_px": 746,
+      "y_px": 713
+    },
+    "room532": {
+      "x_px": 763,
+      "y_px": 182
+    },
+    "lab533_front": {
+      "x_px": 624,
+      "y_px": 175
+    },
+    "lab533_back": {
+      "x_px": 819,
+      "y_px": 173
+    },
+    "room534": {
+      "x_px": 591,
+      "y_px": 171
+    },
+    "lab535_front": {
+      "x_px": 111,
+      "y_px": 173
+    },
+    "lab535_medium": {
+      "x_px": 322,
+      "y_px": 179
+    },
+    "lab535_lab540_back": {
+      "x_px": 554,
+      "y_px": 181
+    },
+    "lab536_front": {
+      "x_px": 151,
+      "y_px": 188
+    },
+    "lab536_back": {
+      "x_px": 51,
+      "y_px": 179
+    },
+    "room537_lab538_back": {
+      "x_px": 42,
+      "y_px": 688
+    },
+    "lab538_front": {
+      "x_px": 163,
+      "y_px": 688
+    },
+    "lab539": {
+      "x_px": 817,
+      "y_px": 188
+    },
+    "lab540_front": {
+      "x_px": 253,
+      "y_px": 192
+    },
+    "lab540_medium": {
+      "x_px": 391,
+      "y_px": 187
+    },
+    "lab541": {
+      "x_px": 52,
+      "y_px": 176
+    }
+  }
+}

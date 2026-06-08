@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 2,
+  "floor": 5,
+  "zone": "A",
+  "description": "5F-A座",
+  "planImage": "plans/f5_a_cad.png",
+  "planWidth": 587,
+  "planHeight": 709,
+  "pdfSource": "5F-A.pdf",
+  "graphFile": "node_nav/data/f5_a_graph.json",
+  "graphNodeCount": 33,
+  "note": "tools/pick-coords.html 导出；运行 apply_cad_coords.py 写回。",
+  "coords": {
+    "fork_nw": {
+      "x_px": 220,
+      "y_px": 251
+    },
+    "fork_ne": {
+      "x_px": 427,
+      "y_px": 360
+    },
+    "fork_se": {
+      "x_px": 330,
+      "y_px": 581
+    },
+    "fork_sw": {
+      "x_px": 124,
+      "y_px": 472
+    },
+    "end_nww": {
+      "x_px": 173,
+      "y_px": 231
+    },
+    "end_nwn": {
+      "x_px": 322,
+      "y_px": 59
+    },
+    "end_nee": {
+      "x_px": 529,
+      "y_px": 411
+    },
+    "end_see": {
+      "x_px": 415,
+      "y_px": 628
+    },
+    "end_sww": {
+      "x_px": 57,
+      "y_px": 441
+    },
+    "stair_south": {
+      "x_px": 427,
+      "y_px": 604
+    },
+    "stair_outdoor": {
+      "x_px": 346,
+      "y_px": 36
+    },
+    "water": {
+      "x_px": 173,
+      "y_px": 225
+    },
+    "washroom": {
+      "x_px": 233,
+      "y_px": 209
+    },
+    "weak_elec": {
+      "x_px": 387,
+      "y_px": 451
+    },
+    "strong_elec": {
+      "x_px": 410,
+      "y_px": 418
+    },
+    "link_to_b": {
+      "x_px": 332,
+      "y_px": 48
+    },
+    "office501": {
+      "x_px": 85,
+      "y_px": 456
+    },
+    "office502": {
+      "x_px": 126,
+      "y_px": 472
+    },
+    "room503_front": {
+      "x_px": 285,
+      "y_px": 562
+    },
+    "room503_back": {
+      "x_px": 217,
+      "y_px": 519
+    },
+    "office504": {
+      "x_px": 345,
+      "y_px": 598
+    },
+    "office505": {
+      "x_px": 411,
+      "y_px": 632
+    },
+    "room506": {
+      "x_px": 368,
+      "y_px": 605
+    },
+    "office507": {
+      "x_px": 529,
+      "y_px": 417
+    },
+    "office508": {
+      "x_px": 534,
+      "y_px": 414
+    },
+    "office509": {
+      "x_px": 504,
+      "y_px": 399
+    },
+    "office510": {
+      "x_px": 479,
+      "y_px": 383
+    },
+    "office511": {
+      "x_px": 431,
+      "y_px": 360
+    },
+    "office512": {
+      "x_px": 372,
+      "y_px": 323
+    },
+    "office513": {
+      "x_px": 315,
+      "y_px": 290
+    },
+    "office514": {
+      "x_px": 268,
+      "y_px": 265
+    },
+    "lab515": {
+      "x_px": 180,
+      "y_px": 313
+    },
+    "office516": {
+      "x_px": 147,
+      "y_px": 387
+    }
+  }
+}

@@ -3,227 +3,294 @@
   "isFinished": false,
   "meta": {
     "floor": 5,
-    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；门节点贴在走廊侧，后门按实际连通性增删边。",
+    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；门节点贴在走廊侧，后门按实际连通性增删边。 坐标基于 CAD 底图（tools/pick-coords.html 标注）。",
     "building": "B7",
     "zone": "B",
-    "units": "meter"
+    "units": "meter",
+    "planImage": "plans/f5_b_cad.png",
+    "planWidth": 844,
+    "planHeight": 925
   },
   "nodes": [
     {
       "id": "fork_nw",
       "label": "西北分叉",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 201,
+      "y_px": 184
     },
     {
       "id": "fork_ne",
       "label": "东北分叉",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 592,
+      "y_px": 187
     },
     {
       "id": "fork_se",
       "label": "东南分叉",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 596,
+      "y_px": 693
     },
     {
       "id": "fork_sw",
       "label": "西南分叉",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 208,
+      "y_px": 685
     },
     {
       "id": "end_nww",
       "label": "西北分叉向西延伸 ",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 25,
+      "y_px": 182
     },
     {
       "id": "end_sww",
       "label": "西南分叉向西延伸",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 23,
+      "y_px": 687
     },
     {
       "id": "end_sws",
       "label": "西南分叉向南延伸 ",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 215,
+      "y_px": 857
     },
     {
       "id": "end_see",
       "label": "东南分叉向东延伸",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 762,
+      "y_px": 693
     },
     {
       "id": "end_nee",
       "label": "东北分叉向东延伸",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 823,
+      "y_px": 182
     },
     {
       "id": "stair_west",
       "label": "西侧楼梯",
       "floor": 5,
-      "role": "vertical"
+      "role": "vertical",
+      "x_px": 196,
+      "y_px": 617
     },
     {
       "id": "stair_east",
       "label": "东侧楼梯",
       "floor": 5,
-      "role": "vertical"
-    },
-    {
-      "id": "stair_outdoor",
-      "label": "户外楼梯",
-      "floor": 5,
-      "role": "vertical"
+      "role": "vertical",
+      "x_px": 597,
+      "y_px": 287
     },
     {
       "id": "elevator",
-      "label": "电梯",
+      "label": "东侧电梯",
       "floor": 5,
-      "role": "vertical"
+      "role": "vertical",
+      "x_px": 643,
+      "y_px": 230
     },
     {
       "id": "water",
       "label": "饮水机",
       "floor": 5,
-      "role": "facility"
+      "role": "facility",
+      "x_px": 695,
+      "y_px": 696
     },
     {
       "id": "washroom",
       "label": "洗手间",
       "floor": 5,
-      "role": "facility"
+      "role": "facility",
+      "x_px": 600,
+      "y_px": 612
     },
     {
       "id": "weak_elec",
       "label": "弱电间",
       "floor": 5,
-      "role": "room"
+      "role": "room",
+      "x_px": 217,
+      "y_px": 750
     },
     {
       "id": "strong_elec",
       "label": "强电间",
       "floor": 5,
-      "role": "room"
+      "role": "room",
+      "x_px": 217,
+      "y_px": 798
     },
     {
       "id": "link_to_a",
       "label": "连廊（接A区）",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 215,
+      "y_px": 886
     },
     {
       "id": "lab531_front",
       "label": "531EDA实习室前门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 287,
+      "y_px": 703
     },
     {
       "id": "lab531_medium",
       "label": "531EDA实习室中门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 473,
+      "y_px": 703
     },
     {
       "id": "lab531_back",
       "label": "531EDA实习室后门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 746,
+      "y_px": 713
     },
     {
       "id": "room532",
       "label": "532杂物间门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 763,
+      "y_px": 182
     },
     {
       "id": "lab533_front",
       "label": "533虚拟仪器实验室前门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 624,
+      "y_px": 175
     },
     {
       "id": "lab533_back",
       "label": "533虚拟仪器实验室后门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 819,
+      "y_px": 173
     },
     {
       "id": "room534",
       "label": "534房门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 591,
+      "y_px": 171
     },
     {
       "id": "lab535_front",
       "label": "535电工技术实验室前门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 111,
+      "y_px": 173
     },
     {
       "id": "lab535_medium",
       "label": "535电工技术实验室中门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 322,
+      "y_px": 179
     },
     {
       "id": "lab535_lab540_back",
       "label": "535电工技术实验室(540实验室）后门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 554,
+      "y_px": 181
     },
     {
       "id": "lab536_front",
       "label": "536资料室前门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 151,
+      "y_px": 188
     },
     {
       "id": "lab536_back",
-      "label": "533资料室后门",
+      "label": "536资料室后门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 51,
+      "y_px": 179
     },
     {
       "id": "room537_lab538_back",
       "label": "537杂物间门（538表面贴装技术实习室后门）",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 42,
+      "y_px": 688
     },
     {
       "id": "lab538_front",
       "label": "538表面贴装技术实习室前门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 163,
+      "y_px": 688
     },
     {
       "id": "lab539",
       "label": "539人工智能与机器学习研究室",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 817,
+      "y_px": 188
     },
     {
       "id": "lab540_front",
       "label": "540实验室前门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 253,
+      "y_px": 192
     },
     {
       "id": "lab540_medium",
       "label": "540实验室中门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 391,
+      "y_px": 187
     },
     {
       "id": "lab541",
       "label": "541大型软件开发方法及应用研究室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 52,
+      "y_px": 176
     }
   ],
   "edges": [
@@ -396,6 +463,11 @@
       "from": "end_nee",
       "to": "lab533_back",
       "weight": 0
+    },
+    {
+      "from": "stair_west",
+      "to": "fork_sw",
+      "weight": 2
     }
   ],
   "facilities": [
@@ -409,7 +481,7 @@
       "id": "poi_elv",
       "type": "电梯",
       "nodeId": "elevator",
-      "label": "电梯"
+      "label": "东侧电梯"
     },
     {
       "id": "poi_stair_w",
@@ -422,12 +494,6 @@
       "type": "楼梯",
       "nodeId": "stair_east",
       "label": "东侧楼梯"
-    },
-    {
-      "id": "poi_stair_out",
-      "type": "楼梯",
-      "nodeId": "stair_outdoor",
-      "label": "户外楼梯"
     },
     {
       "id": "poi_water",

@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 2,
+  "floor": 1,
+  "zone": "B",
+  "description": "1F-B座",
+  "planImage": "plans/f1_b_cad.png",
+  "planWidth": 844,
+  "planHeight": 925,
+  "pdfSource": "1_2_5F-B.pdf",
+  "graphFile": "node_nav/data/f1_b_graph.json",
+  "graphNodeCount": 25,
+  "note": "tools/pick-coords.html 导出；运行 apply_cad_coords.py 写回。",
+  "coords": {
+    "fork_nw": {
+      "x_px": 205,
+      "y_px": 331
+    },
+    "fork_ne": {
+      "x_px": 587,
+      "y_px": 333
+    },
+    "fork_se": {
+      "x_px": 585,
+      "y_px": 690
+    },
+    "fork_sw": {
+      "x_px": 209,
+      "y_px": 677
+    },
+    "end_sww": {
+      "x_px": 43,
+      "y_px": 674
+    },
+    "end_nen": {
+      "x_px": 584,
+      "y_px": 52
+    },
+    "end_see": {
+      "x_px": 746,
+      "y_px": 695
+    },
+    "link_to_a": {
+      "x_px": 208,
+      "y_px": 842
+    },
+    "room137_front": {
+      "x_px": 206,
+      "y_px": 303
+    },
+    "room137_back": {
+      "x_px": 555,
+      "y_px": 303
+    },
+    "ws_stair": {
+      "x_px": 137,
+      "y_px": 607
+    },
+    "out_stair": {
+      "x_px": 209,
+      "y_px": 894
+    },
+    "washroom": {
+      "x_px": 583,
+      "y_px": 588
+    },
+    "en_elec": {
+      "x_px": 596,
+      "y_px": 266
+    },
+    "teacher_room": {
+      "x_px": 423,
+      "y_px": 697
+    },
+    "mobile_room": {
+      "x_px": 499,
+      "y_px": 699
+    },
+    "ai_room": {
+      "x_px": 209,
+      "y_px": 610
+    },
+    "b_door": {
+      "x_px": 44,
+      "y_px": 612
+    },
+    "elec_room": {
+      "x_px": 235,
+      "y_px": 743
+    },
+    "restarea": {
+      "x_px": 398,
+      "y_px": 496
+    },
+    "desk": {
+      "x_px": 205,
+      "y_px": 437
+    },
+    "en_door": {
+      "x_px": 790,
+      "y_px": 181
+    },
+    "lab_door": {
+      "x_px": 341,
+      "y_px": 695
+    },
+    "st_elec": {
+      "x_px": 210,
+      "y_px": 742
+    },
+    "weak_elec": {
+      "x_px": 208,
+      "y_px": 795
+    }
+  }
+}

@@ -90,6 +90,22 @@
         hr {
             border-color: rgba(255,255,255,0.2);
         }
+        .nav-panel .btn-row { display: flex; gap: 8px; }
+        .nav-panel .btn-row button { flex: 1; }
+        .nav-panel button.btn-jump { background: #27ae60; }
+        .nav-panel button.btn-jump:hover { background: #2ecc71; }
+        .nav-panel button.btn-guide { background: #34495e; font-size: 12px; }
+        .nav-panel button.btn-guide:hover { background: #4a6278; }
+        .demo-banner {
+            background: rgba(230, 126, 34, 0.25);
+            border: 1px solid rgba(230, 126, 34, 0.6);
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 12px;
+            line-height: 1.45;
+            margin-bottom: 10px;
+        }
+        .demo-banner a { color: #f39c12; font-weight: bold; }
         @media (max-width: 640px) {
             .nav-panel { width: 240px; top: 10px; right: 10px; padding: 10px; }
         }
@@ -98,7 +114,11 @@
 <body>
     <div id="panorama"></div>
     <div class="nav-panel">
-        <h3>🗺️ 导航系统</h3>
+        <h3>🗺️ 导航系统（5 场景 demo）</h3>
+        <div class="demo-banner">
+            房间蓝点、52 场景与<strong>立即跳转</strong>在
+            <a href="panorama_full.html">完整版全景</a>（<code>panorama_full.html</code>）
+        </div>
         <div class="current-scene">📍 当前场景：<span id="currentSceneLabel">加载中...</span></div>
         <select id="destinationSelect">
             <option value="">— 选择目的地 —</option>
@@ -108,7 +128,10 @@
             <option value="inner_stair">里侧楼梯</option>
             <option value="second_floor">二楼</option>
         </select>
-        <button id="navigateBtn">🚀 开始导航</button>
+        <div class="btn-row">
+            <button type="button" id="jumpBtn" class="btn-jump">⚡ 立即跳转</button>
+            <button type="button" id="guideBtn" class="btn-guide">🚶 逐步引导</button>
+        </div>
         <p style="margin-top:10px;font-size:12px;text-align:center;">
             <a href="map.html" style="color:#58a6ff;">二维地图导航 →</a><br>
             <a href="panorama_full.html" style="color:#f39c12;margin-top:6px;display:inline-block;">完整版 52 场景全景 →</a>
@@ -363,13 +386,25 @@
             updateCurrentScene();
         }, 500);
 
-        // 绑定导航按钮事件
-        document.getElementById("navigateBtn").addEventListener("click", function() {
-            const dest = document.getElementById("destinationSelect").value;
-            if (!dest) {
-                alert("请先选择目的地！");
+        function jumpTo(destinationId) {
+            if (!destinationId) return;
+            if (currentSceneId === destinationId) {
+                document.getElementById("routeResult").style.display = "block";
+                document.getElementById("routeResult").innerHTML =
+                    `<div style="color:#2ecc71;">✅ 已在 ${sceneNames[destinationId]}</div>`;
                 return;
             }
+            viewer.loadScene(destinationId);
+        }
+
+        document.getElementById("jumpBtn").addEventListener("click", function() {
+            const dest = document.getElementById("destinationSelect").value;
+            if (!dest) { alert("请先选择目的地！"); return; }
+            jumpTo(dest);
+        });
+        document.getElementById("guideBtn").addEventListener("click", function() {
+            const dest = document.getElementById("destinationSelect").value;
+            if (!dest) { alert("请先选择目的地！"); return; }
             navigateTo(dest);
         });
 

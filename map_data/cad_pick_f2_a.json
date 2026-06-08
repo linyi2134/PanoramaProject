@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 2,
+  "floor": 2,
+  "zone": "A",
+  "description": "2F-A座",
+  "planImage": "plans/f2_a_cad.png",
+  "planWidth": 933,
+  "planHeight": 918,
+  "pdfSource": "2F-A.pdf",
+  "graphFile": "node_nav/data/f2_a_graph.json",
+  "graphNodeCount": 32,
+  "note": "tools/pick-coords.html 导出；运行 apply_cad_coords.py 写回。",
+  "coords": {
+    "fork_nw": {
+      "x_px": 226,
+      "y_px": 251
+    },
+    "fork_ne": {
+      "x_px": 441,
+      "y_px": 366
+    },
+    "fork_se": {
+      "x_px": 325,
+      "y_px": 591
+    },
+    "fork_sw": {
+      "x_px": 108,
+      "y_px": 476
+    },
+    "fork_other": {
+      "x_px": 730,
+      "y_px": 806
+    },
+    "link_to_b": {
+      "x_px": 264,
+      "y_px": 181
+    },
+    "link_other": {
+      "x_px": 451,
+      "y_px": 658
+    },
+    "stair_south": {
+      "x_px": 434,
+      "y_px": 648
+    },
+    "stair_other": {
+      "x_px": 803,
+      "y_px": 846
+    },
+    "stair_outdoor": {
+      "x_px": 350,
+      "y_px": 28
+    },
+    "washroom_nw": {
+      "x_px": 245,
+      "y_px": 217
+    },
+    "washroom_other": {
+      "x_px": 801,
+      "y_px": 681
+    },
+    "water": {
+      "x_px": 184,
+      "y_px": 229
+    },
+    "weak_elec": {
+      "x_px": 374,
+      "y_px": 494
+    },
+    "strong_elec": {
+      "x_px": 398,
+      "y_px": 448
+    },
+    "office217": {
+      "x_px": 205,
+      "y_px": 290
+    },
+    "office218": {
+      "x_px": 127,
+      "y_px": 441
+    },
+    "office202": {
+      "x_px": 87,
+      "y_px": 465
+    },
+    "room201": {
+      "x_px": 64,
+      "y_px": 453
+    },
+    "room203": {
+      "x_px": 232,
+      "y_px": 543
+    },
+    "office204": {
+      "x_px": 301,
+      "y_px": 579
+    },
+    "office214": {
+      "x_px": 496,
+      "y_px": 396
+    },
+    "office213": {
+      "x_px": 532,
+      "y_px": 415
+    },
+    "office212": {
+      "x_px": 559,
+      "y_px": 429
+    },
+    "office216": {
+      "x_px": 278,
+      "y_px": 279
+    },
+    "office215": {
+      "x_px": 383,
+      "y_px": 334
+    },
+    "room211": {
+      "x_px": 353,
+      "y_px": 606
+    },
+    "office205": {
+      "x_px": 387,
+      "y_px": 624
+    },
+    "office206": {
+      "x_px": 412,
+      "y_px": 637
+    },
+    "room210": {
+      "x_px": 772,
+      "y_px": 733
+    },
+    "lab209": {
+      "x_px": 789,
+      "y_px": 703
+    },
+    "room207": {
+      "x_px": 773,
+      "y_px": 829
+    }
+  }
+}

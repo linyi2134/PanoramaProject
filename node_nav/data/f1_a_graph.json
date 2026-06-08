@@ -3,132 +3,232 @@
   "isFinished": false,
   "meta": {
     "floor": 1,
-    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；门节点贴在走廊侧，后门按实际连通性增删边；所有距离均在走廊中部测量。",
+    "note": "1F 主楼与东侧翼层内不互通（门锁）；东侧翼 room_104*、stair_small 仅翼内相连，主楼↔东侧翼须经 A2F。坐标基于 CAD（pick-coords）。",
     "building": "B7",
     "zone": "A",
-    "units": "meter"
+    "units": "meter",
+    "planImage": "plans/f1_a_cad.png",
+    "planWidth": 816,
+    "planHeight": 720
   },
   "nodes": [
     {
       "id": "fork_nw",
       "label": "西北分叉",
       "floor": 1,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 185,
+      "y_px": 195
     },
     {
       "id": "fork_ne",
       "label": "东北分叉",
       "floor": 1,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 268,
+      "y_px": 33
     },
     {
       "id": "fork_se",
       "label": "东南分叉",
       "floor": 1,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 314,
+      "y_px": 494
     },
     {
       "id": "fork_sw",
       "label": "西南分叉",
       "floor": 1,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 68,
+      "y_px": 371
     },
     {
       "id": "washroom",
       "label": "洗手间",
       "floor": 1,
-      "role": "facility"
+      "role": "facility",
+      "x_px": 184,
+      "y_px": 195
     },
     {
       "id": "office_room",
       "label": "值班室",
       "floor": 1,
-      "role": "room"
+      "role": "room",
+      "x_px": 184,
+      "y_px": 196
     },
     {
       "id": "restarea",
       "label": "休息区",
       "floor": 1,
-      "role": "facility"
+      "role": "facility",
+      "x_px": 68,
+      "y_px": 367
     },
     {
       "id": "a_door",
       "label": "A区大门",
       "floor": 1,
-      "role": "door"
+      "role": "door",
+      "x_px": 265,
+      "y_px": 39
     },
     {
       "id": "office101_front",
       "label": "学院办公室前门",
       "floor": 1,
-      "role": "door"
+      "role": "door",
+      "x_px": 239,
+      "y_px": 231
     },
     {
       "id": "office101_back",
       "label": "学院办公室后门",
       "floor": 1,
-      "role": "door"
+      "role": "door",
+      "x_px": 340,
+      "y_px": 283
     },
     {
       "id": "office102",
       "label": "学生工作办公室",
       "floor": 1,
-      "role": "door"
+      "role": "door",
+      "x_px": 417,
+      "y_px": 322
     },
     {
-      "id": "se_stair",
-      "label": "东南侧楼梯",
+      "id": "stair_south",
+      "label": "南侧楼梯",
       "floor": 1,
-      "role": "vertical"
+      "role": "vertical",
+      "x_px": 351,
+      "y_px": 482
+    },
+    {
+      "id": "stair_small",
+      "label": "小楼楼梯",
+      "floor": 1,
+      "role": "vertical",
+      "x_px": 617,
+      "y_px": 656
     },
     {
       "id": "link_to_b",
-      "label": "AB连廊",
+      "label": "连廊（接B区）",
       "floor": 1,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 269,
+      "y_px": 29
     },
     {
       "id": "fireboard",
       "label": "消防柜",
       "floor": 1,
-      "role": "facility"
+      "role": "facility",
+      "x_px": 148,
+      "y_px": 237
+    },
+    {
+      "id": "room_104A",
+      "label": "大数据与云计算研究室",
+      "floor": 1,
+      "role": "room",
+      "x_px": 560,
+      "y_px": 571
+    },
+    {
+      "id": "room_104B",
+      "label": "数据科学与智能软件研究室",
+      "floor": 1,
+      "role": "room",
+      "x_px": 616,
+      "y_px": 603
     }
   ],
   "edges": [
     {
-      "from": "washroom",
-      "to": "office_room",
-      "weight": 2.5
-    },
-    {
-      "from": "office_room",
+      "from": "a_door",
       "to": "restarea",
-      "weight": 5
+      "weight": 4
     },
     {
       "from": "restarea",
-      "to": "a_door",
-      "weight": 6
+      "to": "washroom",
+      "weight": 5
     },
     {
-      "from": "a_door",
-      "to": "se_stair",
-      "weight": 18.5
+      "from": "washroom",
+      "to": "office_room",
+      "weight": 3
     },
     {
       "from": "office_room",
       "to": "office101_front",
-      "weight": 5
+      "weight": 9
     },
     {
       "from": "office101_front",
       "to": "office101_back",
-      "weight": 8
+      "weight": 10
     },
     {
       "from": "office101_back",
       "to": "office102",
-      "weight": 8
+      "weight": 3
+    },
+    {
+      "from": "office102",
+      "to": "fork_nw",
+      "weight": 13
+    },
+    {
+      "from": "fork_nw",
+      "to": "fork_ne",
+      "weight": 13
+    },
+    {
+      "from": "fork_se",
+      "to": "stair_south",
+      "weight": 10
+    },
+    {
+      "from": "stair_south",
+      "to": "fireboard",
+      "weight": 26
+    },
+    {
+      "from": "fireboard",
+      "to": "fork_sw",
+      "weight": 10
+    },
+    {
+      "from": "fork_sw",
+      "to": "link_to_b",
+      "weight": 21
+    },
+    {
+      "from": "link_to_b",
+      "to": "a_door",
+      "weight": 25
+    },
+    {
+      "from": "room_104A",
+      "to": "room_104B",
+      "weight": 6
+    },
+    {
+      "from": "room_104B",
+      "to": "stair_small",
+      "weight": 2
+    },
+    {
+      "from": "fork_sw",
+      "to": "fork_se",
+      "weight": 20
     }
   ],
   "facilities": [
@@ -151,10 +251,16 @@
       "label": "消防柜"
     },
     {
-      "id": "poi_stair",
+      "id": "poi_stair_south",
       "type": "楼梯",
-      "nodeId": "se_stair",
-      "label": "东南侧楼梯"
+      "nodeId": "stair_south",
+      "label": "南侧楼梯"
+    },
+    {
+      "id": "poi_stair_small",
+      "type": "楼梯",
+      "nodeId": "stair_small",
+      "label": "小楼楼梯"
     }
   ]
 }

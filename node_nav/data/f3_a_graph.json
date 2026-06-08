@@ -3,437 +3,404 @@
   "isFinished": false,
   "meta": {
     "floor": 3,
-    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；边权为虚构距离，务必按实地步行丈量后替换。门节点贴在走廊侧，后门按实际连通性增删边。",
+    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；边权为虚构距离，务必按实地步行丈量后替换。门节点贴在走廊侧，后门按实际连通性增删边。 坐标基于 CAD 底图（tools/pick-coords.html 标注）。",
     "building": "B7",
     "zone": "A",
-    "units": "meter"
+    "units": "meter",
+    "planImage": "plans/f3_a_cad.png",
+    "planWidth": 603,
+    "planHeight": 593
   },
   "nodes": [
     {
       "id": "fork_nw",
       "label": "西北分叉",
       "floor": 3,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 149,
+      "y_px": 176
     },
     {
       "id": "fork_ne",
       "label": "东北分叉",
       "floor": 3,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 285,
+      "y_px": 240
     },
     {
       "id": "fork_se",
       "label": "东南分叉",
       "floor": 3,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 219,
+      "y_px": 379
     },
     {
       "id": "fork_sw",
       "label": "西南分叉",
       "floor": 3,
-      "role": "corridor"
-    },
-    {
-      "id": "end_nw",
-      "label": "西北尽头",
-      "floor": 3,
-      "role": "corridor"
-    },
-    {
-      "id": "end_ne",
-      "label": "东北尽头",
-      "floor": 3,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 81,
+      "y_px": 310
     },
     {
       "id": "end_se",
       "label": "东南尽头",
       "floor": 3,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 478,
+      "y_px": 512
     },
     {
-      "id": "end_sw",
-      "label": "西南尽头",
+      "id": "elec",
+      "label": "强弱电间",
       "floor": 3,
-      "role": "corridor"
-    },
-    {
-      "id": "stair_north",
-      "label": "北侧楼梯",
-      "floor": 1,
-      "role": "vertical"
+      "role": "room",
+      "x_px": 310,
+      "y_px": 262
     },
     {
       "id": "stair_south",
-      "label": "南楼梯",
-      "floor": 1,
-      "role": "vertical"
+      "label": "南侧楼梯",
+      "floor": 3,
+      "role": "vertical",
+      "x_px": 287,
+      "y_px": 385
     },
     {
-      "id": "elevator",
-      "label": "电梯",
-      "floor": 1,
-      "role": "vertical"
-    },
-    {
-      "id": "north_cctv",
-      "label": "北监控室",
-      "floor": 1,
-      "role": "room"
-    },
-    {
-      "id": "south_cctv",
-      "label": "南监控室",
-      "floor": 1,
-      "role": "room"
+      "id": "stair_small",
+      "label": "小楼楼梯",
+      "floor": 3,
+      "role": "vertical",
+      "x_px": 534,
+      "y_px": 502
     },
     {
       "id": "washroom",
       "label": "洗手间",
-      "floor": 1,
-      "role": "facility"
+      "floor": 3,
+      "role": "facility",
+      "x_px": 171,
+      "y_px": 136
     },
     {
-      "id": "weak_elec",
-      "label": "弱电间",
-      "floor": 1,
-      "role": "room"
-    },
-    {
-      "id": "strong_elec",
-      "label": "强电间",
-      "floor": 1,
-      "role": "room"
-    },
-    {
-      "id": "storage",
-      "label": "储藏室",
-      "floor": 1,
-      "role": "room"
+      "id": "water",
+      "label": "饮水机",
+      "floor": 3,
+      "role": "facility",
+      "x_px": 128,
+      "y_px": 162
     },
     {
       "id": "link_to_b",
       "label": "连廊（接B区）",
       "floor": 3,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 206,
+      "y_px": 61
     },
     {
       "id": "office302",
       "label": "302教师办公室",
       "floor": 3,
-      "role": "door"
+      "role": "door",
+      "x_px": 50,
+      "y_px": 299
     },
     {
-      "id": "meeting303",
-      "label": "303会议室(二)",
+      "id": "meeting303_front",
+      "label": "303会议室前门",
       "floor": 3,
-      "role": "door"
+      "role": "door",
+      "x_px": 102,
+      "y_px": 325
+    },
+    {
+      "id": "meeting303_back",
+      "label": "303会议室后门",
+      "floor": 3,
+      "role": "door",
+      "x_px": 148,
+      "y_px": 350
     },
     {
       "id": "office304",
       "label": "304教师办公室",
       "floor": 3,
-      "role": "door"
+      "role": "door",
+      "x_px": 175,
+      "y_px": 363
+    },
+    {
+      "id": "office305",
+      "label": "305教师办公室",
+      "floor": 3,
+      "role": "door",
+      "x_px": 239,
+      "y_px": 393
+    },
+    {
+      "id": "meeting306",
+      "label": "306会议室",
+      "floor": 3,
+      "role": "door",
+      "x_px": 468,
+      "y_px": 469
     },
     {
       "id": "office309",
       "label": "309教师办公室",
       "floor": 3,
-      "role": "door"
+      "role": "door",
+      "x_px": 343,
+      "y_px": 281
     },
     {
-      "id": "lab310_large",
+      "id": "lab310",
       "label": "310大型软件开发方法及应用研究室",
       "floor": 3,
-      "role": "door"
+      "role": "door",
+      "x_px": 351,
+      "y_px": 267
     },
     {
-      "id": "lab311_large",
+      "id": "lab311",
       "label": "311大型软件开发方法及应用研究室",
       "floor": 3,
-      "role": "door"
+      "role": "door",
+      "x_px": 318,
+      "y_px": 244
     },
     {
       "id": "office312",
       "label": "312教师办公室",
       "floor": 3,
-      "role": "door"
+      "role": "door",
+      "x_px": 253,
+      "y_px": 218
     },
     {
       "id": "office313",
       "label": "313教师办公室",
       "floor": 3,
-      "role": "door"
+      "role": "door",
+      "x_px": 209,
+      "y_px": 199
     },
     {
-      "id": "lab314_large",
+      "id": "lab314",
       "label": "314大型软件开发方法及应用研究室",
       "floor": 3,
-      "role": "door"
+      "role": "door",
+      "x_px": 187,
+      "y_px": 181
     },
     {
       "id": "office315",
       "label": "315教师办公室",
       "floor": 3,
-      "role": "door"
+      "role": "door",
+      "x_px": 125,
+      "y_px": 210
     },
     {
       "id": "office316",
       "label": "316教师办公室",
       "floor": 3,
-      "role": "door"
-    },
-    {
-      "id": "office335",
-      "label": "335教师办公室",
-      "floor": 3,
-      "role": "door"
-    },
-    {
-      "id": "meeting339",
-      "label": "339会议室(四)",
-      "floor": 3,
-      "role": "door"
-    },
-    {
-      "id": "lab340_data",
-      "label": "340数据科学与智能软件软件研究室",
-      "floor": 3,
-      "role": "door"
-    },
-    {
-      "id": "lab342_data",
-      "label": "342数据科学与智能软件软件研究室",
-      "floor": 3,
-      "role": "door"
-    },
-    {
-      "id": "office343",
-      "label": "343教师办公室",
-      "floor": 3,
-      "role": "door"
-    },
-    {
-      "id": "lab345_346",
-      "label": "345-346智能软件与机器人研究室",
-      "floor": 3,
-      "role": "door"
-    },
-    {
-      "id": "office347",
-      "label": "347教师办公室",
-      "floor": 3,
-      "role": "door"
-    },
-    {
-      "id": "lab349",
-      "label": "349大数据系统与云计算研究室",
-      "floor": 3,
-      "role": "door"
-    },
-    {
-      "id": "corridor_3f",
-      "label": "三层走廊中枢（待对齐平面图坐标）",
-      "floor": 3,
-      "role": "corridor"
+      "role": "door",
+      "x_px": 103,
+      "y_px": 265
     }
   ],
   "edges": [
     {
       "from": "fork_nw",
       "to": "fork_ne",
-      "weight": 22,
+      "weight": 8,
       "note": "环廊北侧"
     },
     {
       "from": "fork_ne",
       "to": "fork_se",
-      "weight": 18,
+      "weight": 8,
       "note": "环廊东侧"
     },
     {
       "from": "fork_se",
       "to": "fork_sw",
-      "weight": 22,
+      "weight": 8,
       "note": "环廊南侧"
     },
     {
       "from": "fork_sw",
       "to": "fork_nw",
-      "weight": 18,
+      "weight": 8,
       "note": "环廊西侧"
     },
     {
-      "from": "end_nw",
-      "to": "fork_nw",
-      "weight": 14,
-      "note": "向西支路"
-    },
-    {
-      "from": "end_ne",
-      "to": "fork_ne",
-      "weight": 14,
-      "note": "向北支路"
+      "from": "fork_se",
+      "to": "end_se",
+      "weight": 16,
+      "note": "小楼连廊"
     },
     {
       "from": "end_se",
-      "to": "fork_se",
-      "weight": 14,
-      "note": "向东支路"
-    },
-    {
-      "from": "end_sw",
-      "to": "fork_sw",
-      "weight": 14,
-      "note": "向南支路"
-    },
-    {
-      "from": "stair_north",
-      "to": "fork_nw",
-      "weight": 12
+      "to": "washroom",
+      "weight": 15
     },
     {
       "from": "stair_south",
-      "to": "fork_se",
-      "weight": 12
+      "to": "office305",
+      "weight": 1
     },
     {
-      "from": "elevator",
+      "from": "stair_small",
+      "to": "end_se",
+      "weight": 1
+    },
+    {
+      "from": "stair_small",
+      "to": "meeting306",
+      "weight": 1
+    },
+    {
+      "from": "elec",
       "to": "fork_ne",
-      "weight": 10
+      "weight": 1
     },
     {
-      "from": "north_cctv",
-      "to": "fork_nw",
-      "weight": 8
-    },
-    {
-      "from": "south_cctv",
-      "to": "fork_se",
-      "weight": 8
+      "from": "elec",
+      "to": "office309",
+      "weight": 1
     },
     {
       "from": "washroom",
-      "to": "fork_sw",
-      "weight": 6
+      "to": "fork_nw",
+      "weight": 1
     },
     {
-      "from": "weak_elec",
-      "to": "elevator",
-      "weight": 4
+      "from": "washroom",
+      "to": "lab314",
+      "weight": 1
     },
     {
-      "from": "strong_elec",
-      "to": "elevator",
-      "weight": 4
-    },
-    {
-      "from": "storage",
-      "to": "fork_sw",
-      "weight": 5
+      "from": "water",
+      "to": "fork_nw",
+      "weight": 1
     },
     {
       "from": "link_to_b",
-      "to": "end_ne",
-      "weight": 12
+      "to": "fork_nw",
+      "weight": 2
     },
     {
-      "from": "corridor_3f",
-      "to": "office302",
-      "weight": 1.0
+      "from": "office302",
+      "to": "fork_sw",
+      "weight": 1
     },
     {
-      "from": "corridor_3f",
-      "to": "meeting303",
-      "weight": 1.0
+      "from": "office302",
+      "to": "meeting303_front",
+      "weight": 0.1
     },
     {
-      "from": "corridor_3f",
+      "from": "meeting303_front",
+      "to": "fork_sw",
+      "weight": 1
+    },
+    {
+      "from": "meeting303_front",
+      "to": "meeting303_back",
+      "weight": 4.4
+    },
+    {
+      "from": "meeting303_back",
+      "to": "fork_sw",
+      "weight": 4.5
+    },
+    {
+      "from": "meeting303_back",
       "to": "office304",
-      "weight": 1.0
+      "weight": 0.1
     },
     {
-      "from": "corridor_3f",
-      "to": "office309",
-      "weight": 1.0
+      "from": "office304",
+      "to": "fork_se",
+      "weight": 3.5
     },
     {
-      "from": "corridor_3f",
-      "to": "lab310_large",
-      "weight": 1.0
+      "from": "office305",
+      "to": "fork_se",
+      "weight": 2
     },
     {
-      "from": "corridor_3f",
-      "to": "lab311_large",
-      "weight": 1.0
+      "from": "meeting306",
+      "to": "end_se",
+      "weight": 1
     },
     {
-      "from": "corridor_3f",
-      "to": "office312",
-      "weight": 1.0
+      "from": "office309",
+      "to": "fork_ne",
+      "weight": 2
     },
     {
-      "from": "corridor_3f",
+      "from": "office309",
+      "to": "lab310",
+      "weight": 0.5
+    },
+    {
+      "from": "lab310",
+      "to": "fork_ne",
+      "weight": 2
+    },
+    {
+      "from": "lab310",
+      "to": "lab311",
+      "weight": 1
+    },
+    {
+      "from": "lab311",
+      "to": "fork_ne",
+      "weight": 1.5
+    },
+    {
+      "from": "office312",
+      "to": "fork_ne",
+      "weight": 3
+    },
+    {
+      "from": "office312",
       "to": "office313",
-      "weight": 1.0
+      "weight": 2
     },
     {
-      "from": "corridor_3f",
-      "to": "lab314_large",
-      "weight": 1.0
+      "from": "office313",
+      "to": "fork_nw",
+      "weight": 4.5
     },
     {
-      "from": "corridor_3f",
-      "to": "office315",
-      "weight": 1.0
+      "from": "office313",
+      "to": "lab314",
+      "weight": 0.5
     },
     {
-      "from": "corridor_3f",
+      "from": "lab314",
+      "to": "fork_nw",
+      "weight": 1.5
+    },
+    {
+      "from": "office315",
+      "to": "fork_nw",
+      "weight": 1.5
+    },
+    {
+      "from": "office315",
       "to": "office316",
-      "weight": 1.0
+      "weight": 1.5
     },
     {
-      "from": "corridor_3f",
-      "to": "office335",
-      "weight": 1.0
-    },
-    {
-      "from": "corridor_3f",
-      "to": "meeting339",
-      "weight": 1.0
-    },
-    {
-      "from": "corridor_3f",
-      "to": "lab340_data",
-      "weight": 1.0
-    },
-    {
-      "from": "corridor_3f",
-      "to": "lab342_data",
-      "weight": 1.0
-    },
-    {
-      "from": "corridor_3f",
-      "to": "office343",
-      "weight": 1.0
-    },
-    {
-      "from": "corridor_3f",
-      "to": "lab345_346",
-      "weight": 1.0
-    },
-    {
-      "from": "corridor_3f",
-      "to": "office347",
-      "weight": 1.0
-    },
-    {
-      "from": "corridor_3f",
-      "to": "lab349",
-      "weight": 1.0
-    },
-    {
-      "from": "corridor_3f",
+      "from": "office316",
       "to": "fork_sw",
       "weight": 1
     }
@@ -446,22 +413,22 @@
       "label": "洗手间"
     },
     {
-      "id": "poi_elv",
-      "type": "电梯",
-      "nodeId": "elevator",
-      "label": "电梯"
+      "id": "poi_water",
+      "type": "饮水机",
+      "nodeId": "water",
+      "label": "饮水机"
     },
     {
-      "id": "poi_stair_n",
+      "id": "poi_stair_south",
       "type": "楼梯",
-      "nodeId": "stair_north",
-      "label": "北侧楼梯"
+      "nodeId": "stair_south",
+      "label": "南侧楼梯"
     },
     {
       "id": "poi_stair_s",
       "type": "楼梯",
-      "nodeId": "stair_south",
-      "label": "南楼梯"
+      "nodeId": "stair_small",
+      "label": "小楼楼梯"
     }
   ]
 }

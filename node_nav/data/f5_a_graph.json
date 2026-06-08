@@ -3,209 +3,270 @@
   "isFinished": false,
   "meta": {
     "floor": 5,
-    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；门节点贴在走廊侧，后门按实际连通性增删边。",
+    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；门节点贴在走廊侧，后门按实际连通性增删边。 坐标基于 CAD 底图（tools/pick-coords.html 标注）。",
     "building": "B7",
     "zone": "A",
-    "units": "meter"
+    "units": "meter",
+    "planImage": "plans/f5_a_cad.png",
+    "planWidth": 587,
+    "planHeight": 709
   },
   "nodes": [
     {
       "id": "fork_nw",
       "label": "西北分叉",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 220,
+      "y_px": 251
     },
     {
       "id": "fork_ne",
       "label": "东北分叉",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 427,
+      "y_px": 360
     },
     {
       "id": "fork_se",
       "label": "东南分叉",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 330,
+      "y_px": 581
     },
     {
       "id": "fork_sw",
       "label": "西南分叉",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 124,
+      "y_px": 472
     },
     {
       "id": "end_nww",
       "label": "西北分叉向西延伸 ",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 173,
+      "y_px": 231
     },
     {
       "id": "end_nwn",
       "label": "西北分叉向北延伸 ",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 322,
+      "y_px": 59
     },
     {
       "id": "end_nee",
       "label": "东北分叉向东延伸",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 529,
+      "y_px": 411
     },
     {
       "id": "end_see",
       "label": "东南分叉向东延伸",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 415,
+      "y_px": 628
     },
     {
       "id": "end_sww",
       "label": "西南分叉向西延伸",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 57,
+      "y_px": 441
     },
     {
       "id": "stair_south",
       "label": "南侧楼梯",
       "floor": 5,
-      "role": "vertical"
-    },
-    {
-      "id": "stair_outdoor",
-      "label": "户外楼梯",
-      "floor": 5,
-      "role": "vertical"
+      "role": "vertical",
+      "x_px": 427,
+      "y_px": 604
     },
     {
       "id": "water",
       "label": "饮水机",
       "floor": 5,
-      "role": "facility"
+      "role": "facility",
+      "x_px": 173,
+      "y_px": 225
     },
     {
       "id": "washroom",
       "label": "洗手间",
       "floor": 5,
-      "role": "facility"
+      "role": "facility",
+      "x_px": 233,
+      "y_px": 209
     },
     {
       "id": "weak_elec",
       "label": "弱电间",
       "floor": 5,
-      "role": "room"
+      "role": "room",
+      "x_px": 387,
+      "y_px": 451
     },
     {
       "id": "strong_elec",
       "label": "强电间",
       "floor": 5,
-      "role": "room"
+      "role": "room",
+      "x_px": 410,
+      "y_px": 418
     },
     {
       "id": "link_to_b",
       "label": "连廊（接B区）",
       "floor": 5,
-      "role": "corridor"
+      "role": "corridor",
+      "x_px": 332,
+      "y_px": 48
     },
     {
       "id": "office501",
       "label": "501教师办公室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 85,
+      "y_px": 456
     },
     {
       "id": "office502",
-      "label": "501教师办公室门",
+      "label": "502教师办公室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 126,
+      "y_px": 472
     },
     {
       "id": "room503_front",
       "label": "503资料室前门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 285,
+      "y_px": 562
     },
     {
       "id": "room503_back",
       "label": "503资料室后门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 217,
+      "y_px": 519
     },
     {
       "id": "office504",
       "label": "504教师办公室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 345,
+      "y_px": 598
     },
     {
       "id": "office505",
       "label": "505教师办公室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 411,
+      "y_px": 632
     },
     {
       "id": "room506",
       "label": "506研究生资料室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 368,
+      "y_px": 605
     },
     {
       "id": "office507",
       "label": "507教师办公室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 529,
+      "y_px": 417
     },
     {
       "id": "office508",
       "label": "508教师办公室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 534,
+      "y_px": 414
     },
     {
       "id": "office509",
       "label": "509教师办公室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 504,
+      "y_px": 399
     },
     {
       "id": "office510",
       "label": "510教师办公室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 479,
+      "y_px": 383
     },
     {
       "id": "office511",
       "label": "511教师办公室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 431,
+      "y_px": 360
     },
     {
       "id": "office512",
       "label": "512教师办公室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 372,
+      "y_px": 323
     },
     {
       "id": "office513",
       "label": "513教师办公室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 315,
+      "y_px": 290
     },
     {
       "id": "office514",
       "label": "514教师办公室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 268,
+      "y_px": 265
     },
     {
       "id": "lab515",
       "label": "515软件构建理论与方法研究室",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 180,
+      "y_px": 313
     },
     {
       "id": "office516",
       "label": "516教师办公室门",
       "floor": 5,
-      "role": "door"
+      "role": "door",
+      "x_px": 147,
+      "y_px": 387
     }
   ],
   "edges": [
@@ -310,11 +371,6 @@
       "weight": 2.4
     },
     {
-      "from": "link_to_b",
-      "to": "stair_outdoor",
-      "weight": 8.4
-    },
-    {
       "from": "fork_ne",
       "to": "office510",
       "weight": 1.8
@@ -387,12 +443,6 @@
       "type": "楼梯",
       "nodeId": "stair_south",
       "label": "南侧楼梯"
-    },
-    {
-      "id": "poi_stair_out",
-      "type": "楼梯",
-      "nodeId": "stair_outdoor",
-      "label": "户外楼梯"
     },
     {
       "id": "poi_water",
