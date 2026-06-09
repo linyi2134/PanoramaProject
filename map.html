@@ -51,6 +51,15 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:8
 .leg{display:flex;align-items:center;gap:7px;font-size:11px;}
 .ldot{width:8px;height:8px;border-radius:50%;}
 ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.pano-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:100;}
+.pano-modal[hidden]{display:none;}
+.pano-modal-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.45);}
+.pano-modal-box p{font-size:13px;line-height:1.55;margin-bottom:14px;color:var(--text);}
+.pano-modal-btns{display:flex;gap:8px;}
+.pano-modal-btns button{flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:12px;font-family:inherit;}
+.pano-modal-btns button:hover{border-color:var(--accent);color:var(--accent);}
+.pano-modal-btns .pano-go{background:var(--accent);border-color:var(--accent);color:#0d1117;font-weight:700;}
+.pano-modal-btns .pano-go:hover{filter:brightness(1.08);}
 </style>
 </head>
 <body>
@@ -72,6 +81,15 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:8
       <g id="gNode"></g><g id="gLabel"></g><g id="gMarkers"></g>
     </svg>
     <div class="hint" id="hint">先点右侧「起点」，再在地图上选点（可切换楼层）</div>
+    <div id="panoModal" class="pano-modal" hidden>
+      <div class="pano-modal-box">
+        <p id="panoModalText"></p>
+        <div class="pano-modal-btns">
+          <button type="button" class="pano-go" id="panoModalGo">🌐 进入全景</button>
+          <button type="button" id="panoModalPick">📍 继续选点</button>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="side">
     <div class="sec">
@@ -103,6 +121,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:8
   </div>
 </div>
 <script src="js/pathfind.browser.js?v=20260609"></script>
+<script src="js/panorama_map_bridge.js?v=20260609-full"></script>
 <script>
 const RC={corridor:'#58a6ff',facility:'#f0883e',room:'#3fb950',vertical:'#cf4fff',door:'#f7f74f'};
 const NS='http://www.w3.org/2000/svg';
@@ -426,7 +445,7 @@ const JSON_GRAPHS={
   17:'node_nav/data/link_f4_graph.json',
   18:'node_nav/data/link_f5_graph.json',
 };
-const GRAPH_CACHE_VER='20260609-floor-w6';
+const GRAPH_CACHE_VER='20260609-same-floor-vert';
 // 各层示意 PNG（760×520）；JSON 未合并时仍可用 FLOORS 坐标叠在上面
 const PLAN_CACHE_VER='20260607-all-cad';
 const PLAN_IMAGES={
@@ -533,8 +552,42 @@ function crossEdges(){
   return out;
 }
 
+// 同层起终点禁用楼梯/电梯；A1F 小楼侧（与主楼 1F 不互通）须保留 A 座竖向边
+const VERTICAL_NODE_IDS=new Set(['elevator','stair_east','stair_west','stair_south','stair_small','outdoor_stair']);
+const F1_A_WING_LOCALS=new Set(['stair_small','room_104A','room_104B']);
+function parseNavNodeId(id){
+  let m=id.match(/^b(\d)_(.+)$/);
+  if(m) return {tab:+m[1],local:m[2],zone:'b'};
+  m=id.match(/^a(\d)_(.+)$/);
+  if(m) return {tab:+m[1]+7,local:m[2],zone:'a'};
+  m=id.match(/^lk(\d)_(.+)$/);
+  if(m) return {tab:+m[1]+13,local:m[2],zone:'lk'};
+  return {tab:null,local:id,zone:null};
+}
+function isVerticalCrossEdge(a,b){
+  const pa=parseNavNodeId(a),pb=parseNavNodeId(b);
+  return pa.local===pb.local&&VERTICAL_NODE_IDS.has(pa.local);
+}
+function isAZoneVerticalEdge(a,b){
+  const pa=parseNavNodeId(a),pb=parseNavNodeId(b);
+  return pa.zone==='a'&&pb.zone==='a'&&pa.local===pb.local&&
+    (pa.local==='stair_south'||pa.local==='stair_small');
+}
+function isF1AWingNode(id){
+  const p=parseNavNodeId(id);
+  return p.tab===8&&F1_A_WING_LOCALS.has(p.local);
+}
+/** 同 tab 起终点：禁竖向边；A1F 主楼↔小楼侧跨子图时保留 A 座楼梯 */
+function sameFloorVerticalPolicy(startN,endN){
+  if(!startN||!endN) return null;
+  const sf=allNodes[startN]?.floor,ef=allNodes[endN]?.floor;
+  if(sf==null||sf!==ef) return null;
+  const ws=isF1AWingNode(startN),we=isF1AWingNode(endN);
+  return {keepAVert:sf===8&&ws!==we};
+}
+
 // ── 寻路（复用 js/pathfind.browser.js，与 indoor_nav / node_nav 同算法）──
-function buildGraph(){
+function buildGraph(startN,endN){
   const nodes=[],edges=[],seen=new Set();
   for(const f of FLOOR_ORDER){
     const fd=getFloorView(f);
@@ -545,8 +598,14 @@ function buildGraph(){
     for(const[a,b,w] of fd.edges) edges.push({from:a,to:b,weight:w});
   }
   const ids=new Set(nodes.map(n=>n.id));
+  const vertPolicy=sameFloorVerticalPolicy(startN,endN);
   for(const[a,b,w] of crossEdges()){
-    if(ids.has(a)&&ids.has(b)) edges.push({from:a,to:b,weight:w});
+    if(!ids.has(a)||!ids.has(b)) continue;
+    if(vertPolicy&&isVerticalCrossEdge(a,b)){
+      if(vertPolicy.keepAVert&&isAZoneVerticalEdge(a,b)) edges.push({from:a,to:b,weight:w});
+      continue;
+    }
+    edges.push({from:a,to:b,weight:w});
   }
   return {nodes,edges};
 }
@@ -556,7 +615,7 @@ function runDijkstra(s,e){
     return null;
   }
   try{
-    const r=IndoorPathfind.dijkstra(buildGraph(),s,e);
+    const r=IndoorPathfind.dijkstra(buildGraph(s,e),s,e);
     if(!r.pathNodeIds.length) return null;
     return { distance: r.distance, path: r.pathNodeIds };
   }catch(err){
@@ -568,6 +627,7 @@ function runDijkstra(s,e){
 // ── 状态 ─────────────────────────────────────────────────────────
 let floor=1,startN=null,endN=null,curPath=null,pickMode='start',showEdges=false;
 let allNodes={};
+let pendingPanoramaNode=null,pendingPanoramaScene=null;
 function buildNodeMap(){
   allNodes={};
   for(const f of FLOOR_ORDER){
@@ -734,8 +794,11 @@ function renderNodes(){
     const isS=n.id===startN,isE=n.id===endN,inP=onPath.has(n.id);
     const col=RC[n.role]||'#888';
     const r=isS||isE?9:6;
+    const hasPano=typeof PanoramaMapBridge!=='undefined'&&PanoramaMapBridge.hasPanoramaLink(n.id);
     const grp=svg('g',{'data-node-id':n.id});
     grp.style.cursor='pointer';
+    if(hasPano) grp.setAttribute('title','可进入对应全景场景');
+    if(hasPano&&!isS&&!isE) grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:r+11,fill:'none',stroke:'#58a6ff','stroke-width':'1.2','stroke-dasharray':'3,2',opacity:'0.75','pointer-events':'none'}));
     if(inP&&!isS&&!isE) grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:r+8,fill:'#ffb347',opacity:'0.28','pointer-events':'none'}));
     grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r,
       fill:inP?(isS||isE?col:'#ffb347'):(n.role==='corridor'?'#162030':col),
@@ -812,7 +875,7 @@ function updatePickRows(){
   pe.classList.toggle('active-end',pickMode==='end');
 }
 
-function onNodeClick(id){
+function applyNodePick(id){
   if(pickMode==='start'){
     startN=id;
     curPath=null;
@@ -824,6 +887,56 @@ function onNodeClick(id){
   curPath=(startN&&endN)?runDijkstra(startN,endN):null;
   forceRender();
   showResult();
+}
+
+function closePanoramaModal(){
+  const m=document.getElementById('panoModal');
+  if(m) m.hidden=true;
+  pendingPanoramaNode=null;
+  pendingPanoramaScene=null;
+}
+
+function offerPanoramaJump(nodeId,sceneId){
+  const n=findNodeOnAnyFloor(nodeId);
+  const fl=FLOOR_TAB_LABELS[n?.floor]||'';
+  pendingPanoramaNode=nodeId;
+  pendingPanoramaScene=sceneId;
+  document.getElementById('panoModalText').textContent=
+    `当前位置：${n?.label||nodeId}${fl?' · '+fl:''}\n对应全景：${sceneId}\n是否进入该位置的全景图？`;
+  document.getElementById('panoModal').hidden=false;
+}
+
+function confirmPanoramaJump(){
+  if(!pendingPanoramaScene) return;
+  const url=PanoramaMapBridge.panoramaUrlForScene(pendingPanoramaScene);
+  window.location.href=url;
+}
+
+function onNodeClick(id){
+  const scene=typeof PanoramaMapBridge!=='undefined'?PanoramaMapBridge.nodeToPanoramaScene(id):null;
+  if(scene){
+    offerPanoramaJump(id,scene);
+    return;
+  }
+  applyNodePick(id);
+}
+
+function applyStartFromPanorama(navNodeId){
+  const loc=findNodeOnAnyFloor(navNodeId);
+  if(!loc){
+    console.warn('全景深链起点不在路网中',navNodeId);
+    return;
+  }
+  floor=loc.floor;
+  document.querySelectorAll('.floor-tab').forEach(t=>t.classList.toggle('active',+t.dataset.f===floor));
+  startN=navNodeId;
+  endN=null;
+  curPath=null;
+  pickMode='end';
+  setPickMode('end');
+  forceRender();
+  showResult();
+  document.getElementById('hint').textContent='已从全景定位起点，请在地图上选择终点';
 }
 
 function calcPath(){
@@ -925,6 +1038,15 @@ function switchFloor(f){
 async function init(){
   await Promise.all([loadJsonGraphs(),loadCrossFloorSpec()]);
   buildNodeMap();
+  document.getElementById('panoModalGo')?.addEventListener('click',confirmPanoramaJump);
+  document.getElementById('panoModalPick')?.addEventListener('click',()=>{
+    const id=pendingPanoramaNode;
+    closePanoramaModal();
+    if(id) applyNodePick(id);
+  });
+  document.getElementById('panoModal')?.addEventListener('click',(e)=>{
+    if(e.target.id==='panoModal') closePanoramaModal();
+  });
   document.getElementById('gNode').addEventListener('click',(e)=>{
     const el=e.target.closest('[data-node-id]');
     if(el) onNodeClick(el.getAttribute('data-node-id'));
@@ -941,7 +1063,13 @@ async function init(){
     tabs.appendChild(b);
   }
   render();
-  setPickMode('start');
+  const qs=new URLSearchParams(location.search);
+  const startFromPano=qs.get('start');
+  if(startFromPano){
+    applyStartFromPanorama(startFromPano);
+  }else{
+    setPickMode('start');
+  }
 }
 window.onload=init;
 </script>

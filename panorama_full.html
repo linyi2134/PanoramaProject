@@ -75,6 +75,7 @@
         }
     </style>
     <script src="js/room_labels_all.js"></script>
+    <script src="js/panorama_map_bridge.js?v=20260609-full"></script>
 </head>
 <body>
     <div id="panorama"></div>
@@ -94,7 +95,7 @@
             <button type="button" id="guideBtn" class="btn-guide">🚶 逐步引导</button>
         </div>
         <p style="margin-top:10px;font-size:12px;text-align:center;">
-            <a href="map.html" style="color:#58a6ff;text-decoration:none;">🗺️ 二维地图导航</a>
+            <a href="map.html" id="mapNavLink" style="color:#58a6ff;text-decoration:none;">🗺️ 二维地图（定位起点）</a>
             <span style="opacity:0.5;margin:0 6px;">|</span>
             <a href="panorama.html" style="color:#aaa;text-decoration:none;font-size:11px;">5场景 demo</a>
         </p>
@@ -492,7 +493,12 @@ addLink("三栋-2f", "一栋-2f-1");
         }
 
         // ======================= 4. 初始化 Pannellum =======================
-        const firstScene = "连廊-1f";
+        const qs = new URLSearchParams(location.search);
+        let firstScene = qs.get("scene") || "连廊-1f";
+        if (!scenesConfig[firstScene]) {
+            console.warn("未知场景参数，回退连廊-1f:", firstScene);
+            firstScene = "连廊-1f";
+        }
         const config = {
             default: { firstScene: firstScene, sceneFadeDuration: 800, autoLoad: true },
             scenes: scenesConfig
@@ -500,9 +506,26 @@ addLink("三栋-2f", "一栋-2f-1");
         window.viewer = pannellum.viewer('panorama', config);
 
         let currentSceneId = firstScene;
+
+        function updateMapNavLink(sceneId) {
+            const link = document.getElementById("mapNavLink");
+            if (!link || typeof PanoramaMapBridge === "undefined") return;
+            const mapped = PanoramaMapBridge.panoramaSceneToMapNode(sceneId);
+            if (mapped) {
+                link.href = PanoramaMapBridge.mapUrlForStart(mapped.navNodeId);
+                link.textContent = `🗺️ 二维地图（${mapped.label} · ${mapped.zoneLabel}）`;
+                link.title = `在二维地图定位起点：${mapped.navNodeId}`;
+            } else {
+                link.href = "map.html";
+                link.textContent = "🗺️ 二维地图导航";
+                link.title = "当前全景场景暂无二维节点对照";
+            }
+        }
+        updateMapNavLink(firstScene);
         let guideModeActive = false;
         window.viewer.on('scenechange', function(newSceneId) {
             currentSceneId = newSceneId;
+            updateMapNavLink(newSceneId);
             roomTooltip.style.display = 'none';
             document.getElementById('currentSceneLabel').innerHTML = `📍 当前场景：${newSceneId}`;
             const dest = document.getElementById("destinationSelect").value;

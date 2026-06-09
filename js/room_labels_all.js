@@ -166,7 +166,8 @@ window.ROOM_DATA_BY_SCENE = {
     { name: "值班室", hoverText: "值班室", detailHtml: "房间名称：值班室", pitch: 6.090627241187313, yaw: 22.20534804085495 },
     { name: "休息区", hoverText: "休息区", detailHtml: "房间名称：休息区", pitch: 1.7790231946795267, yaw: -87.01762142291896 },
     { name: "101 学院办公室", hoverText: "101\n学院办公室", detailHtml: "房间号：101<br>房间名称：学院办公室<br>负责人：田智律&罗婵", pitch: 3.419344282721629, yaw: 58.31864349008588, rawNumber: "101" },
-    { name: "102 学生工作办公室", hoverText: "102\n学生工作办公室", detailHtml: "房间号：102<br>房间名称：学生工作办公室<br>负责人：曲珊珊", pitch: 1.9510641737655352, yaw: 71.34168299851453, rawNumber: "102" }
+    { name: "102 学生工作办公室", hoverText: "102\n学生工作办公室", detailHtml: "房间号：102<br>房间名称：学生工作办公室<br>负责人：曲珊珊", pitch: 1.9510641737655352, yaw: 71.34168299851453, rawNumber: "102" },
+    { name: "洗手间", hoverText: "洗手间", detailHtml: "房间名称：洗手间", pitch: 2.9159272084383256, yaw: -4.109029767282038 }
   ],
   "一栋-1f-2": [
     { name: "此路不通", hoverText: "此路不通", detailHtml: "提示：此路不通", pitch: -1.5499718443243742, yaw: -264.51903400664804 }
