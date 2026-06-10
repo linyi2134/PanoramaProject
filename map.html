@@ -23,6 +23,8 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .btn:hover{border-color:var(--accent);color:var(--accent);}
 .btn-toilet{border-color:var(--accent2);color:var(--accent2);}
 .btn-toilet:hover{background:var(--accent2);color:#fff;}
+.btn-panorama{border:2px solid var(--red);color:var(--red);font-weight:700;background:#fff;}
+.btn-panorama:hover{background:var(--red);color:#fff;border-color:var(--red);}
 .btn-on{border-color:var(--accent);color:var(--accent);background:rgba(26,127,212,.12);}
 .main{display:flex;flex:1;overflow:hidden;}
 .map-wrap{flex:1;position:relative;overflow:hidden;background:#d4eaf7;}
@@ -141,7 +143,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
   <div class="logo">🏢 B7 软件学院 · 室内导航</div>
   <div class="floor-tabs" id="floorTabs"></div>
   <div class="hdr-btns">
-    <a class="btn" href="panorama_full.html" style="text-decoration:none;display:inline-flex;align-items:center;" title="可选：52场景全景漫游（加载较慢）">🌐 全景（可选）</a>
+    <a class="btn btn-panorama" href="panorama_full.html" style="text-decoration:none;display:inline-flex;align-items:center;" title="52场景全景漫游">🌐 全景</a>
     <button class="btn" id="btnToggleEdges" onclick="toggleShowEdges()" title="显示/隐藏路网边线（CAD 底图已可辨识通道；导航路径仍会高亮）">⬡ 路网线</button>
     <button class="btn" onclick="forceRender()" title="重新绘制地图与起终点标记">↻ 刷新</button>
     <button class="btn btn-toilet" onclick="nearestToilet()">🚻 最近厕所</button>
@@ -205,7 +207,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
   </div>
 </div>
 <script src="js/pathfind.browser.js?v=20260609"></script>
-<script src="js/panorama_map_bridge.js?v=20260609-san"></script>
+<script src="js/panorama_map_bridge.js?v=20260610-prefetch"></script>
 <script>
 const RC={corridor:'#58a6ff',facility:'#f0883e',room:'#3fb950',vertical:'#cf4fff',door:'#f7f74f'};
 const NS='http://www.w3.org/2000/svg';
@@ -574,22 +576,37 @@ async function loadJsonGraphs(floors){
 let bgLoadGen=0;
 async function loadJsonGraphsBackground(){
   const pending=Object.keys(JSON_GRAPHS).map(Number).filter(f=>!graphCache[f]);
-  if(!pending.length) return;
+  if(!pending.length){
+    prefetchPanoramasInBackground(floor);
+    return;
+  }
   const gen=++bgLoadGen;
   for(let i=0;i<pending.length;i+=3){
     if(gen!==bgLoadGen) return;
     await loadJsonGraphs(pending.slice(i,i+3));
     buildNodeMap();
     if(floor&&graphCache[floor]) render();
+    for(const f of pending.slice(i,i+3)) prefetchPanoramasForFloor(f);
     await new Promise(r=>setTimeout(r,0));
   }
+  prefetchPanoramasInBackground(floor);
 }
 
 function jsonToFloorView(g,f){
   const px=graphIdPrefix(f);
+  const facByNode={};
+  for(const fac of g.facilities||[]){
+    if(fac.nodeId) facByNode[px+fac.nodeId]=fac;
+  }
   return{
     title:g.description||`${f}F`,
-    nodes:g.nodes.map(n=>({id:px+n.id,label:n.label,role:n.role,x:n.x_px,y:n.y_px})),
+    nodes:g.nodes.map(n=>{
+      const id=px+n.id;
+      const fac=facByNode[id];
+      let label=n.label;
+      if(n.role==='facility'&&fac) label=fac.label||fac.type||label;
+      return{id,label,role:n.role,x:n.x_px,y:n.y_px};
+    }),
     edges:g.edges.map(e=>[px+e.from,px+e.to,e.weight]),
     toilets:(g.facilities||[]).filter(x=>x.type==='洗手间').map(x=>px+x.nodeId),
     planImage:g.meta?.planImage||PLAN_IMAGES[f]?.src,
@@ -921,8 +938,10 @@ function renderNodes(){
       stroke:inP?'#ff8c42':col,'stroke-width':inP?'3':'2',opacity:inP?'1':'0.8','pointer-events':'none'}));
     grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:28,fill:'transparent',stroke:'none','pointer-events':'all'}));
     gN.appendChild(grp);
-    if(n.role!=='corridor'&&(revealedLabels.has(n.id)||isS||isE)){
-      const t=svg('text',{x:n.x+r+4,y:n.y+5,'font-size':'20',fill:inP?'#ffd699':'#5a7a9a',
+    const showLabel=n.role==='facility'||revealedLabels.has(n.id)||isS||isE;
+    if(n.role!=='corridor'&&showLabel){
+      const lblFill=n.role==='facility'?(inP?'#ffd699':'#f0883e'):(inP?'#ffd699':'#5a7a9a');
+      const t=svg('text',{x:n.x+r+4,y:n.y+5,'font-size':'20',fill:lblFill,
         'font-family':'Segoe UI,sans-serif','font-weight':'600','pointer-events':'none'});
       t.textContent=n.label;gL.appendChild(t);
     }
@@ -1166,10 +1185,52 @@ async function switchFloor(f){
   }
   forceRender();
   resetMapZoom();
+  prefetchPanoramasForFloor(f);
+  prefetchPanoramasInBackground(f);
 }
 function setHint(text){
   const el=document.getElementById('hint');
   if(el) el.textContent=text;
+}
+
+// 二维浏览时后台预取本层及对照全景 JPG（压缩后单张约 0.5–0.8 MB，进全景时走浏览器缓存）
+const prefetchedPanoramaImages=new Set();
+let panoPrefetchGen=0;
+
+function collectPanoramaScenesForFloor(f){
+  const scenes=new Set();
+  if(typeof PanoramaMapBridge==='undefined') return scenes;
+  for(const n of getFloorView(f).nodes||[]){
+    const sid=PanoramaMapBridge.nodeToPanoramaScene(n.id);
+    if(sid) scenes.add(sid);
+  }
+  return scenes;
+}
+
+function prefetchPanoramaImage(sceneId){
+  if(!sceneId||prefetchedPanoramaImages.has(sceneId)) return;
+  const url=PanoramaMapBridge?.panoramaImageUrl?.(sceneId);
+  if(!url) return;
+  prefetchedPanoramaImages.add(sceneId);
+  const img=new Image();
+  img.decoding='async';
+  img.src=url;
+}
+
+function prefetchPanoramasForFloor(f){
+  if(!floorJsonReady(f)) return;
+  for(const sid of collectPanoramaScenesForFloor(f)) prefetchPanoramaImage(sid);
+}
+
+async function prefetchPanoramasInBackground(priorityFloor){
+  const gen=++panoPrefetchGen;
+  if(priorityFloor!=null) prefetchPanoramasForFloor(priorityFloor);
+  for(const f of FLOOR_ORDER){
+    if(gen!==panoPrefetchGen) return;
+    if(f===priorityFloor||!floorJsonReady(f)) continue;
+    for(const sid of collectPanoramaScenesForFloor(f)) prefetchPanoramaImage(sid);
+    await new Promise(r=>setTimeout(r,0));
+  }
 }
 
 function resetMapZoom(){
@@ -1271,6 +1332,7 @@ async function init(){
   render();
   initMapPanzoom();
   initMobileSide();
+  prefetchPanoramasForFloor(floor);
   loadJsonGraphsBackground();
   const qs=new URLSearchParams(location.search);
   const startFromPano=qs.get('start');

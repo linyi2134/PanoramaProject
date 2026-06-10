@@ -66,22 +66,19 @@
         .nav-panel button.btn-jump:hover { background: #2ecc71; }
         .nav-panel button.btn-guide { background: #34495e; font-size: 11px; }
         .nav-panel button.btn-guide:hover { background: #4a6278; }
+        .map-nav-link {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #58a6ff;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .map-nav-link:hover { color: #79c0ff; }
         .route-info { margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); font-size: 13px; }
         .next-step { background: #27ae60; border-radius: 8px; padding: 8px; margin-top: 10px; text-align: center; font-weight: bold; }
         .current-scene { margin-bottom: 8px; font-size: 12px; opacity: 0.8; }
-        .scene-loader {
-            position: fixed; inset: 0; z-index: 40;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.55); color: #fff; pointer-events: none;
-        }
-        .scene-loader[hidden] { display: none; }
-        .scene-loader-spinner {
-            width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.25);
-            border-top-color: #58a6ff; border-radius: 50%;
-            animation: pano-spin 0.8s linear infinite; margin-bottom: 12px;
-        }
-        @keyframes pano-spin { to { transform: rotate(360deg); } }
-        .scene-loader-text { font-size: 14px; opacity: 0.9; }
         .room-panel {
             position: absolute; top: 20px; left: 20px; width: 280px;
             background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
@@ -133,14 +130,10 @@
         }
     </style>
     <script src="js/room_labels_all.js"></script>
-    <script src="js/panorama_map_bridge.js?v=20260609-san"></script>
+    <script src="js/panorama_map_bridge.js?v=20260610-prefetch"></script>
 </head>
 <body>
     <div id="panorama"></div>
-    <div id="sceneLoader" class="scene-loader" hidden>
-        <div class="scene-loader-spinner"></div>
-        <div class="scene-loader-text">加载全景…</div>
-    </div>
     <div id="roomTooltip"></div>
     <div id="info">🔍 52 场景全景 | 蓝点=房间标注 | 面板可拖动/折叠</div>
     <div id="roomInfoPanel" class="room-panel">🏢 点击蓝色圆点查看房间详情（一栋 / 二栋 / 三栋）</div>
@@ -161,8 +154,8 @@
                 <button type="button" id="jumpBtn" class="btn-jump">⚡ 立即跳转</button>
                 <button type="button" id="guideBtn" class="btn-guide">🚶 逐步引导</button>
             </div>
-            <p style="margin-top:10px;font-size:12px;text-align:center;">
-                <a href="map.html" id="mapNavLink" style="color:#58a6ff;text-decoration:none;">🗺️ 二维地图（定位起点）</a>
+            <p style="text-align:center;">
+                <a href="map.html" id="mapNavLink" class="map-nav-link">🗺️ 二维地图（定位起点）</a>
             </p>
             <div id="routeResult" class="route-info" style="display: none;"></div>
         </div>
@@ -552,13 +545,16 @@ addLink("三栋-2f", "一栋-2f-1");
 
 
         const PANORAMA_BASE = 'panoramas/';
+        const PANORAMA_CACHE_VER = '20260610-compress';
         for (const id of Object.keys(scenesConfig)) {
-            const p = scenesConfig[id].panorama;
-            if (p && !p.startsWith(PANORAMA_BASE)) scenesConfig[id].panorama = PANORAMA_BASE + p;
+            let p = scenesConfig[id].panorama;
+            if (p && !p.startsWith(PANORAMA_BASE)) p = PANORAMA_BASE + p;
+            if (p && !p.includes('?v=')) p += '?v=' + PANORAMA_CACHE_VER;
+            scenesConfig[id].panorama = p;
         }
 
-        // ======================= 4. 最近 3 场景缓存（LRU，避免 52 场景全载） =======================
-        const SCENE_CACHE_MAX = 3;
+        // ======================= 4. 最近 5 场景缓存（LRU；addScene 切换，不 destroy 整 viewer） =======================
+        const SCENE_CACHE_MAX = 5;
         const qs = new URLSearchParams(location.search);
         let firstScene = qs.get("scene") || "连廊-1f";
         if (!scenesConfig[firstScene]) {
@@ -589,16 +585,6 @@ addLink("三栋-2f", "一栋-2f-1");
             }));
         }
 
-        function showSceneLoader(sceneId) {
-            const el = document.getElementById("sceneLoader");
-            el.hidden = false;
-            el.querySelector(".scene-loader-text").textContent = `加载 ${sceneId}…`;
-        }
-
-        function hideSceneLoader() {
-            document.getElementById("sceneLoader").hidden = true;
-        }
-
         function prefetchPanorama(sceneId) {
             if (!sceneId || prefetchedPanos.has(sceneId)) return;
             const url = scenesConfig[sceneId]?.panorama;
@@ -614,35 +600,30 @@ addLink("三栋-2f", "一栋-2f-1");
         }
 
         function touchSceneCache(sceneId) {
+            const evicted = [];
             const i = sceneCacheOrder.indexOf(sceneId);
             if (i >= 0) sceneCacheOrder.splice(i, 1);
             sceneCacheOrder.push(sceneId);
             while (sceneCacheOrder.length > SCENE_CACHE_MAX) {
-                const evicted = sceneCacheOrder.shift();
-                roomHotspotsAdded.delete(evicted);
+                const id = sceneCacheOrder.shift();
+                evicted.push(id);
+                roomHotspotsAdded.delete(id);
             }
+            return evicted;
         }
 
-        function buildCachedScenesObject() {
-            const scenes = {};
-            for (const id of sceneCacheOrder) {
-                const cfg = scenesConfig[id];
-                scenes[id] = {
-                    title: cfg.title,
-                    panorama: cfg.panorama,
-                    hotSpots: buildSceneHotspots(id)
-                };
-            }
-            return scenes;
+        function buildSceneObject(sceneId) {
+            const cfg = scenesConfig[sceneId];
+            return {
+                title: cfg.title,
+                panorama: cfg.panorama,
+                hotSpots: buildSceneHotspots(sceneId)
+            };
         }
 
-        function destroyViewer() {
-            if (window.viewer) {
-                try { window.viewer.destroy(); } catch (e) { console.warn(e); }
-                window.viewer = null;
-            }
-            document.getElementById("panorama").innerHTML = "";
-            roomHotspotsAdded.clear();
+        function viewerHasScene(sceneId) {
+            const scenes = window.viewer && window.viewer.getConfig().scenes;
+            return !!(scenes && scenes[sceneId]);
         }
 
         function bindViewerEvents(initialSceneId) {
@@ -653,7 +634,6 @@ addLink("三栋-2f", "一栋-2f-1");
             window.viewer.on("scenechange", function(id) { onSceneReady(id); });
             window.viewer.on("error", function(err) {
                 sceneLoading = false;
-                hideSceneLoader();
                 console.error("全景加载失败", err);
                 document.getElementById("currentSceneLabel").innerHTML = `❌ 加载失败：${currentSceneId || initialSceneId}`;
             });
@@ -677,7 +657,6 @@ addLink("三栋-2f", "一栋-2f-1");
         function onSceneReady(sceneId) {
             if (sceneId === currentSceneId && !sceneLoading) return;
             sceneLoading = false;
-            hideSceneLoader();
             currentSceneId = sceneId;
             updateMapNavLink(sceneId);
             roomTooltip.style.display = "none";
@@ -699,9 +678,11 @@ addLink("三栋-2f", "一栋-2f-1");
 
         function createViewer(sceneId) {
             if (!scenesConfig[sceneId]) return null;
+            const scenes = {};
+            for (const id of sceneCacheOrder) scenes[id] = buildSceneObject(id);
             window.viewer = pannellum.viewer("panorama", {
-                default: { firstScene: sceneId, sceneFadeDuration: 300, autoLoad: true },
-                scenes: buildCachedScenesObject()
+                default: { firstScene: sceneId, sceneFadeDuration: 200, autoLoad: true },
+                scenes
             });
             bindViewerEvents(sceneId);
             return window.viewer;
@@ -714,17 +695,19 @@ addLink("三栋-2f", "一栋-2f-1");
                 pendingSceneId = sceneId;
                 return;
             }
-            const inViewer = window.viewer && sceneCacheOrder.includes(sceneId);
             sceneLoading = true;
-            showSceneLoader(sceneId);
-            if (inViewer) {
-                touchSceneCache(sceneId);
-                window.viewer.loadScene(sceneId);
+            const evicted = touchSceneCache(sceneId);
+            if (!window.viewer) {
+                createViewer(sceneId);
                 return;
             }
-            touchSceneCache(sceneId);
-            destroyViewer();
-            createViewer(sceneId);
+            for (const id of evicted) {
+                try { window.viewer.removeScene(id); } catch (e) { console.warn(e); }
+            }
+            if (!viewerHasScene(sceneId)) {
+                window.viewer.addScene(sceneId, buildSceneObject(sceneId));
+            }
+            window.viewer.loadScene(sceneId);
         }
 
         // ======================= 4b. 房间标注（info 热点） =======================

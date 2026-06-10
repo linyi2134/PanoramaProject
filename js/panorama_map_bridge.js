@@ -153,6 +153,13 @@
     return `panorama_full.html?scene=${encodeURIComponent(sceneId)}`;
   }
 
+  const PANORAMA_CACHE_VER = "20260610-compress";
+
+  function panoramaImageUrl(sceneId) {
+    if (!sceneId) return null;
+    return `panoramas/${sceneId}.jpg?v=${PANORAMA_CACHE_VER}`;
+  }
+
   global.PanoramaMapBridge = {
     NODE_LABELS,
     B_PANO_SUFFIX,
@@ -165,5 +172,7 @@
     hasPanoramaLink,
     mapUrlForStart,
     panoramaUrlForScene,
+    panoramaImageUrl,
+    PANORAMA_CACHE_VER,
   };
 })(typeof window !== "undefined" ? window : globalThis);
