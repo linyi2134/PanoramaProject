@@ -33,6 +33,63 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .side{width:320px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
 .sec{padding:16px;border-bottom:1px solid var(--border);}
 .sec h3{font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.sec-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;}
+.sec-head h3{margin-bottom:0;}
+.btn-search{
+  width:44px;height:44px;border-radius:11px;border:2px solid var(--accent);
+  background:#fff;color:var(--accent);cursor:pointer;font-size:22px;line-height:1;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;
+}
+.btn-search:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+.side-search-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:calc(100% - 16px);margin:0 8px 8px;padding:11px 12px;
+  border:2px solid var(--accent);border-radius:11px;background:#fff;
+  color:var(--accent);font-size:15px;font-weight:600;cursor:pointer;
+  font-family:inherit;transition:all .15s;flex-shrink:0;
+}
+.side-search-btn:hover{background:rgba(26,127,212,.08);border-color:var(--accent);}
+.side-search-icon{font-size:22px;line-height:1;display:inline-flex;}
+.search-modal{position:fixed;inset:0;background:rgba(15,35,55,.42);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:110;padding:16px;}
+.search-modal[hidden]{display:none;}
+.search-modal-box{
+  width:min(440px,100%);background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:20px 22px 18px;box-shadow:0 16px 48px rgba(26,60,90,.18);
+  animation:search-in .18s ease-out;
+}
+@keyframes search-in{from{opacity:0;transform:translateY(10px) scale(.98);}to{opacity:1;transform:none;}}
+.search-modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.search-modal-header h2{font-size:20px;font-weight:700;color:var(--text);}
+.search-close{width:32px;height:32px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;}
+.search-close:hover{background:var(--border);color:var(--text);}
+.search-hint{font-size:14px;color:var(--muted);line-height:1.45;margin-bottom:14px;}
+.search-input-wrap{display:flex;gap:8px;margin-bottom:4px;}
+.search-input-wrap input{
+  flex:1;min-width:0;padding:11px 14px;border:1px solid var(--border);border-radius:10px;
+  font-size:16px;font-family:inherit;color:var(--text);background:#fff;
+  transition:border-color .15s,box-shadow .15s;
+}
+.search-input-wrap input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,212,.15);}
+.search-go{
+  padding:0 18px;border:none;border-radius:10px;background:var(--accent);color:#fff;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;
+  transition:filter .15s;
+}
+.search-go:hover{filter:brightness(1.06);}
+.search-go:disabled{opacity:.55;cursor:not-allowed;}
+.search-results{max-height:min(52vh,340px);overflow-y:auto;margin-top:12px;}
+.search-empty{text-align:center;color:var(--muted);font-size:14px;padding:28px 12px;line-height:1.5;}
+.search-result-item{
+  display:block;width:100%;text-align:left;padding:12px 14px;margin-bottom:8px;
+  border:1px solid var(--border);border-radius:12px;background:#fff;cursor:pointer;
+  font-family:inherit;transition:border-color .12s,background .12s,box-shadow .12s;
+}
+.search-result-item:last-child{margin-bottom:0;}
+.search-result-item:hover{border-color:var(--accent);background:rgba(26,127,212,.05);box-shadow:0 2px 8px rgba(26,127,212,.08);}
+.search-result-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.search-result-meta{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.search-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(26,127,212,.1);color:var(--accent);}
+.search-score{font-size:12px;color:var(--accent2);margin-left:auto;}
 .pt-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:14px 12px;margin-left:-8px;margin-right:-8px;border-radius:10px;border:2px solid transparent;cursor:pointer;transition:background .12s,border-color .12s;min-height:56px;}
 .pt-row:hover{background:var(--border);}
 .pt-row.active{border-color:var(--accent);background:rgba(88,166,255,.08);}
@@ -85,7 +142,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
   .main{position:relative;}
   .map-wrap{width:100%;flex:1;}
   .hint{font-size:11px;padding:5px 10px;max-width:calc(100vw - 72px);white-space:normal;text-align:center;line-height:1.35;}
-  .map-zoom{bottom:10px;right:58px;padding:4px 6px;}
+  .map-zoom{bottom:10px;right:62px;padding:4px 6px;}
   .map-zoom button{width:34px;height:34px;font-size:18px;}
   .map-zoom .zoom-reset{font-size:11px;padding:0 6px;}
   .side{
@@ -94,11 +151,12 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
     box-shadow:-3px 0 14px rgba(0,0,0,.12);
     transition:width .2s ease;
   }
-  .side.side-collapsed{width:48px;}
+  .side.side-collapsed{width:52px;}
   .side-toggle{
     display:block;width:100%;padding:6px 0;border:none;border-bottom:1px solid var(--border);
     background:var(--surface);color:var(--accent);font-size:14px;cursor:pointer;flex-shrink:0;
   }
+  .side-search-btn{display:flex;}
   .side .sec{padding:8px;}
   .side .sec h3{font-size:7px;margin-bottom:6px;letter-spacing:1px;}
   .side .pt-row{gap:6px;margin-bottom:6px;padding:7px 5px;min-height:36px;border-width:1px;}
@@ -128,12 +186,28 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
     writing-mode:vertical-rl;text-orientation:upright;
     font-size:9px;letter-spacing:1px;
   }
-  .pano-modal-box{padding:14px;max-width:min(320px,92vw);}
+  .side.side-collapsed .side-search-lbl{display:none;}
+  .side.side-collapsed .side-search-btn{
+    display:flex !important;
+    width:42px;height:42px;margin:6px auto 8px;padding:0;
+    border-width:2px;border-radius:11px;
+  }
+  .side.side-collapsed .side-search-icon{font-size:24px;}
+  .side.side-collapsed .sec-head{display:none;}
+  #btnOpenSearchHead{display:none;}
+  .search-modal-box{padding:16px;}
+  .search-modal-header h2{font-size:17px;}
+  .search-hint{font-size:12px;}
+  .search-input-wrap input{font-size:14px;padding:9px 10px;}
+  .search-go{padding:0 12px;font-size:13px;}
+  .search-result-title{font-size:14px;}
+  .search-result-meta{font-size:11px;}
   .pano-modal-box p{font-size:13px;}
   .pano-modal-btns button{font-size:13px;padding:9px;}
 }
 @media (min-width:769px){
   .side.side-collapsed,.side.side-expanded{width:320px;}
+  .side-search-btn{display:none;}
 }
 </style>
 <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
@@ -171,12 +245,34 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
         </div>
       </div>
     </div>
+    <div id="searchModal" class="search-modal" hidden>
+      <div class="search-modal-box" role="dialog" aria-labelledby="searchModalTitle" aria-modal="true">
+        <div class="search-modal-header">
+          <h2 id="searchModalTitle">搜索目的地</h2>
+          <button type="button" class="search-close" id="searchModalClose" title="关闭">✕</button>
+        </div>
+        <p class="search-hint">输入房间号、实验室或设施名称（如 133、洗手间、电梯），确定后将跳转到对应位置并设为终点。</p>
+        <div class="search-input-wrap">
+          <input type="search" id="searchInput" placeholder="例如：133 微机室、洗手间…" autocomplete="off" enterkeyhint="search">
+          <button type="button" class="search-go" id="searchSubmit">确定</button>
+        </div>
+        <div class="search-results" id="searchResults">
+          <div class="search-empty">输入关键词后点「确定」查看匹配地点</div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="side side-collapsed" id="sidePanel">
     <button type="button" class="side-toggle" id="sideToggle" title="展开/折叠侧栏" aria-expanded="false">◀</button>
+    <button type="button" class="side-search-btn" id="btnOpenSearch" title="搜索目的地">
+      <span class="side-search-icon">🔍</span><span class="side-search-lbl">搜索地点</span>
+    </button>
     <div class="side-body">
     <div class="sec sec-pick">
-      <h3>路径规划</h3>
+      <div class="sec-head">
+        <h3>路径规划</h3>
+        <button type="button" class="btn-search" id="btnOpenSearchHead" title="搜索目的地">🔍</button>
+      </div>
       <div class="pt-row active" id="pickStart" onclick="setPickMode('start')" title="点击激活，再在地图上选起点">
         <div class="pt-dot" style="background:var(--green)"></div>
         <div class="pt-lbl">起点</div>
@@ -1175,6 +1271,212 @@ function clearAll(){
   render();
 }
 
+const SEARCH_ROLE_LABELS={room:'房间',facility:'设施',door:'出入口',vertical:'楼梯/电梯'};
+const SEARCHABLE_ROLES=new Set(Object.keys(SEARCH_ROLE_LABELS));
+let roomAliasByNavId={};
+
+function graphLocalId(navId,floor){
+  const px=graphIdPrefix(floor);
+  return navId.startsWith(px)?navId.slice(px.length):navId;
+}
+
+function extractSearchKeys(label,localId){
+  const keys=new Set();
+  const add=s=>{const t=normalizeSearchText(s);if(t) keys.add(t);};
+  add(label);
+  for(const m of String(label||'').matchAll(/(?<!\d)(\d{2,4})(?!\d)/g)) add(m[1]);
+  const id=String(localId||'');
+  for(const m of id.matchAll(/(?:room|office|lab|conf|meeting|director|expert|teacher|deputy|rm|lab)?[_]?(\d{2,4})/gi)){
+    if(m[1]) add(m[1]);
+  }
+  const bare=id.match(/^(\d{2,4})(?:_|$)/);
+  if(bare) add(bare[1]);
+  return [...keys];
+}
+
+async function loadRoomSearchAliases(){
+  roomAliasByNavId={};
+  try{
+    const r=await fetch(`map_data/id_map_f1_b.json?_gv=${encodeURIComponent(GRAPH_CACHE_VER)}`);
+    if(!r.ok) return;
+    const data=await r.json();
+    for(const m of data.mappings||[]){
+      if(!m.jsonId) continue;
+      const navId=navNodeId(1,m.jsonId);
+      if(!roomAliasByNavId[navId]) roomAliasByNavId[navId]=new Set();
+      const rm=m.floorsId?.match(/rm(\d{2,4})/i);
+      if(rm) roomAliasByNavId[navId].add(rm[1]);
+      for(const n of String(m.note||'').matchAll(/(?<!\d)(1[0-9]{2}|[2-9][0-9]{2})(?!\d)/g)){
+        roomAliasByNavId[navId].add(n[1]);
+      }
+    }
+  }catch(e){console.warn('room search aliases load failed',e);}
+}
+
+function normalizeSearchText(s){
+  return String(s||'').toLowerCase().replace(/\s+/g,'').replace(/[··]/g,'');
+}
+
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+}
+
+function scorePlaceSearch(query,candidate){
+  const q=normalizeSearchText(query);
+  if(!q) return 0;
+  const label=normalizeSearchText(candidate.label);
+  const fl=normalizeSearchText(candidate.floorLabel);
+  const keys=candidate.searchKeys||[];
+  let score=0;
+  const bump=(s)=>{if(s>score) score=s;};
+
+  for(const raw of keys){
+    const k=normalizeSearchText(raw);
+    if(!k) continue;
+    if(k===q) bump(100);
+    else if(/^\d+$/.test(q)&&k===q) bump(98);
+    else if(/^\d+$/.test(q)&&k.includes(q)) bump(/^\d+$/.test(k)&&k.startsWith(q)?92:84);
+    else if(k.startsWith(q)) bump(82);
+    else if(k.includes(q)) bump(65);
+  }
+  if(label===q) bump(100);
+  else if(label.startsWith(q)) bump(80);
+  else if(/^\d+$/.test(q)&&label.includes(q)) bump(76);
+  else if(label.includes(q)) bump(62);
+  else if((label+fl).includes(q)) bump(50);
+  else{
+    let qi=0;
+    for(let i=0;i<label.length&&qi<q.length;i++) if(label[i]===q[qi]) qi++;
+    if(qi===q.length) bump(32);
+  }
+  if(!score) return 0;
+  if(candidate.role==='room') score+=4;
+  if(candidate.role==='facility') score+=2;
+  return score;
+}
+
+function collectSearchCandidates(){
+  const out=[];
+  for(const[id,n] of Object.entries(allNodes)){
+    if(!SEARCHABLE_ROLES.has(n.role)) continue;
+    const floorLabel=FLOOR_TAB_LABELS[n.floor]||`${n.floor}F`;
+    const localId=graphLocalId(id,n.floor);
+    const searchKeys=new Set(extractSearchKeys(n.label,localId));
+    for(const a of roomAliasByNavId[id]||[]) searchKeys.add(a);
+    out.push({id,label:n.label,role:n.role,floor:n.floor,floorLabel,searchKeys:[...searchKeys]});
+  }
+  return out;
+}
+
+async function ensureGraphsForSearch(){
+  const pending=Object.keys(JSON_GRAPHS).map(Number).filter(f=>!graphCache[f]);
+  if(pending.length) await loadJsonGraphs(pending);
+  buildNodeMap();
+  if(!Object.keys(roomAliasByNavId).length) await loadRoomSearchAliases();
+}
+
+function runPlaceSearch(query){
+  const q=String(query||'').trim();
+  const box=document.getElementById('searchResults');
+  if(!q){
+    box.innerHTML='<div class="search-empty">请输入要去的地点</div>';
+    return;
+  }
+  const ranked=collectSearchCandidates()
+    .map(c=>({...c,score:scorePlaceSearch(q,c)}))
+    .filter(x=>x.score>0)
+    .sort((a,b)=>b.score-a.score||a.label.localeCompare(b.label,'zh-CN'))
+    .slice(0,12);
+  if(!ranked.length){
+    box.innerHTML='<div class="search-empty">未找到「'+escapeHtml(q)+'」相关地点<br>试试房间号（如 133）或「洗手间」</div>';
+    return;
+  }
+  box.innerHTML=ranked.map(r=>`
+    <button type="button" class="search-result-item" data-node-id="${escapeHtml(r.id)}">
+      <div class="search-result-title">${escapeHtml(r.label)}</div>
+      <div class="search-result-meta">
+        <span class="search-badge">${SEARCH_ROLE_LABELS[r.role]||r.role}</span>
+        <span>${escapeHtml(r.floorLabel)}</span>
+      </div>
+    </button>
+  `).join('');
+}
+
+function openSearchModal(){
+  const m=document.getElementById('searchModal');
+  const input=document.getElementById('searchInput');
+  if(!m||!input) return;
+  m.hidden=false;
+  document.getElementById('searchResults').innerHTML=
+    '<div class="search-empty">输入关键词后点「确定」查看匹配地点</div>';
+  input.value='';
+  requestAnimationFrame(()=>input.focus());
+}
+
+function closeSearchModal(){
+  const m=document.getElementById('searchModal');
+  if(m) m.hidden=true;
+}
+
+async function submitPlaceSearch(){
+  const input=document.getElementById('searchInput');
+  const btn=document.getElementById('searchSubmit');
+  if(!input||!btn) return;
+  const q=input.value.trim();
+  if(!q){input.focus();return;}
+  btn.disabled=true;
+  try{
+    await ensureGraphsForSearch();
+    runPlaceSearch(q);
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+async function applySearchDestination(nodeId){
+  if(!nodeId) return;
+  closeSearchModal();
+  await ensureGraphsForSearch();
+  const loc=findNodeOnAnyFloor(nodeId);
+  if(!loc){alert('未找到该地点');return;}
+  revealNodeLabel(nodeId);
+  endN=nodeId;
+  pickMode='end';
+  if(loc.floor!==floor) await switchFloor(loc.floor);
+  curPath=startN&&endN?runDijkstra(startN,endN):null;
+  setPickMode('end');
+  forceRender();
+  showResult();
+  updateSide();
+  setHint(startN?`已设终点：${nodePickLabel(nodeId)}，路径已更新`:`已定位：${nodePickLabel(nodeId)}，请再选起点`);
+  const side=document.getElementById('sidePanel');
+  const mq=window.matchMedia('(max-width:768px)');
+  if(side&&mq.matches){
+    side.classList.remove('side-collapsed');
+    side.classList.add('side-expanded');
+    document.getElementById('sideToggle')?.setAttribute('aria-expanded','true');
+  }
+}
+
+function initPlaceSearch(){
+  const open=()=>openSearchModal();
+  document.getElementById('btnOpenSearch')?.addEventListener('click',open);
+  document.getElementById('btnOpenSearchHead')?.addEventListener('click',open);
+  document.getElementById('searchModalClose')?.addEventListener('click',closeSearchModal);
+  document.getElementById('searchSubmit')?.addEventListener('click',submitPlaceSearch);
+  document.getElementById('searchInput')?.addEventListener('keydown',(e)=>{
+    if(e.key==='Enter'){e.preventDefault();submitPlaceSearch();}
+    if(e.key==='Escape') closeSearchModal();
+  });
+  document.getElementById('searchModal')?.addEventListener('click',(e)=>{
+    if(e.target.id==='searchModal') closeSearchModal();
+  });
+  document.getElementById('searchResults')?.addEventListener('click',(e)=>{
+    const btn=e.target.closest('.search-result-item');
+    if(btn?.dataset.nodeId) applySearchDestination(btn.dataset.nodeId);
+  });
+}
+
 async function switchFloor(f){
   floor=f;
   document.querySelectorAll('.floor-tab').forEach(t=>t.classList.toggle('active',+t.dataset.f===f));
@@ -1298,7 +1600,7 @@ function initMobileSide(){
 async function init(){
   setHint('正在加载地图…');
   try{
-    await Promise.all([loadJsonGraph(1),loadCrossFloorSpec()]);
+    await Promise.all([loadJsonGraph(1),loadCrossFloorSpec(),loadRoomSearchAliases()]);
   }catch(e){
     console.error('地图初始化加载失败',e);
     setHint('地图加载失败，请刷新重试');
@@ -1332,6 +1634,7 @@ async function init(){
   render();
   initMapPanzoom();
   initMobileSide();
+  initPlaceSearch();
   prefetchPanoramasForFloor(floor);
   loadJsonGraphsBackground();
   const qs=new URLSearchParams(location.search);

@@ -16,10 +16,12 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 | 模块 | 状态 | 说明 |
 |------|------|------|
 | **二维地图导航** | ✅ | `index.html`→`map.html`：15 层 tab、浅蓝 UI、懒加载、跨层/跨区算路 |
-| **手机端优化** | ✅ | 折叠侧栏浮层、顶栏压缩、Panzoom 双指缩放、点击显示房间名 |
+| **地点搜索** | ✅ | 侧栏 🔍：房号/名称模糊匹配 → 跳层设终点并算路 |
+| **手机端优化** | ✅ | 折叠侧栏 52px（含搜索图标）、Panzoom、设施常显标注 |
+| **全景预取** | ✅ | 浏览二维 map 时后台缓存对应全景 JPG |
 | **GitHub Pages** | ✅ | https://linyi2134.github.io/PanoramaProject/（静态码扫码） |
 | **二维↔全景深链** | ✅ | `js/panorama_map_bridge.js`：走廊节点对照 + 双向 URL 跳转 |
-| 全景完整版 | ✅ | `panorama_full.html`：52 场景、LRU 缓存、场景/房间热点 |
+| 全景完整版 | ✅ | `panorama_full.html`：52 场景、LRU×5、已压缩 JPG（~32 MB 合计） |
 | 全景 demo | ✅ | `panorama.html`：5 场景入门 |
 | CAD 取点 | ✅ | `tools/pick-coords.html` + `apply_cad_coords.py` |
 | 路网校验 | ✅ | `check_graph.py`、`verify_zone_route.py` |
@@ -30,12 +32,14 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 ### map.html 要点（2026-06-10）
 
 - **Tab 标签**：B1F–B5F、连廊1F–5F、A1F–A5F
+- **地点搜索**：侧栏 🔍 → 输入房间号（如 `133`）或名称 → 选结果自动跳层并设终点
+- **设施标注**：洗手间等设施 **默认显示**（橙色）；普通房间点击后显示
+- **顶栏全景**：红色「🌐 全景」按钮（无「可选」字样）
 - **路网边线**：默认隐藏；顶栏「⬡ 路网线」可开关；**导航路径始终高亮**
 - **换层代价**：`crossFloorWeight: 6`；**同层起终点**禁用楼梯/电梯（A1F 翼/主楼例外）
 - **跨区**：B ↔ 连廊 ↔ A 走 `zoneLinks`，无 B-A 直连
-- **全景联动**：有对照的走廊节点（蓝虚线圈）点击可进全景；详见 [map_data/panorama_map_bridge.md](map_data/panorama_map_bridge.md)
-- **手机端（≤768px）**：侧栏默认折叠（仅起终点）→ 浮层展开 160px；地图全宽；**Panzoom** 双指/滚轮缩放
-- **房间标注**：默认隐藏，**点击节点**后显示名称；桌面与手机均适用
+- **全景联动**：对照节点蓝虚线圈 → 弹窗进全景；浏览 map 时后台预取全景图
+- **手机端（≤768px）**：侧栏折叠 52px（🔍 + 起/终点）→ 展开 160px 浮层；Panzoom 缩放
 
 ---
 
@@ -75,7 +79,8 @@ PanoramaProject/
 │   └── README.md
 ├── node_nav/
 │   ├── data/                   # f*_graph.json、link_f*_graph.json（15 层）
-│   └── scripts/                # check_graph、verify_zone_route、apply_cad_coords…
+│   └── scripts/                # check_graph、verify_zone_route、compress_panoramas.py…
+├── panoramas/                  # 52 张全景 JPG（已压缩 ~32 MB；原图 backup/panoramas_original/）
 ├── indoor_nav/                 # python -m indoor_nav route …
 ├── tools/pick-coords.html      # CAD 拖点取坐标
 ├── backup/                     # 归档（外层杂物、旧 graph、备份 JS）→ 见 backup/README.md
@@ -141,9 +146,9 @@ python node_nav/scripts/check_graph.py node_nav/data/f3_b_graph.json
 ## 修改后记得
 
 1. 改 graph 或 `cross_floor_links.json` → bump `map.html` 的 **`GRAPH_CACHE_VER`**（当前 `20260610-fix-load`）
-2. 改 `panorama_map_bridge.js` → bump `map.html` / `panorama_full.html` 中 bridge 的 **`?v=`**（当前 `20260609-san`）
-3. 浏览器 **Ctrl+F5** 强刷
-4. 跑 `verify_zone_route.py` 或 map 内测跨区 / 全景深链
+2. 改 `panorama_map_bridge.js` → bump bridge **`?v=`**（当前 `20260610-prefetch`）
+3. 改 `panoramas/*.jpg` → bump `PANORAMA_CACHE_VER`（`20260610-compress`）+ 强刷
+4. 浏览器 **Ctrl+F5** 强刷
 
 ---
 

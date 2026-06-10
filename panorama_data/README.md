@@ -4,12 +4,19 @@
 
 | 文件 | 说明 |
 |------|------|
-| `../panoramas/*.jpg` | 52 张全景图，文件名 = 场景 id（如 `二栋-1f-1.jpg`） |
+| `../panoramas/*.jpg` | 52 张全景图（**已压缩** ~32 MB 合计，3000px JPEG q80；URL 带 `?v=20260610-compress`） |
 | `../js/room_labels_all.js` | **一栋 / 二栋 / 三栋** 房间标注（47 场景、213+ 点） |
 | `../js/panorama_map_bridge.js` | **走廊节点 ↔ 全景场景** 对照（与房间蓝点独立） |
 | `../panorama_full.html` | 完整全景：跳转引导 + 房间蓝点 + **二维深链** |
 
 默认场景为 **连廊-1f**（无房间标注）；进入 **二栋-1f-1** 等才有蓝点。请用 **panorama_full.html**，不是 5 场景 demo 的 `panorama.html`。
+
+### 压缩与备份
+
+- 原图（~324 MB）备份在 `backup/panoramas_original/`（不提交 Git）
+- 重压缩：`python node_nav/scripts/compress_panoramas.py`（`--dry-run` 预览）
+- 换图后 bump `PANORAMA_CACHE_VER`（`panorama_map_bridge.js` + `panorama_full.html`）
+- `map.html` 浏览时会 **预取** 对照场景 JPG，进全景更快
 
 ## 两类标注（勿混淆）
 
