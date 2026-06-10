@@ -13,8 +13,9 @@
 
 | 模块 | 说明 |
 |------|------|
-| **主产品** | `map.html`：CAD + 选起终点 + Dijkstra + 路径指引 |
-| **辅助** | `panorama_full.html`：52 场景 360°，与二维深链互通 |
+| **主产品** | `index.html` → `map.html`：CAD + 选起终点 + Dijkstra + 路径指引 |
+| **公网** | GitHub Pages：`https://linyi2134.github.io/PanoramaProject/` |
+| **辅助** | `panorama_full.html`：52 场景 360°，3 场景 LRU 缓存 |
 | **联动** | `js/panorama_map_bridge.js`：B/A/连廊/三栋 走廊节点 ↔ 全景场景 |
 | **不做** | Qt 客户端、BLE/WiFi 定位 |
 
@@ -31,15 +32,16 @@ python server_main.py
 
 | URL | 用途 |
 |-----|------|
-| http://localhost:8000/map.html | 二维导航 |
-| http://localhost:8000/panorama_full.html | 全景 |
+| https://linyi2134.github.io/PanoramaProject/ | **公网**（扫码推荐） |
+| http://localhost:8000/map.html | 本地二维导航 |
+| http://localhost:8000/panorama_full.html | 本地全景 |
 | http://localhost:8000/tools/pick-coords.html | CAD 取点 |
 
 禁止 `file://`；禁止在上级目录启动服务。
 
 ---
 
-## 3. map.html 架构（2026-06-10）
+## 3. map.html 架构（2026-06-10 晚）
 
 ### Tab 与底图
 
@@ -49,7 +51,7 @@ python server_main.py
 | 14–18 | 连廊1F–5F | `link_f{n}_graph.json` | `lk{n}_` |
 | 8–12 | A1F–A5F | `f{n}_a_graph.json` | `a{n}_` |
 
-15 层 CAD：`plans/*_cad.png`，经 `JSON_GRAPHS` 全部启用。
+15 层 CAD：`plans/*_cad.png`，经 `JSON_GRAPHS` 全部启用。首屏只载 B1F，其余 `floorJsonReady()` 分批后台加载；UI 浅蓝浅色主题。
 
 ### 算路
 
@@ -129,6 +131,9 @@ PanoramaProject/
 - [x] verify_zone_route.py PASS
 - [x] 同层算路禁竖向边（A1F 翼例外）
 - [x] 二维↔全景对照 + 双向深链（B/A/连廊/三栋）
+- [x] GitHub Pages + `index.html` 扫码入口
+- [x] map 懒加载修复；全景 3 场景 LRU + 可拖折面板
+- [x] f1_a 主楼拓扑/权重调整（a_door、环廊边）
 - [x] 仓库清理：外层杂物 → `backup/`
 
 ### 待办
@@ -136,7 +141,7 @@ PanoramaProject/
 - [ ] 同层边权、zoneLinks weight 实地丈量
 - [ ] 清理 `cross_floor_links.json` 内 `campusCrossFloor` 废弃字段（map 已不再读）
 - [ ] 2F-B 东侧动线（237/234/236）— 草稿在 `backup/indoor_navigator_misc/2F-B座.json`
-- [ ] 可选：0.0.0.0 + 二维码；二栋 `-5` 电梯区全景对照
+- [ ] 可选：全景 JPG 压缩；二栋 `-5` 电梯区全景对照
 
 ---
 
@@ -144,11 +149,12 @@ PanoramaProject/
 
 1. `map.html` 只在 `</html>` 前保留**一份** `<script>`
 2. JSON id **无前缀**；map 合并图 **有** `b1_`/`a1_`/`lk1_` 前缀
-3. 改 graph / cross_floor_links → bump **`GRAPH_CACHE_VER`**（当前 `20260609-same-floor-vert`）+ Ctrl+F5
-4. 改 `panorama_map_bridge.js` → bump bridge 的 `?v=`（当前 `20260609-san`）
-5. `pathfind.browser.js` 若缓存旧版会导致「未找到路径」— 强刷或改 `?v=` 参数
-6. 三栋全景 ↔ `stair_small`，不是独立地图 tab
-7. 不主动 git commit/push
+3. 改 graph / cross_floor_links → bump **`GRAPH_CACHE_VER`**（当前 `20260610-fix-load`）+ Ctrl+F5
+4. 连廊 tab 14–18 无 `FLOORS` 回退，JSON 未载完时勿对 `fd.nodes` 裸遍历
+5. 改 `panorama_map_bridge.js` → bump bridge 的 `?v=`（当前 `20260609-san`）
+6. `pathfind.browser.js` 若缓存旧版会导致「未找到路径」— 强刷或改 `?v=` 参数
+7. 三栋全景 ↔ `stair_small`，不是独立地图 tab
+8. 不主动 git commit/push
 
 ---
 

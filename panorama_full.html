@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
     <title>B7教学楼全景导航（完整版·52场景·全楼房间标注）</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
     <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
@@ -14,29 +15,53 @@
             padding: 8px 16px; border-radius: 20px;
             font-size: 14px; pointer-events: none; z-index: 10;
         }
-        /* 智能导航面板 */
+        /* 智能导航面板（可拖动、可折叠） */
         .nav-panel {
-            position: absolute;
+            position: fixed;
             top: 20px;
             right: 20px;
+            left: auto;
             width: 280px;
-            background: rgba(30,30,40,0.9);
+            max-width: calc(100vw - 24px);
+            background: rgba(30,30,40,0.92);
             backdrop-filter: blur(10px);
             border-radius: 16px;
-            padding: 15px;
+            padding: 0;
             color: white;
             z-index: 30;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             border: 1px solid rgba(255,255,255,0.2);
             font-size: 14px;
             pointer-events: auto;
+            touch-action: none;
         }
-        .nav-panel h3 { margin: 0 0 10px 0; font-size: 18px; text-align: center; }
+        .nav-panel-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            cursor: grab;
+            user-select: none;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+        .nav-panel-head:active { cursor: grabbing; }
+        .nav-panel.collapsed .nav-panel-head { border-bottom: none; }
+        .nav-panel.collapsed .nav-panel-body { display: none; }
+        .nav-drag-handle { opacity: 0.55; font-size: 16px; line-height: 1; }
+        .nav-title { flex: 1; font-size: 15px; font-weight: bold; }
+        .nav-collapse-btn {
+            width: 28px; height: 28px; padding: 0;
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 8px; background: rgba(255,255,255,0.08);
+            color: white; font-size: 18px; line-height: 1;
+            cursor: pointer; flex-shrink: 0;
+        }
+        .nav-panel-body { padding: 12px 15px 15px; }
         .nav-panel select { width: 100%; padding: 8px; border-radius: 8px; background: #2c3e50; color: white; border: none; margin-bottom: 12px; }
-        .nav-panel button { width: 100%; padding: 8px; background: #e67e22; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
-        .nav-panel button:hover { background: #f39c12; }
+        .nav-panel-body > button { width: 100%; padding: 8px; background: #e67e22; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        .nav-panel-body > button:hover { background: #f39c12; }
         .nav-panel .btn-row { display: flex; gap: 8px; margin-bottom: 0; }
-        .nav-panel .btn-row button { flex: 1; }
+        .nav-panel .btn-row button { flex: 1; width: auto; padding: 8px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
         .nav-panel button.btn-jump { background: #27ae60; }
         .nav-panel button.btn-jump:hover { background: #2ecc71; }
         .nav-panel button.btn-guide { background: #34495e; font-size: 12px; }
@@ -44,6 +69,19 @@
         .route-info { margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); font-size: 13px; }
         .next-step { background: #27ae60; border-radius: 8px; padding: 8px; margin-top: 10px; text-align: center; font-weight: bold; }
         .current-scene { margin-bottom: 8px; font-size: 12px; opacity: 0.8; }
+        .scene-loader {
+            position: fixed; inset: 0; z-index: 40;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.55); color: #fff; pointer-events: none;
+        }
+        .scene-loader[hidden] { display: none; }
+        .scene-loader-spinner {
+            width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.25);
+            border-top-color: #58a6ff; border-radius: 50%;
+            animation: pano-spin 0.8s linear infinite; margin-bottom: 12px;
+        }
+        @keyframes pano-spin { to { transform: rotate(360deg); } }
+        .scene-loader-text { font-size: 14px; opacity: 0.9; }
         .room-panel {
             position: absolute; top: 20px; left: 20px; width: 280px;
             background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
@@ -55,23 +93,43 @@
         #roomTooltip {
             position: absolute; display: none;
             background: rgba(0,0,0,0.85); color: #ffd966;
-            padding: 5px 12px; border-radius: 12px; font-size: 12px;
+            padding: 16px 28px; border-radius: 16px; font-size: 22px;
             white-space: pre-line; z-index: 1000; pointer-events: none;
-            max-width: 220px; text-align: center; border: 1px solid #ffaa66;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            max-width: min(92vw, 420px); text-align: center; border: 2px solid #ffaa66;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+        }
+        /* 场景跳转：保留 Pannellum 雪碧图箭头（pnlm-scene），放大 5×；不用 cssClass 以免去掉 sprite 类 */
+        .pnlm-hotspot-base.pnlm-scene {
+            width: 130px !important;
+            height: 130px !important;
+            border-radius: 65px !important;
+            background-size: 130px auto !important;
+            background-position: 0 -650px !important;
+        }
+        div.pnlm-tooltip span {
+            font-size: 20px;
+            line-height: 1.35;
+            max-width: min(92vw, 520px);
+            padding: 14px 22px;
+            margin-left: -240px;
+        }
+        div.pnlm-tooltip:hover span:after {
+            border-width: 14px;
+            bottom: -28px;
+            left: -14px;
         }
         /* 自定义 cssClass 会替换 Pannellum 默认 info 图标，须自行画蓝点 */
         .pnlm-hotspot-base.room-info-hotspot {
-            width: 14px; height: 14px;
+            width: 42px; height: 42px;
             background: #3498db;
-            border: 2px solid #fff;
+            border: 3px solid #fff;
             border-radius: 50%;
-            box-shadow: 0 0 8px rgba(52, 152, 219, 0.8);
+            box-shadow: 0 0 16px rgba(52, 152, 219, 0.85);
             cursor: pointer;
         }
         .pnlm-hotspot-base.room-info-hotspot:hover {
             background: #5dade2;
-            transform: scale(1.15);
+            transform: scale(1.08);
         }
     </style>
     <script src="js/room_labels_all.js"></script>
@@ -79,28 +137,35 @@
 </head>
 <body>
     <div id="panorama"></div>
+    <div id="sceneLoader" class="scene-loader" hidden>
+        <div class="scene-loader-spinner"></div>
+        <div class="scene-loader-text">加载全景…</div>
+    </div>
     <div id="roomTooltip"></div>
-    <div id="info">🔍 52 场景全景 | 蓝点=房间标注 | 右侧选场景/房间号可一键直达</div>
+    <div id="info">🔍 52 场景全景 | 蓝点=房间标注 | 面板可拖动/折叠</div>
     <div id="roomInfoPanel" class="room-panel">🏢 点击蓝色圆点查看房间详情（一栋 / 二栋 / 三栋）</div>
     <!-- 智能导航面板 -->
-    <div class="nav-panel">
-        <h3>🗺️ 智能导航</h3>
-        <div class="current-scene" id="currentSceneLabel">📍 当前场景：加载中...</div>
-        <label style="font-size:11px;opacity:0.85;display:block;margin-bottom:4px;">按场景</label>
-        <select id="destinationSelect"><option value="">— 选择目的地场景 —</option></select>
-        <label style="font-size:11px;opacity:0.85;display:block;margin:8px 0 4px;">按房间号</label>
-        <select id="roomSelect"><option value="">— 选择房间号 —</option></select>
-        <div class="btn-row">
-            <button type="button" id="jumpBtn" class="btn-jump">⚡ 立即跳转</button>
-            <button type="button" id="guideBtn" class="btn-guide">🚶 逐步引导</button>
+    <div class="nav-panel" id="navPanel">
+        <div class="nav-panel-head" id="navPanelHead">
+            <span class="nav-drag-handle" title="拖动">⠿</span>
+            <span class="nav-title">🗺️ 智能导航</span>
+            <button type="button" class="nav-collapse-btn" id="navCollapseBtn" title="折叠/展开">−</button>
         </div>
-        <p style="margin-top:10px;font-size:12px;text-align:center;">
-            <a href="map.html" id="mapNavLink" style="color:#58a6ff;text-decoration:none;">🗺️ 二维地图（定位起点）</a>
-            <span style="opacity:0.5;margin:0 6px;">|</span>
-            <a href="panorama.html" style="color:#aaa;text-decoration:none;font-size:11px;">5场景 demo</a>
-        </p>
-
-        <div id="routeResult" class="route-info" style="display: none;"></div>
+        <div class="nav-panel-body" id="navPanelBody">
+            <div class="current-scene" id="currentSceneLabel">📍 当前场景：加载中...</div>
+            <label style="font-size:11px;opacity:0.85;display:block;margin-bottom:4px;">按场景</label>
+            <select id="destinationSelect"><option value="">— 选择目的地场景 —</option></select>
+            <label style="font-size:11px;opacity:0.85;display:block;margin:8px 0 4px;">按房间号</label>
+            <select id="roomSelect"><option value="">— 选择房间号 —</option></select>
+            <div class="btn-row">
+                <button type="button" id="jumpBtn" class="btn-jump">⚡ 立即跳转</button>
+                <button type="button" id="guideBtn" class="btn-guide">🚶 逐步引导</button>
+            </div>
+            <p style="margin-top:10px;font-size:12px;text-align:center;">
+                <a href="map.html" id="mapNavLink" style="color:#58a6ff;text-decoration:none;">🗺️ 二维地图（定位起点）</a>
+            </p>
+            <div id="routeResult" class="route-info" style="display: none;"></div>
+        </div>
     </div>
 
     <script>
@@ -492,20 +557,107 @@ addLink("三栋-2f", "一栋-2f-1");
             if (p && !p.startsWith(PANORAMA_BASE)) scenesConfig[id].panorama = PANORAMA_BASE + p;
         }
 
-        // ======================= 4. 初始化 Pannellum =======================
+        // ======================= 4. 最近 3 场景缓存（LRU，避免 52 场景全载） =======================
+        const SCENE_CACHE_MAX = 3;
         const qs = new URLSearchParams(location.search);
         let firstScene = qs.get("scene") || "连廊-1f";
         if (!scenesConfig[firstScene]) {
             console.warn("未知场景参数，回退连廊-1f:", firstScene);
             firstScene = "连廊-1f";
         }
-        const config = {
-            default: { firstScene: firstScene, sceneFadeDuration: 800, autoLoad: true },
-            scenes: scenesConfig
-        };
-        window.viewer = pannellum.viewer('panorama', config);
 
-        let currentSceneId = firstScene;
+        let currentSceneId = null;
+        let sceneLoading = false;
+        let pendingSceneId = null;
+        let guideModeActive = false;
+        const sceneCacheOrder = [];
+        const roomHotspotsAdded = new Set();
+        const prefetchedPanos = new Set();
+        const roomDataByScene = window.ROOM_DATA_BY_SCENE || {};
+        const roomTooltip = document.getElementById("roomTooltip");
+        const roomInfoPanel = document.getElementById("roomInfoPanel");
+        const roomToScene = new Map();
+
+        function buildSceneHotspots(sceneId) {
+            return (scenesConfig[sceneId]?.hotSpots || []).map(h => ({
+                pitch: h.pitch,
+                yaw: h.yaw,
+                type: "scene",
+                text: h.text,
+                /* 不设 sceneId：避免 Pannellum 内置切场景绕过 LRU；clickHandlerFunc 走 switchToScene */
+                clickHandlerFunc: function() { switchToScene(h.sceneId); }
+            }));
+        }
+
+        function showSceneLoader(sceneId) {
+            const el = document.getElementById("sceneLoader");
+            el.hidden = false;
+            el.querySelector(".scene-loader-text").textContent = `加载 ${sceneId}…`;
+        }
+
+        function hideSceneLoader() {
+            document.getElementById("sceneLoader").hidden = true;
+        }
+
+        function prefetchPanorama(sceneId) {
+            if (!sceneId || prefetchedPanos.has(sceneId)) return;
+            const url = scenesConfig[sceneId]?.panorama;
+            if (!url) return;
+            prefetchedPanos.add(sceneId);
+            const img = new Image();
+            img.decoding = "async";
+            img.src = url;
+        }
+
+        function prefetchNeighbors(sceneId) {
+            for (const nb of (connections.get(sceneId) || []).slice(0, 3)) prefetchPanorama(nb);
+        }
+
+        function touchSceneCache(sceneId) {
+            const i = sceneCacheOrder.indexOf(sceneId);
+            if (i >= 0) sceneCacheOrder.splice(i, 1);
+            sceneCacheOrder.push(sceneId);
+            while (sceneCacheOrder.length > SCENE_CACHE_MAX) {
+                const evicted = sceneCacheOrder.shift();
+                roomHotspotsAdded.delete(evicted);
+            }
+        }
+
+        function buildCachedScenesObject() {
+            const scenes = {};
+            for (const id of sceneCacheOrder) {
+                const cfg = scenesConfig[id];
+                scenes[id] = {
+                    title: cfg.title,
+                    panorama: cfg.panorama,
+                    hotSpots: buildSceneHotspots(id)
+                };
+            }
+            return scenes;
+        }
+
+        function destroyViewer() {
+            if (window.viewer) {
+                try { window.viewer.destroy(); } catch (e) { console.warn(e); }
+                window.viewer = null;
+            }
+            document.getElementById("panorama").innerHTML = "";
+            roomHotspotsAdded.clear();
+        }
+
+        function bindViewerEvents(initialSceneId) {
+            window.viewer.on("load", function() {
+                const id = window.viewer.getScene ? window.viewer.getScene() : initialSceneId;
+                onSceneReady(id);
+            });
+            window.viewer.on("scenechange", function(id) { onSceneReady(id); });
+            window.viewer.on("error", function(err) {
+                sceneLoading = false;
+                hideSceneLoader();
+                console.error("全景加载失败", err);
+                document.getElementById("currentSceneLabel").innerHTML = `❌ 加载失败：${currentSceneId || initialSceneId}`;
+            });
+        }
 
         function updateMapNavLink(sceneId) {
             const link = document.getElementById("mapNavLink");
@@ -521,30 +673,61 @@ addLink("三栋-2f", "一栋-2f-1");
                 link.title = "当前全景场景暂无二维节点对照";
             }
         }
-        updateMapNavLink(firstScene);
-        let guideModeActive = false;
-        window.viewer.on('scenechange', function(newSceneId) {
-            currentSceneId = newSceneId;
-            updateMapNavLink(newSceneId);
-            roomTooltip.style.display = 'none';
-            document.getElementById('currentSceneLabel').innerHTML = `📍 当前场景：${newSceneId}`;
+
+        function onSceneReady(sceneId) {
+            if (sceneId === currentSceneId && !sceneLoading) return;
+            sceneLoading = false;
+            hideSceneLoader();
+            currentSceneId = sceneId;
+            updateMapNavLink(sceneId);
+            roomTooltip.style.display = "none";
+            document.getElementById("currentSceneLabel").innerHTML = `📍 当前场景：${sceneId}`;
+            addRoomHotspotsForScene(sceneId);
+            resetRoomPanel(sceneId);
+            prefetchNeighbors(sceneId);
             const dest = document.getElementById("destinationSelect").value;
             if (dest) {
-                if (dest === newSceneId) showArrived(dest, document.getElementById('roomSelect').value || '');
+                if (dest === sceneId) showArrived(dest, document.getElementById("roomSelect").value || "");
                 else if (guideModeActive) onSceneGuideUpdate();
             }
-            addRoomHotspotsForScene(newSceneId);
-            resetRoomPanel(newSceneId);
-        });
-        document.getElementById('currentSceneLabel').innerHTML = `📍 当前场景：${firstScene}`;
+            if (pendingSceneId && pendingSceneId !== sceneId) {
+                const next = pendingSceneId;
+                pendingSceneId = null;
+                switchToScene(next);
+            }
+        }
+
+        function createViewer(sceneId) {
+            if (!scenesConfig[sceneId]) return null;
+            window.viewer = pannellum.viewer("panorama", {
+                default: { firstScene: sceneId, sceneFadeDuration: 300, autoLoad: true },
+                scenes: buildCachedScenesObject()
+            });
+            bindViewerEvents(sceneId);
+            return window.viewer;
+        }
+
+        function switchToScene(sceneId) {
+            if (!scenesConfig[sceneId]) return;
+            if (sceneId === currentSceneId && window.viewer && !sceneLoading) return;
+            if (sceneLoading) {
+                pendingSceneId = sceneId;
+                return;
+            }
+            const inViewer = window.viewer && sceneCacheOrder.includes(sceneId);
+            sceneLoading = true;
+            showSceneLoader(sceneId);
+            if (inViewer) {
+                touchSceneCache(sceneId);
+                window.viewer.loadScene(sceneId);
+                return;
+            }
+            touchSceneCache(sceneId);
+            destroyViewer();
+            createViewer(sceneId);
+        }
 
         // ======================= 4b. 房间标注（info 热点） =======================
-        const roomDataByScene = window.ROOM_DATA_BY_SCENE || {};
-        const roomHotspotsAdded = new Set();
-        const roomTooltip = document.getElementById('roomTooltip');
-        const roomInfoPanel = document.getElementById('roomInfoPanel');
-        const roomToScene = new Map();
-
         function resetRoomPanel(sceneId) {
             const n = (roomDataByScene[sceneId] || []).length;
             if (n) roomInfoPanel.innerHTML = `🏢 当前 <strong>${sceneId}</strong>：${n} 个房间标注，点击蓝点查看`;
@@ -555,33 +738,30 @@ addLink("三栋-2f", "一栋-2f-1");
         function addRoomHotspotsForScene(sceneId) {
             if (roomHotspotsAdded.has(sceneId)) return;
             const rooms = roomDataByScene[sceneId];
-            if (!rooms || !rooms.length) return;
+            if (!rooms || !rooms.length || !window.viewer) return;
             rooms.forEach(room => {
                 window.viewer.addHotSpot({
                     pitch: room.pitch,
                     yaw: room.yaw,
-                    type: 'info',
-                    cssClass: 'room-info-hotspot',
+                    type: "info",
+                    cssClass: "room-info-hotspot",
                     createTooltipFunc: function(hotSpotDiv) {
-                        hotSpotDiv.addEventListener('mouseenter', () => {
-                            roomTooltip.innerHTML = (room.hoverText || room.name).replace(/\n/g, '<br>');
-                            roomTooltip.style.display = 'block';
+                        hotSpotDiv.addEventListener("mouseenter", () => {
+                            roomTooltip.innerHTML = (room.hoverText || room.name).replace(/\n/g, "<br>");
+                            roomTooltip.style.display = "block";
                             const r = hotSpotDiv.getBoundingClientRect();
-                            roomTooltip.style.left = (r.left + r.width / 2 - roomTooltip.offsetWidth / 2) + 'px';
-                            roomTooltip.style.top = (r.top - roomTooltip.offsetHeight - 6) + 'px';
+                            roomTooltip.style.left = (r.left + r.width / 2 - roomTooltip.offsetWidth / 2) + "px";
+                            roomTooltip.style.top = (r.top - roomTooltip.offsetHeight - 6) + "px";
                         });
-                        hotSpotDiv.addEventListener('mouseleave', () => { roomTooltip.style.display = 'none'; });
+                        hotSpotDiv.addEventListener("mouseleave", () => { roomTooltip.style.display = "none"; });
                     },
                     clickHandlerFunc: function() {
                         roomInfoPanel.innerHTML = `<strong>🏠 ${room.name}</strong><br>${room.detailHtml}`;
                     }
-                }, sceneId);
+                });
             });
             roomHotspotsAdded.add(sceneId);
-            console.log(`房间标注：${sceneId} +${rooms.length}`);
         }
-
-        setTimeout(() => { buildRoomIndex(); addRoomHotspotsForScene(firstScene); resetRoomPanel(firstScene); }, 500);
 
         function cleanRoomNumber(raw) {
             if (!raw) return '';
@@ -660,7 +840,7 @@ addLink("三栋-2f", "一栋-2f-1");
                 showArrived(destinationId, roomLabel);
                 return;
             }
-            window.viewer.loadScene(destinationId);
+            switchToScene(destinationId);
         }
 
         function jumpToRoom(roomId) {
@@ -755,9 +935,87 @@ addLink("三栋-2f", "一栋-2f-1");
             if (this.value) document.getElementById("roomSelect").value = '';
         });
 
+        function initNavPanel() {
+            const panel = document.getElementById("navPanel");
+            const head = document.getElementById("navPanelHead");
+            const collapseBtn = document.getElementById("navCollapseBtn");
+            const KEY = "panoNavPanel";
+
+            function savePanelState() {
+                const r = panel.getBoundingClientRect();
+                localStorage.setItem(KEY, JSON.stringify({
+                    x: r.left,
+                    y: r.top,
+                    collapsed: panel.classList.contains("collapsed")
+                }));
+            }
+
+            try {
+                const s = JSON.parse(localStorage.getItem(KEY) || "{}");
+                if (s.collapsed) panel.classList.add("collapsed");
+                if (s.x != null && s.y != null) {
+                    panel.style.left = s.x + "px";
+                    panel.style.top = s.y + "px";
+                    panel.style.right = "auto";
+                }
+            } catch (e) { /* ignore */ }
+            collapseBtn.textContent = panel.classList.contains("collapsed") ? "+" : "−";
+
+            collapseBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                panel.classList.toggle("collapsed");
+                collapseBtn.textContent = panel.classList.contains("collapsed") ? "+" : "−";
+                savePanelState();
+            });
+
+            let dragging = false, dx = 0, dy = 0;
+            function startDrag(clientX, clientY, target) {
+                if (target.closest("button,select,a,input,option")) return;
+                dragging = true;
+                const r = panel.getBoundingClientRect();
+                panel.style.right = "auto";
+                panel.style.left = r.left + "px";
+                panel.style.top = r.top + "px";
+                dx = clientX - r.left;
+                dy = clientY - r.top;
+            }
+            function moveDrag(clientX, clientY) {
+                if (!dragging) return;
+                const w = panel.offsetWidth, h = panel.offsetHeight;
+                const x = Math.max(8, Math.min(window.innerWidth - w - 8, clientX - dx));
+                const y = Math.max(8, Math.min(window.innerHeight - h - 8, clientY - dy));
+                panel.style.left = x + "px";
+                panel.style.top = y + "px";
+            }
+            function endDrag() {
+                if (!dragging) return;
+                dragging = false;
+                savePanelState();
+            }
+
+            head.addEventListener("mousedown", (e) => startDrag(e.clientX, e.clientY, e.target));
+            head.addEventListener("touchstart", (e) => {
+                const t = e.touches[0];
+                startDrag(t.clientX, t.clientY, e.target);
+            }, { passive: true });
+            window.addEventListener("mousemove", (e) => moveDrag(e.clientX, e.clientY));
+            window.addEventListener("touchmove", (e) => {
+                if (!dragging) return;
+                e.preventDefault();
+                const t = e.touches[0];
+                moveDrag(t.clientX, t.clientY);
+            }, { passive: false });
+            window.addEventListener("mouseup", endDrag);
+            window.addEventListener("touchend", endDrag);
+        }
+
+        buildRoomIndex();
+        initNavPanel();
+        switchToScene(firstScene);
+
         let roomPointTotal = 0;
         for (const rooms of Object.values(roomDataByScene)) roomPointTotal += rooms.length;
-        console.log("全景已启动：场景 " + allScenes.length + "，房间标注场景 " + Object.keys(roomDataByScene).length + "，房间点 " + roomPointTotal);
+        console.log("全景已启动（最近 " + SCENE_CACHE_MAX + " 场景缓存）：场景 " + allScenes.length + "，房间标注场景 " + Object.keys(roomDataByScene).length + "，房间点 " + roomPointTotal);
     </script>
 </body>
 </html>

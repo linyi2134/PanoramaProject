@@ -15,15 +15,16 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 
 | 模块 | 状态 | 说明 |
 |------|------|------|
-| **二维地图导航** | ✅ | `map.html`：15 层 tab、CAD 底图、起终点选点、跨层/跨区 Dijkstra、路径高亮 |
+| **二维地图导航** | ✅ | `index.html`→`map.html`：15 层 tab、浅蓝 UI、懒加载、跨层/跨区算路 |
+| **GitHub Pages** | ✅ | https://linyi2134.github.io/PanoramaProject/（静态码扫码） |
 | **二维↔全景深链** | ✅ | `js/panorama_map_bridge.js`：走廊节点对照 + 双向 URL 跳转 |
-| 全景完整版 | ✅ | `panorama_full.html`：52 场景 + 房间蓝点（`js/room_labels_all.js`） |
+| 全景完整版 | ✅ | `panorama_full.html`：52 场景、3 场景缓存、可拖折导航面板 |
 | 全景 demo | ✅ | `panorama.html`：5 场景入门 |
 | CAD 取点 | ✅ | `tools/pick-coords.html` + `apply_cad_coords.py` |
 | 路网校验 | ✅ | `check_graph.py`、`verify_zone_route.py` |
 | 竖向边审计 | ✅ | `audit_vertical_links.py`（楼梯/电梯分组） |
 | 边权 | 🔄 | 跨层已设 **每层 +6**；同层/跨区多为占位，待实地丈量 |
-| 自动定位 | ⏸ | 不做 BLE/WiFi；可选局域网 + 二维码演示 |
+| 自动定位 | ⏸ | 不做 BLE/WiFi；公网扫码或局域网演示 |
 
 ### map.html 要点（2026-06-10）
 
@@ -53,7 +54,8 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 ```
 PanoramaProject/
 ├── server_main.py              # 本地 HTTP 服务（默认打开 map.html）
-├── map.html                    # ★ 二维导航主入口
+├── index.html                  # 扫码入口 → 跳转 map.html
+├── map.html                    # ★ 二维导航主页面
 ├── panorama_full.html          # 全景 52 场景
 ├── panorama.html               # 全景 5 场景 demo
 ├── js/
@@ -96,7 +98,8 @@ python server_main.py
 
 | URL | 用途 |
 |-----|------|
-| http://localhost:8000/map.html | **二维导航（主入口）** |
+| https://linyi2134.github.io/PanoramaProject/ | **公网扫码（推荐）** |
+| http://localhost:8000/map.html | 本地二维导航 |
 | http://localhost:8000/panorama_full.html | 全景完整版 |
 | http://localhost:8000/tools/pick-coords.html | CAD 取点 |
 
@@ -133,21 +136,26 @@ python node_nav/scripts/check_graph.py node_nav/data/f3_b_graph.json
 
 ## 修改后记得
 
-1. 改 graph 或 `cross_floor_links.json` → bump `map.html` 的 **`GRAPH_CACHE_VER`**（当前 `20260609-same-floor-vert`）
+1. 改 graph 或 `cross_floor_links.json` → bump `map.html` 的 **`GRAPH_CACHE_VER`**（当前 `20260610-fix-load`）
 2. 改 `panorama_map_bridge.js` → bump `map.html` / `panorama_full.html` 中 bridge 的 **`?v=`**（当前 `20260609-san`）
 3. 浏览器 **Ctrl+F5** 强刷
 4. 跑 `verify_zone_route.py` 或 map 内测跨区 / 全景深链
 
 ---
 
-## 打包与手机演示
+## 公网扫码与本地演示
 
-```powershell
-pip install pyinstaller
-python build_exe.py
+**推荐（永久）**：GitHub Pages 已开启。二维码用**静态网址码**，内容填：
+
+```
+https://linyi2134.github.io/PanoramaProject/map.html
 ```
 
-手机演示：二维码填 **局域网 IP**（如 `http://192.168.x.x:8000/map.html`），勿用 `localhost`；需将服务改为监听 `0.0.0.0`（尚未默认开启）。
+项目更新后同一二维码自动生效，无需重印。
+
+**本地局域网**：`python server_main.py` 后用手机访问 `http://<电脑局域网IP>:8000/map.html`（勿用 localhost）。
+
+**打包 exe**（可选）：`pip install pyinstaller` → `python build_exe.py`
 
 ---
 

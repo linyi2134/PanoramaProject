@@ -2,72 +2,79 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>B7软件学院室内导航</title>
 <style>
 :root{
-  --bg:#0d1117;--surface:#161b22;--border:#21262d;
-  --accent:#58a6ff;--accent2:#f0883e;--green:#3fb950;--red:#f85149;
-  --purple:#cf4fff;--yellow:#f7f74f;
-  --text:#c9d1d9;--muted:#6e7681;
+  --bg:#eef6fc;--surface:#f8fbfe;--border:#c5dff0;
+  --accent:#1a7fd4;--accent2:#d97706;--green:#1a8f4a;--red:#d1242f;
+  --purple:#9b3dd4;--yellow:#b8860b;
+  --text:#1e3a52;--muted:#5a7080;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.logo{font-weight:700;font-size:15px;color:var(--accent);}
-.floor-tabs{display:flex;gap:4px;overflow-x:auto;max-width:62vw;scrollbar-width:none;}
-.floor-tab{padding:4px 13px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s;}
-.floor-tab.active{background:var(--accent);border-color:var(--accent);color:#0d1117;font-weight:700;}
-.hdr-btns{margin-left:auto;display:flex;gap:6px;}
-.btn{padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s;}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 16px 14px;display:flex;align-items:center;flex-wrap:wrap;gap:10px 8px;flex-shrink:0;min-height:88px;}
+.logo{font-weight:700;font-size:22px;color:var(--accent);flex:1 1 auto;}
+.floor-tabs{display:flex;gap:6px;overflow-x:auto;flex:1 1 100%;order:3;max-width:100%;scrollbar-width:none;padding:4px 0 2px;}
+.floor-tab{padding:10px 18px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;font-size:18px;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.floor-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+.hdr-btns{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px;order:2;}
+.btn{padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);cursor:pointer;font-size:18px;font-family:inherit;transition:all .15s;}
 .btn:hover{border-color:var(--accent);color:var(--accent);}
 .btn-toilet{border-color:var(--accent2);color:var(--accent2);}
-.btn-toilet:hover{background:var(--accent2);color:#0d1117;}
-.btn-on{border-color:var(--accent);color:var(--accent);background:rgba(88,166,255,.1);}
+.btn-toilet:hover{background:var(--accent2);color:#fff;}
+.btn-on{border-color:var(--accent);color:var(--accent);background:rgba(26,127,212,.12);}
 .main{display:flex;flex:1;overflow:hidden;}
-.map-wrap{flex:1;position:relative;overflow:hidden;background:#080c12;}
+.map-wrap{flex:1;position:relative;overflow:hidden;background:#d4eaf7;}
 #mapSvg{width:100%;height:100%;display:block;}
-.hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted);background:rgba(13,17,23,.85);padding:4px 12px;border-radius:12px;pointer-events:none;white-space:nowrap;}
-.side{width:255px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
-.sec{padding:13px;border-bottom:1px solid var(--border);}
-.sec h3{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
-.pt-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;padding:6px 8px;margin-left:-8px;margin-right:-8px;border-radius:6px;border:1px solid transparent;cursor:pointer;transition:background .12s,border-color .12s;}
+.hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:17px;color:var(--text);background:rgba(255,255,255,.88);padding:8px 16px;border-radius:14px;pointer-events:none;white-space:nowrap;border:1px solid var(--border);}
+.side{width:320px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
+.sec{padding:16px;border-bottom:1px solid var(--border);}
+.sec h3{font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.pt-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:14px 12px;margin-left:-8px;margin-right:-8px;border-radius:10px;border:2px solid transparent;cursor:pointer;transition:background .12s,border-color .12s;min-height:56px;}
 .pt-row:hover{background:var(--border);}
 .pt-row.active{border-color:var(--accent);background:rgba(88,166,255,.08);}
 .pt-row.active-end{border-color:var(--red);background:rgba(248,81,73,.08);}
-.pt-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
-.pt-val{font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.pt-lbl{font-size:11px;color:var(--muted);flex-shrink:0;}
-#routeResult{margin-top:10px;}
-.dist{font-size:13px;color:var(--accent2);font-weight:700;}
-.steps{margin-top:8px;max-height:240px;overflow-y:auto;}
-.step{display:flex;align-items:flex-start;gap:5px;margin-bottom:5px;font-size:11px;line-height:1.4;}
-.snum{background:var(--border);border-radius:3px;padding:1px 5px;font-size:10px;color:var(--muted);flex-shrink:0;margin-top:1px;}
-.sfloor{color:var(--accent);font-weight:700;}
-.room-list{flex:1;overflow-y:auto;padding:8px;}
-.room-item{padding:5px 8px;border-radius:4px;font-size:11px;cursor:pointer;transition:background .12s;display:flex;align-items:center;gap:6px;}
+.pt-dot{width:18px;height:18px;border-radius:50%;flex-shrink:0;}
+.pt-val{font-size:17px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pt-lbl{font-size:20px;font-weight:700;color:var(--muted);flex-shrink:0;min-width:2.5em;}
+#routeResult{margin-top:12px;}
+.dist{font-size:20px;color:var(--accent2);font-weight:700;}
+.steps{margin-top:10px;max-height:280px;overflow-y:auto;}
+.step{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:17px;line-height:1.45;}
+.snum{background:var(--border);border-radius:4px;padding:2px 8px;font-size:15px;color:var(--muted);flex-shrink:0;margin-top:2px;}
+.sfloor{color:var(--accent);font-weight:700;font-size:17px;}
+.room-list{flex:1;overflow-y:auto;padding:10px;}
+.room-item{padding:10px 12px;border-radius:6px;font-size:17px;cursor:pointer;transition:background .12s;display:flex;align-items:center;gap:10px;}
 .room-item:hover{background:var(--border);}
-.rdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.legend{display:flex;flex-direction:column;gap:5px;}
-.leg{display:flex;align-items:center;gap:7px;font-size:11px;}
-.ldot{width:8px;height:8px;border-radius:50%;}
+.rdot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.legend{display:flex;flex-direction:column;gap:8px;}
+.leg{display:flex;align-items:center;gap:10px;font-size:17px;}
+.ldot{width:12px;height:12px;border-radius:50%;}
 ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 .pano-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:100;}
 .pano-modal[hidden]{display:none;}
 .pano-modal-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.45);}
-.pano-modal-box p{font-size:13px;line-height:1.55;margin-bottom:14px;color:var(--text);}
-.pano-modal-btns{display:flex;gap:8px;}
-.pano-modal-btns button{flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:12px;font-family:inherit;}
+.pano-modal-box p{font-size:18px;line-height:1.55;margin-bottom:16px;color:var(--text);}
+.pano-modal-btns{display:flex;gap:10px;}
+.pano-modal-btns button{flex:1;padding:12px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:18px;font-family:inherit;}
 .pano-modal-btns button:hover{border-color:var(--accent);color:var(--accent);}
-.pano-modal-btns .pano-go{background:var(--accent);border-color:var(--accent);color:#0d1117;font-weight:700;}
+.pano-modal-btns .pano-go{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
 .pano-modal-btns .pano-go:hover{filter:brightness(1.08);}
+.map-zoom{position:absolute;bottom:16px;right:16px;z-index:20;display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.92);border:1px solid var(--border);padding:6px 8px;border-radius:999px;box-shadow:0 2px 12px rgba(0,0,0,.1);pointer-events:auto;}
+.map-zoom button{background:none;border:none;color:var(--text);cursor:pointer;font-family:inherit;line-height:1;width:44px;height:44px;font-size:24px;border-radius:50%;transition:background .12s;}
+.map-zoom button:hover{background:var(--border);}
+.map-zoom .zoom-reset{font-size:15px;width:auto;padding:0 12px;font-weight:600;}
+.map-wrap.panning #mapSvg{cursor:grabbing;}
 </style>
+<script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
 </head>
 <body>
 <header>
   <div class="logo">🏢 B7 软件学院 · 室内导航</div>
   <div class="floor-tabs" id="floorTabs"></div>
   <div class="hdr-btns">
-    <a class="btn" href="panorama_full.html" style="text-decoration:none;display:inline-flex;align-items:center;" title="52场景完整版，含立即跳转">🌐 全景(完整)</a>
+    <a class="btn" href="panorama_full.html" style="text-decoration:none;display:inline-flex;align-items:center;" title="可选：52场景全景漫游（加载较慢）">🌐 全景（可选）</a>
     <button class="btn" id="btnToggleEdges" onclick="toggleShowEdges()" title="显示/隐藏路网边线（CAD 底图已可辨识通道；导航路径仍会高亮）">⬡ 路网线</button>
     <button class="btn" onclick="forceRender()" title="重新绘制地图与起终点标记">↻ 刷新</button>
     <button class="btn btn-toilet" onclick="nearestToilet()">🚻 最近厕所</button>
@@ -80,7 +87,12 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:8
       <g id="gBuild"></g><g id="gEdge"></g><g id="gPath"></g>
       <g id="gNode"></g><g id="gLabel"></g><g id="gMarkers"></g>
     </svg>
-    <div class="hint" id="hint">先点右侧「起点」，再在地图上选点（可切换楼层）</div>
+    <div class="map-zoom" id="mapZoomBar">
+      <button type="button" id="zoomInBtn" title="放大">＋</button>
+      <button type="button" id="zoomOutBtn" title="缩小">－</button>
+      <button type="button" id="zoomResetBtn" class="zoom-reset" title="重置视图">⟳</button>
+    </div>
+    <div class="hint" id="hint">先点右侧「起点」，再在地图上选点；双指/滚轮可缩放地图</div>
     <div id="panoModal" class="pano-modal" hidden>
       <div class="pano-modal-box">
         <p id="panoModalText"></p>
@@ -445,7 +457,7 @@ const JSON_GRAPHS={
   17:'node_nav/data/link_f4_graph.json',
   18:'node_nav/data/link_f5_graph.json',
 };
-const GRAPH_CACHE_VER='20260610-a1-wts';
+const GRAPH_CACHE_VER='20260610-fix-load';
 // 各层示意 PNG（760×520）；JSON 未合并时仍可用 FLOORS 坐标叠在上面
 const PLAN_CACHE_VER='20260607-all-cad';
 const PLAN_IMAGES={
@@ -467,15 +479,37 @@ const PLAN_IMAGES={
 };
 const graphCache={};
 
-async function loadJsonGraphs(){
-  for(const[f,url] of Object.entries(JSON_GRAPHS)){
-    try{
-      const sep=url.includes('?')?'&':'?';
-      const r=await fetch(`${url}${sep}_gv=${encodeURIComponent(GRAPH_CACHE_VER)}`,{cache:'no-store'});
-      if(!r.ok) continue;
-      const g=await r.json();
-      if(g.nodes.every(n=>n.x_px!=null&&n.y_px!=null)) graphCache[f]=g;
-    }catch(e){ console.warn('JSON graph load failed',url,e); }
+async function loadJsonGraph(f){
+  if(graphCache[f]) return true;
+  const url=JSON_GRAPHS[f];
+  if(!url) return false;
+  try{
+    const sep=url.includes('?')?'&':'?';
+    const r=await fetch(`${url}${sep}_gv=${encodeURIComponent(GRAPH_CACHE_VER)}`);
+    if(!r.ok) return false;
+    const g=await r.json();
+    if(g.nodes.every(n=>n.x_px!=null&&n.y_px!=null)) graphCache[f]=g;
+    return !!graphCache[f];
+  }catch(e){
+    console.warn('JSON graph load failed',url,e);
+    return false;
+  }
+}
+async function loadJsonGraphs(floors){
+  const list=(floors||Object.keys(JSON_GRAPHS).map(Number)).filter(f=>JSON_GRAPHS[f]);
+  await Promise.all(list.map(f=>loadJsonGraph(f)));
+}
+let bgLoadGen=0;
+async function loadJsonGraphsBackground(){
+  const pending=Object.keys(JSON_GRAPHS).map(Number).filter(f=>!graphCache[f]);
+  if(!pending.length) return;
+  const gen=++bgLoadGen;
+  for(let i=0;i<pending.length;i+=3){
+    if(gen!==bgLoadGen) return;
+    await loadJsonGraphs(pending.slice(i,i+3));
+    buildNodeMap();
+    if(floor&&graphCache[floor]) render();
+    await new Promise(r=>setTimeout(r,0));
   }
 }
 
@@ -493,16 +527,22 @@ function jsonToFloorView(g,f){
   };
 }
 
+function floorJsonReady(f){
+  return !JSON_GRAPHS[f]||!!graphCache[f];
+}
 function getFloorView(f){
   if(graphCache[f]) return jsonToFloorView(graphCache[f],f);
   const fd=FLOORS[f];
   const plan=PLAN_IMAGES[f];
   return{
-    ...fd,
+    title:fd?.title||FLOOR_TAB_LABELS[f]||`${f}F`,
+    nodes:fd?.nodes||[],
+    edges:fd?.edges||[],
+    toilets:fd?.toilets||[],
     planImage:plan?.src,
     planW:plan?.w||760,
     planH:plan?.h||520,
-    source:'floors',
+    source:fd?'floors':'empty',
   };
 }
 
@@ -590,12 +630,13 @@ function sameFloorVerticalPolicy(startN,endN){
 function buildGraph(startN,endN){
   const nodes=[],edges=[],seen=new Set();
   for(const f of FLOOR_ORDER){
+    if(!floorJsonReady(f)) continue;
     const fd=getFloorView(f);
-    if(!fd) continue;
+    if(!fd?.nodes?.length) continue;
     for(const n of fd.nodes){
       if(!seen.has(n.id)){nodes.push({id:n.id});seen.add(n.id);}
     }
-    for(const[a,b,w] of fd.edges) edges.push({from:a,to:b,weight:w});
+    for(const[a,b,w] of fd.edges||[]) edges.push({from:a,to:b,weight:w});
   }
   const ids=new Set(nodes.map(n=>n.id));
   const vertPolicy=sameFloorVerticalPolicy(startN,endN);
@@ -627,12 +668,15 @@ function runDijkstra(s,e){
 // ── 状态 ─────────────────────────────────────────────────────────
 let floor=1,startN=null,endN=null,curPath=null,pickMode='start',showEdges=false;
 let allNodes={};
+const revealedLabels=new Set();
 let pendingPanoramaNode=null,pendingPanoramaScene=null;
+let panzoomInstance=null;
 function buildNodeMap(){
   allNodes={};
   for(const f of FLOOR_ORDER){
+    if(!floorJsonReady(f)) continue;
     const fd=getFloorView(f);
-    if(!fd) continue;
+    if(!fd?.nodes?.length) continue;
     for(const n of fd.nodes) allNodes[n.id]={...n,floor:f};
   }
 }
@@ -646,11 +690,11 @@ function drawOfficeBuilding(g){
   });
   g.appendChild(svg('rect',{x:15,y:246,width:55,height:28,fill:'#243550',rx:1}));
   g.appendChild(svg('rect',{x:15,y:246,width:55,height:28,fill:'none',stroke:'#3a5575','stroke-width':'0.8',rx:1}));
-  const ct=svg('text',{x:380,y:265,'text-anchor':'middle',fill:'#1a2d45','font-size':'12','font-family':'Segoe UI,sans-serif','letter-spacing':'2'});
+  const ct=svg('text',{x:380,y:265,'text-anchor':'middle',fill:'#1a2d45','font-size':'18','font-family':'Segoe UI,sans-serif','letter-spacing':'2'});
   ct.textContent='庭 院 上 空'; g.appendChild(ct);
-  const ft=svg('text',{x:22,y:514,fill:'#2a4060','font-size':'11','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
+  const ft=svg('text',{x:22,y:514,fill:'#2a4060','font-size':'17','font-family':'Segoe UI,sans-serif','font-weight':'bold'});
   ft.textContent=FLOORS[floor].title; g.appendChild(ft);
-  const ar=svg('text',{x:380,y:490,'text-anchor':'middle',fill:'#2a4060','font-size':'11','font-family':'Segoe UI,sans-serif'});
+  const ar=svg('text',{x:380,y:490,'text-anchor':'middle',fill:'#2a4060','font-size':'17','font-family':'Segoe UI,sans-serif'});
   ar.textContent='← 通过连廊连接 B7后座'; g.appendChild(ar);
 }
 
@@ -716,19 +760,19 @@ function renderBuild(){
     // 左翼走廊（缩窄后偏左，x=80）
     g.appendChild(svg('rect',{x:78,y:25,width:20,height:470,fill:'#243550',rx:1}));
     g.appendChild(svg('rect',{x:78,y:25,width:20,height:470,fill:'none',stroke:'#3a5575','stroke-width':'0.8',rx:1}));
-    const ot=svg('text',{x:183,y:268,'text-anchor':'middle',fill:'#1a2d45','font-size':'9',
+    const ot=svg('text',{x:183,y:268,'text-anchor':'middle',fill:'#1a2d45','font-size':'16',
       'font-family':'Segoe UI,sans-serif','writing-mode':'vertical-rl'});
     ot.textContent='办公室带'; g.appendChild(ot);
   }
 
   // ④ 标注
-  const ct=svg('text',{x:420,y:268,'text-anchor':'middle',fill:'#1a2d45','font-size':'12',
+  const ct=svg('text',{x:420,y:268,'text-anchor':'middle',fill:'#1a2d45','font-size':'18',
     'font-family':'Segoe UI,sans-serif','letter-spacing':'2'});
   ct.textContent='庭 院 上 空'; g.appendChild(ct);
-  const ft=svg('text',{x:22,y:514,fill:'#2a4060','font-size':'11',
+  const ft=svg('text',{x:22,y:514,fill:'#2a4060','font-size':'17',
     'font-family':'Segoe UI,sans-serif','font-weight':'bold'});
   ft.textContent=fd.title; g.appendChild(ft);
-  const arr=svg('text',{x:750,y:493,'font-size':'11',fill:'#f7f74f',
+  const arr=svg('text',{x:750,y:493,'font-size':'17',fill:'#f7f74f',
     'text-anchor':'middle','font-family':'Segoe UI,sans-serif'});
   arr.textContent='→A区'; g.appendChild(arr);
 }
@@ -790,24 +834,24 @@ function renderNodes(){
   const gN=document.getElementById('gNode'),gL=document.getElementById('gLabel');
   gN.innerHTML='';gL.innerHTML='';
   const onPath=new Set(curPath?curPath.path:[]);
-  for(const n of getFloorView(floor).nodes){
+  for(const n of getFloorView(floor).nodes||[]){
     const isS=n.id===startN,isE=n.id===endN,inP=onPath.has(n.id);
     const col=RC[n.role]||'#888';
-    const r=isS||isE?9:6;
+    const r=isS||isE?12:8;
     const hasPano=typeof PanoramaMapBridge!=='undefined'&&PanoramaMapBridge.hasPanoramaLink(n.id);
     const grp=svg('g',{'data-node-id':n.id});
     grp.style.cursor='pointer';
     if(hasPano) grp.setAttribute('title','可进入对应全景场景');
-    if(hasPano&&!isS&&!isE) grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:r+11,fill:'none',stroke:'#58a6ff','stroke-width':'1.2','stroke-dasharray':'3,2',opacity:'0.75','pointer-events':'none'}));
-    if(inP&&!isS&&!isE) grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:r+8,fill:'#ffb347',opacity:'0.28','pointer-events':'none'}));
+    if(hasPano&&!isS&&!isE) grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:r+14,fill:'none',stroke:'#58a6ff','stroke-width':'1.5','stroke-dasharray':'3,2',opacity:'0.75','pointer-events':'none'}));
+    if(inP&&!isS&&!isE) grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:r+10,fill:'#ffb347',opacity:'0.28','pointer-events':'none'}));
     grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r,
       fill:inP?(isS||isE?col:'#ffb347'):(n.role==='corridor'?'#162030':col),
-      stroke:inP?'#ff8c42':col,'stroke-width':inP?'2.5':'1.5',opacity:inP?'1':'0.8','pointer-events':'none'}));
-    grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:18,fill:'transparent',stroke:'none','pointer-events':'all'}));
+      stroke:inP?'#ff8c42':col,'stroke-width':inP?'3':'2',opacity:inP?'1':'0.8','pointer-events':'none'}));
+    grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:28,fill:'transparent',stroke:'none','pointer-events':'all'}));
     gN.appendChild(grp);
-    if(n.role!=='corridor'){
-      const t=svg('text',{x:n.x+r+3,y:n.y+4,'font-size':'9',fill:inP?'#ffd699':'#5a7a9a',
-        'font-family':'Segoe UI,sans-serif','pointer-events':'none'});
+    if(n.role!=='corridor'&&(revealedLabels.has(n.id)||isS||isE)){
+      const t=svg('text',{x:n.x+r+4,y:n.y+5,'font-size':'20',fill:inP?'#ffd699':'#5a7a9a',
+        'font-family':'Segoe UI,sans-serif','font-weight':'600','pointer-events':'none'});
       t.textContent=n.label;gL.appendChild(t);
     }
   }
@@ -822,10 +866,10 @@ function renderMarkers(){
   for(const[id,color,lbl] of [[startN,'#3fb950','起'],[endN,'#f85149','终']]){
     if(!id||!nm[id]) continue;
     const n=nm[id];
-    g.appendChild(svg('circle',{cx:n.x,cy:n.y,r:16,fill:color,opacity:'0.2'}));
-    g.appendChild(svg('circle',{cx:n.x,cy:n.y,r:11,fill:'none',stroke:color,'stroke-width':'4',opacity:'1'}));
-    g.appendChild(svg('circle',{cx:n.x,cy:n.y,r:7,fill:color,opacity:'0.95'}));
-    const tx=svg('text',{x:n.x,y:n.y-20,'text-anchor':'middle','font-size':'11','font-weight':'700',
+    g.appendChild(svg('circle',{cx:n.x,cy:n.y,r:22,fill:color,opacity:'0.2'}));
+    g.appendChild(svg('circle',{cx:n.x,cy:n.y,r:15,fill:'none',stroke:color,'stroke-width':'5',opacity:'1'}));
+    g.appendChild(svg('circle',{cx:n.x,cy:n.y,r:10,fill:color,opacity:'0.95'}));
+    const tx=svg('text',{x:n.x,y:n.y-24,'text-anchor':'middle','font-size':'20','font-weight':'700',
       fill:color,'font-family':'Segoe UI,sans-serif','pointer-events':'none'});
     tx.textContent=lbl; g.appendChild(tx);
   }
@@ -845,6 +889,7 @@ function syncViewToNode(id){
 // ── 交互 ─────────────────────────────────────────────────────────
 function findNodeOnAnyFloor(id){
   for(const f of FLOOR_ORDER){
+    if(!floorJsonReady(f)) continue;
     const n=getFloorView(f).nodes.find(x=>x.id===id);
     if(n) return {...n,floor:f};
   }
@@ -875,7 +920,14 @@ function updatePickRows(){
   pe.classList.toggle('active-end',pickMode==='end');
 }
 
+function revealNodeLabel(id){
+  if(!id||revealedLabels.has(id)) return;
+  revealedLabels.add(id);
+  renderNodes();
+}
+
 function applyNodePick(id){
+  revealNodeLabel(id);
   if(pickMode==='start'){
     startN=id;
     curPath=null;
@@ -913,6 +965,7 @@ function confirmPanoramaJump(){
 }
 
 function onNodeClick(id){
+  revealNodeLabel(id);
   const scene=typeof PanoramaMapBridge!=='undefined'?PanoramaMapBridge.nodeToPanoramaScene(id):null;
   if(scene){
     offerPanoramaJump(id,scene);
@@ -930,6 +983,7 @@ function applyStartFromPanorama(navNodeId){
   floor=loc.floor;
   document.querySelectorAll('.floor-tab').forEach(t=>t.classList.toggle('active',+t.dataset.f===floor));
   startN=navNodeId;
+  revealedLabels.add(navNodeId);
   endN=null;
   curPath=null;
   pickMode='end';
@@ -961,15 +1015,15 @@ function showResult(){
   if(!startN&&!endN){div.innerHTML='';return;}
   if(!startN||!endN){
     div.innerHTML=startN
-      ?'<div style="color:var(--muted);font-size:11px;margin-top:8px;">已选起点，请在地图上选终点</div>'
-      :'<div style="color:var(--muted);font-size:11px;margin-top:8px;">已选终点，请先选起点</div>';
+      ?'<div style="color:var(--muted);font-size:17px;margin-top:10px;">已选起点，请在地图上选终点</div>'
+      :'<div style="color:var(--muted);font-size:17px;margin-top:10px;">已选终点，请先选起点</div>';
     return;
   }
   if(typeof IndoorPathfind==='undefined'){
-    div.innerHTML='<div style="color:var(--red);font-size:12px;margin-top:8px;">⚠️ 算路模块未加载，请 Ctrl+F5 强刷</div>';
+    div.innerHTML='<div style="color:var(--red);font-size:18px;margin-top:10px;">⚠️ 算路模块未加载，请 Ctrl+F5 强刷</div>';
     return;
   }
-  if(!curPath){div.innerHTML='<div style="color:var(--red);font-size:12px;margin-top:8px;">❌ 未找到路径</div>';return;}
+  if(!curPath){div.innerHTML='<div style="color:var(--red);font-size:18px;margin-top:10px;">❌ 未找到路径</div>';return;}
   let steps=[],prevF=null;
   for(let i=0;i<curPath.path.length;i++){
     const n=findNodeOnAnyFloor(curPath.path[i]);if(!n)continue;
@@ -997,7 +1051,7 @@ function updateSide(){
   document.getElementById('lblEnd').textContent=nodePickLabel(endN);
   updatePickRows();
   const fd=getFloorView(floor);
-  const rooms=fd.nodes.filter(n=>n.role==='room'||n.role==='facility'||n.role==='door');
+  const rooms=(fd.nodes||[]).filter(n=>n.role==='room'||n.role==='facility'||n.role==='door');
   document.getElementById('roomList').innerHTML=rooms.map(n=>
     `<div class="room-item" onclick="onNodeClick('${n.id}')"><div class="rdot" style="background:${RC[n.role]||'#888'}"></div>${n.label}</div>`
   ).join('');
@@ -1009,15 +1063,16 @@ function nearestToilet(){
   if(!startN){alert('请先点击地图选择当前位置（起点）');return;}
   let best=null,bestId=null;
   for(const f of FLOOR_ORDER){
+    if(!floorJsonReady(f)) continue;
     const fd=getFloorView(f);
-    if(!fd) continue;
+    if(!fd?.nodes?.length) continue;
     for(const tid of fd.toilets||[]){
       const r=runDijkstra(startN,tid);
       if(r&&(!best||r.distance<best.distance)){best=r;bestId=tid;}
     }
   }
   if(!best){alert('未找到洗手间路径');return;}
-  endN=bestId;pickMode='end';curPath=best;
+  endN=bestId;revealedLabels.add(bestId);pickMode='end';curPath=best;
   syncViewToNode(bestId);
   forceRender();showResult();
 }
@@ -1029,14 +1084,63 @@ function clearAll(){
   render();
 }
 
-function switchFloor(f){
+async function switchFloor(f){
   floor=f;
   document.querySelectorAll('.floor-tab').forEach(t=>t.classList.toggle('active',+t.dataset.f===f));
+  if(JSON_GRAPHS[f]&&!graphCache[f]){
+    setHint('正在加载本层地图…');
+    await loadJsonGraph(f);
+    buildNodeMap();
+  }
   forceRender();
+  resetMapZoom();
+}
+function setHint(text){
+  const el=document.getElementById('hint');
+  if(el) el.textContent=text;
+}
+
+function resetMapZoom(){
+  panzoomInstance?.reset({animate:false});
+}
+
+function initMapPanzoom(){
+  const svgElement=document.getElementById('mapSvg');
+  const mapWrap=document.querySelector('.map-wrap');
+  if(!svgElement||!mapWrap) return;
+  if(typeof Panzoom==='undefined'){
+    console.warn('Panzoom 未加载，缩放功能不可用');
+    document.getElementById('mapZoomBar')?.style.setProperty('display','none');
+    return;
+  }
+  panzoomInstance=Panzoom(svgElement,{
+    maxScale:4,
+    minScale:0.5,
+    step:0.25,
+    contain:'outside',
+    cursor:'grab',
+    touchAction:'none',
+  });
+  mapWrap.addEventListener('wheel',(e)=>{
+    e.preventDefault();
+    panzoomInstance.zoomWithWheel(e);
+  },{passive:false});
+  svgElement.addEventListener('panzoomstart',()=>mapWrap.classList.add('panning'));
+  svgElement.addEventListener('panzoomend',()=>mapWrap.classList.remove('panning'));
+  document.getElementById('zoomInBtn')?.addEventListener('click',()=>panzoomInstance.zoomIn());
+  document.getElementById('zoomOutBtn')?.addEventListener('click',()=>panzoomInstance.zoomOut());
+  document.getElementById('zoomResetBtn')?.addEventListener('click',()=>resetMapZoom());
 }
 
 async function init(){
-  await Promise.all([loadJsonGraphs(),loadCrossFloorSpec()]);
+  setHint('正在加载地图…');
+  try{
+    await Promise.all([loadJsonGraph(1),loadCrossFloorSpec()]);
+  }catch(e){
+    console.error('地图初始化加载失败',e);
+    setHint('地图加载失败，请刷新重试');
+    return;
+  }
   buildNodeMap();
   document.getElementById('panoModalGo')?.addEventListener('click',confirmPanoramaJump);
   document.getElementById('panoModalPick')?.addEventListener('click',()=>{
@@ -1063,12 +1167,21 @@ async function init(){
     tabs.appendChild(b);
   }
   render();
+  initMapPanzoom();
+  loadJsonGraphsBackground();
   const qs=new URLSearchParams(location.search);
   const startFromPano=qs.get('start');
   if(startFromPano){
+    const p=parseNavNodeId(startFromPano);
+    if(p.tab&&JSON_GRAPHS[p.tab]&&!graphCache[p.tab]){
+      await loadJsonGraph(p.tab);
+      buildNodeMap();
+      render();
+    }
     applyStartFromPanorama(startFromPano);
   }else{
     setPickMode('start');
+    setHint('先点右侧「起点」，再在地图上选点；双指/滚轮可缩放地图');
   }
 }
 window.onload=init;
