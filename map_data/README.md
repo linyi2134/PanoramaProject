@@ -157,4 +157,12 @@ python server_main.py
 # 打开 http://localhost:8000/map.html
 ```
 
-`map.html` 依赖同目录下的 `js/pathfind.browser.js`（与 `node_nav/src/pathfind.js` 算法一致）。
+`map.html` 依赖 `js/pathfind.browser.js`（算路）与 `js/panorama_map_bridge.js`（全景深链）。
+
+## 相关文档
+
+| 文档 | 说明 |
+|------|------|
+| [cross_floor_links.md](./cross_floor_links.md) | 竖向井、跨区 zoneLinks |
+| [panorama_map_bridge.md](./panorama_map_bridge.md) | **二维走廊节点 ↔ 全景场景** 对照表 |
+| [../panorama_data/README.md](../panorama_data/README.md) | 全景房间蓝点（与走廊对照分离） |

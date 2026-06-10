@@ -16,6 +16,7 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 | 模块 | 状态 | 说明 |
 |------|------|------|
 | **二维地图导航** | ✅ | `map.html`：15 层 tab、CAD 底图、起终点选点、跨层/跨区 Dijkstra、路径高亮 |
+| **二维↔全景深链** | ✅ | `js/panorama_map_bridge.js`：走廊节点对照 + 双向 URL 跳转 |
 | 全景完整版 | ✅ | `panorama_full.html`：52 场景 + 房间蓝点（`js/room_labels_all.js`） |
 | 全景 demo | ✅ | `panorama.html`：5 场景入门 |
 | CAD 取点 | ✅ | `tools/pick-coords.html` + `apply_cad_coords.py` |
@@ -24,12 +25,13 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 | 边权 | 🔄 | 跨层已设 **每层 +6**；同层/跨区多为占位，待实地丈量 |
 | 自动定位 | ⏸ | 不做 BLE/WiFi；可选局域网 + 二维码演示 |
 
-### map.html 要点（2026-06-09）
+### map.html 要点（2026-06-10）
 
 - **Tab 标签**：B1F–B5F、连廊1F–5F、A1F–A5F
-- **路网边线**：默认隐藏（CAD 已可辨通道）；顶栏「⬡ 路网线」可开关；**导航路径始终高亮**
-- **换层代价**：`cross_floor_links.json` → `crossFloorWeight: 6`（电梯/楼梯/连廊户外梯均适用）
-- **跨区**：B ↔ 连廊 ↔ A 走 `zoneLinks`，**无** B 口到 A 口直连「传送」
+- **路网边线**：默认隐藏；顶栏「⬡ 路网线」可开关；**导航路径始终高亮**
+- **换层代价**：`crossFloorWeight: 6`；**同层起终点**禁用楼梯/电梯（A1F 翼/主楼例外）
+- **跨区**：B ↔ 连廊 ↔ A 走 `zoneLinks`，无 B-A 直连
+- **全景联动**：有对照的走廊节点（蓝虚线圈）点击可进全景；详见 [map_data/panorama_map_bridge.md](map_data/panorama_map_bridge.md)
 
 ---
 
@@ -56,11 +58,13 @@ PanoramaProject/
 ├── panorama.html               # 全景 5 场景 demo
 ├── js/
 │   ├── pathfind.browser.js     # 浏览器 Dijkstra（与 indoor_nav 同逻辑）
+│   ├── panorama_map_bridge.js  # 二维节点 ↔ 全景场景对照
 │   └── room_labels_all.js      # 全景房间标注
 ├── plans/                      # 15 张 *_cad.png（map 底图）
 │   └── _archive/               # 旧示意 PNG/SVG（已不用）
 ├── map_data/
 │   ├── cross_floor_links.json  # 跨层/跨区定义
+│   ├── panorama_map_bridge.md  # 二维↔全景对照表（权威）
 │   ├── cad_pick_*.json         # pick-coords 导出归档
 │   └── README.md
 ├── node_nav/
@@ -129,9 +133,10 @@ python node_nav/scripts/check_graph.py node_nav/data/f3_b_graph.json
 
 ## 修改后记得
 
-1. 改 graph 或 `cross_floor_links.json` → bump `map.html` 的 **`GRAPH_CACHE_VER`**（当前 `20260609-floor-w6`）
-2. 浏览器 **Ctrl+F5** 强刷
-3. 跑 `verify_zone_route.py` 或 map 内测跨区路线
+1. 改 graph 或 `cross_floor_links.json` → bump `map.html` 的 **`GRAPH_CACHE_VER`**（当前 `20260609-same-floor-vert`）
+2. 改 `panorama_map_bridge.js` → bump `map.html` / `panorama_full.html` 中 bridge 的 **`?v=`**（当前 `20260609-san`）
+3. 浏览器 **Ctrl+F5** 强刷
+4. 跑 `verify_zone_route.py` 或 map 内测跨区 / 全景深链
 
 ---
 
@@ -154,6 +159,7 @@ python build_exe.py
 | [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) | 架构与陷阱速览 |
 | [map_data/README.md](map_data/README.md) | CAD / pick-coords / apply 流程 |
 | [map_data/cross_floor_links.md](map_data/cross_floor_links.md) | 竖向井分组、跨区 |
+| [map_data/panorama_map_bridge.md](map_data/panorama_map_bridge.md) | **二维↔全景对照表** |
 | [panorama_data/README.md](panorama_data/README.md) | 全景房间标注 |
 | [backup/README.md](backup/README.md) | 归档目录说明 |
 

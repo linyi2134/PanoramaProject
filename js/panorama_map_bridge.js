@@ -5,6 +5,7 @@
  * A区（一栋）2–5F 1–5：1南侧楼梯 2东南 3西南 4西北 5东北
  * A区 1F 仅 1–2：1西北分叉 2南侧楼梯
  * 连廊 1–5F：统一 → outdoor_stair 户外楼梯
+ * 三栋 1–3F：统一 → stair_small 小楼楼梯（A 座东侧翼，仅 1–3F）
  */
 (function (global) {
   const NODE_LABELS = {
@@ -13,6 +14,7 @@
     fork_se: "东南分叉",
     fork_ne: "东北分叉",
     stair_south: "南侧楼梯",
+    stair_small: "小楼楼梯",
     outdoor_stair: "户外楼梯",
   };
 
@@ -39,6 +41,8 @@
   };
 
   const LINK_STAIR = "outdoor_stair";
+  const WING_STAIR = "stair_small";
+  const SAN_MAX_FLOOR = 3;
 
   function parseNavNodeId(id) {
     let m = id.match(/^b(\d)_(.+)$/);
@@ -90,6 +94,9 @@
     }
 
     if (p.zone === "a") {
+      if (p.local === WING_STAIR && p.floor >= 1 && p.floor <= SAN_MAX_FLOOR) {
+        return `三栋-${p.floor}f`;
+      }
       const map = aSuffixMap(p.floor);
       const entry = Object.entries(map).find(([, loc]) => loc === p.local);
       if (!entry) return null;
@@ -122,6 +129,13 @@
       const local = aSuffixMap(floor)[suf];
       if (!local) return null;
       return buildMapNode("a", floor, local, sceneId);
+    }
+
+    m = sceneId.match(/^三栋-(\d)f$/);
+    if (m) {
+      const floor = +m[1];
+      if (floor < 1 || floor > SAN_MAX_FLOOR) return null;
+      return buildMapNode("a", floor, WING_STAIR, sceneId);
     }
 
     return null;

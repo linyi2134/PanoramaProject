@@ -73,8 +73,8 @@
       "label": "A区大门",
       "floor": 1,
       "role": "door",
-      "x_px": 265,
-      "y_px": 39
+      "x_px": 68,
+      "y_px": 427
     },
     {
       "id": "office101_front",
@@ -151,69 +151,74 @@
   ],
   "edges": [
     {
-      "from": "a_door",
-      "to": "restarea",
-      "weight": 4
-    },
-    {
-      "from": "restarea",
+      "from": "fork_nw",
       "to": "washroom",
-      "weight": 5
+      "weight": 0
     },
     {
       "from": "washroom",
       "to": "office_room",
-      "weight": 3
-    },
-    {
-      "from": "office_room",
-      "to": "office101_front",
-      "weight": 9
-    },
-    {
-      "from": "office101_front",
-      "to": "office101_back",
-      "weight": 10
-    },
-    {
-      "from": "office101_back",
-      "to": "office102",
-      "weight": 3
-    },
-    {
-      "from": "office102",
-      "to": "fork_nw",
-      "weight": 13
+      "weight": 0
     },
     {
       "from": "fork_nw",
+      "to": "office_room",
+      "weight": 0
+    },
+    {
+      "from": "restarea",
+      "to": "fork_sw",
+      "weight": 0
+    },
+    {
+      "from": "link_to_b",
       "to": "fork_ne",
-      "weight": 13
+      "weight": 0
     },
     {
-      "from": "fork_se",
-      "to": "stair_south",
-      "weight": 10
+      "from": "fork_ne",
+      "to": "fork_nw",
+      "weight": 6
     },
     {
-      "from": "stair_south",
+      "from": "fork_nw",
       "to": "fireboard",
-      "weight": 26
+      "weight": 4
     },
     {
       "from": "fireboard",
       "to": "fork_sw",
-      "weight": 10
+      "weight": 9
     },
     {
       "from": "fork_sw",
-      "to": "link_to_b",
-      "weight": 21
+      "to": "fork_se",
+      "weight": 17
     },
     {
-      "from": "link_to_b",
+      "from": "restarea",
       "to": "a_door",
-      "weight": 25
+      "weight": 6
+    },
+    {
+      "from": "fork_nw",
+      "to": "office101_front",
+      "weight": 5
+    },
+    {
+      "from": "office101_front",
+      "to": "office101_back",
+      "weight": 9
+    },
+    {
+      "from": "office101_back",
+      "to": "office102",
+      "weight": 6
+    },
+    {
+      "from": "fork_se",
+      "to": "stair_south",
+      "weight": 3
     },
     {
       "from": "room_104A",
@@ -224,11 +229,6 @@
       "from": "room_104B",
       "to": "stair_small",
       "weight": 2
-    },
-    {
-      "from": "fork_sw",
-      "to": "fork_se",
-      "weight": 20
     }
   ],
   "facilities": [
