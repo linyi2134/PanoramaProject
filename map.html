@@ -66,6 +66,73 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .map-zoom button:hover{background:var(--border);}
 .map-zoom .zoom-reset{font-size:15px;width:auto;padding:0 12px;font-weight:600;}
 .map-wrap.panning #mapSvg{cursor:grabbing;}
+.side-toggle{display:none;}
+.side-body{display:flex;flex-direction:column;overflow:hidden;flex:1;min-height:0;}
+.side-extra{display:flex;flex-direction:column;overflow:hidden;flex:1;min-height:0;}
+.route-hint{color:var(--muted);font-size:17px;margin-top:10px;}
+.route-err{color:var(--red);font-size:18px;margin-top:10px;}
+@media (max-width:768px){
+  header{min-height:66px;padding:8px 10px 6px;gap:5px 6px;}
+  .route-hint{font-size:8px;margin-top:6px;}
+  .route-err{font-size:9px;margin-top:6px;}
+  .logo{font-size:14px;flex:1 1 100%;order:1;}
+  .hdr-btns{order:2;margin-left:0;flex-wrap:nowrap;overflow-x:auto;max-width:100%;gap:4px;-webkit-overflow-scrolling:touch;}
+  .btn{padding:5px 8px;font-size:12px;white-space:nowrap;flex-shrink:0;}
+  .floor-tabs{order:3;padding:2px 0 0;gap:4px;}
+  .floor-tab{padding:5px 10px;font-size:12px;}
+  .main{position:relative;}
+  .map-wrap{width:100%;flex:1;}
+  .hint{font-size:11px;padding:5px 10px;max-width:calc(100vw - 72px);white-space:normal;text-align:center;line-height:1.35;}
+  .map-zoom{bottom:10px;right:58px;padding:4px 6px;}
+  .map-zoom button{width:34px;height:34px;font-size:18px;}
+  .map-zoom .zoom-reset{font-size:11px;padding:0 6px;}
+  .side{
+    position:absolute;right:0;top:0;bottom:0;z-index:30;
+    width:min(160px,42vw);
+    box-shadow:-3px 0 14px rgba(0,0,0,.12);
+    transition:width .2s ease;
+  }
+  .side.side-collapsed{width:48px;}
+  .side-toggle{
+    display:block;width:100%;padding:6px 0;border:none;border-bottom:1px solid var(--border);
+    background:var(--surface);color:var(--accent);font-size:14px;cursor:pointer;flex-shrink:0;
+  }
+  .side .sec{padding:8px;}
+  .side .sec h3{font-size:7px;margin-bottom:6px;letter-spacing:1px;}
+  .side .pt-row{gap:6px;margin-bottom:6px;padding:7px 5px;min-height:36px;border-width:1px;}
+  .side .pt-dot{width:9px;height:9px;}
+  .side .pt-lbl{font-size:10px;min-width:0;}
+  .side .pt-val{font-size:8px;}
+  .side #routeResult{margin-top:6px;}
+  .side .dist{font-size:10px;}
+  .side .step{font-size:8px;margin-bottom:4px;gap:4px;}
+  .side .snum{font-size:7px;padding:1px 4px;}
+  .side .sfloor{font-size:8px;}
+  .side .room-item{padding:5px 6px;font-size:8px;gap:5px;}
+  .side .rdot{width:6px;height:6px;}
+  .side .leg{font-size:8px;gap:5px;}
+  .side .ldot{width:6px;height:6px;}
+  .side .room-list{padding:5px;}
+  .side.side-collapsed .side-extra,
+  .side.side-collapsed .sec-pick h3,
+  .side.side-collapsed #routeResult,
+  .side.side-collapsed .pt-val{display:none;}
+  .side.side-collapsed .sec-pick{padding:4px 2px;}
+  .side.side-collapsed .pt-row{
+    flex-direction:column;align-items:center;gap:3px;
+    padding:8px 2px;margin-bottom:4px;margin-left:0;margin-right:0;
+  }
+  .side.side-collapsed .pt-lbl{
+    writing-mode:vertical-rl;text-orientation:upright;
+    font-size:9px;letter-spacing:1px;
+  }
+  .pano-modal-box{padding:14px;max-width:min(320px,92vw);}
+  .pano-modal-box p{font-size:13px;}
+  .pano-modal-btns button{font-size:13px;padding:9px;}
+}
+@media (min-width:769px){
+  .side.side-collapsed,.side.side-expanded{width:320px;}
+}
 </style>
 <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
 </head>
@@ -103,8 +170,10 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
       </div>
     </div>
   </div>
-  <div class="side">
-    <div class="sec">
+  <div class="side side-collapsed" id="sidePanel">
+    <button type="button" class="side-toggle" id="sideToggle" title="展开/折叠侧栏" aria-expanded="false">◀</button>
+    <div class="side-body">
+    <div class="sec sec-pick">
       <h3>路径规划</h3>
       <div class="pt-row active" id="pickStart" onclick="setPickMode('start')" title="点击激活，再在地图上选起点">
         <div class="pt-dot" style="background:var(--green)"></div>
@@ -118,6 +187,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
       </div>
       <div id="routeResult"></div>
     </div>
+    <div class="side-extra">
     <div class="sec">
       <h3>图例</h3>
       <div class="legend">
@@ -130,6 +200,8 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
     </div>
     <div class="sec" style="padding-bottom:6px;"><h3>本层房间（点击导航）</h3></div>
     <div class="room-list" id="roomList"></div>
+    </div>
+    </div>
   </div>
 </div>
 <script src="js/pathfind.browser.js?v=20260609"></script>
@@ -1015,15 +1087,15 @@ function showResult(){
   if(!startN&&!endN){div.innerHTML='';return;}
   if(!startN||!endN){
     div.innerHTML=startN
-      ?'<div style="color:var(--muted);font-size:17px;margin-top:10px;">已选起点，请在地图上选终点</div>'
-      :'<div style="color:var(--muted);font-size:17px;margin-top:10px;">已选终点，请先选起点</div>';
+      ?'<div class="route-hint">已选起点，请在地图上选终点</div>'
+      :'<div class="route-hint">已选终点，请先选起点</div>';
     return;
   }
   if(typeof IndoorPathfind==='undefined'){
-    div.innerHTML='<div style="color:var(--red);font-size:18px;margin-top:10px;">⚠️ 算路模块未加载，请 Ctrl+F5 强刷</div>';
+    div.innerHTML='<div class="route-err">⚠️ 算路模块未加载，请 Ctrl+F5 强刷</div>';
     return;
   }
-  if(!curPath){div.innerHTML='<div style="color:var(--red);font-size:18px;margin-top:10px;">❌ 未找到路径</div>';return;}
+  if(!curPath){div.innerHTML='<div class="route-err">❌ 未找到路径</div>';return;}
   let steps=[],prevF=null;
   for(let i=0;i<curPath.path.length;i++){
     const n=findNodeOnAnyFloor(curPath.path[i]);if(!n)continue;
@@ -1132,6 +1204,36 @@ function initMapPanzoom(){
   document.getElementById('zoomResetBtn')?.addEventListener('click',()=>resetMapZoom());
 }
 
+function initMobileSide(){
+  const side=document.getElementById('sidePanel');
+  const toggle=document.getElementById('sideToggle');
+  if(!side||!toggle) return;
+  const mq=window.matchMedia('(max-width:768px)');
+  function syncToggleIcon(){
+    const col=side.classList.contains('side-collapsed');
+    toggle.textContent=col?'◀':'▶';
+    toggle.setAttribute('aria-expanded',String(!col));
+  }
+  function onBreakpoint(e){
+    if(e.matches){
+      side.classList.add('side-collapsed');
+      side.classList.remove('side-expanded');
+    }else{
+      side.classList.remove('side-collapsed','side-expanded');
+    }
+    syncToggleIcon();
+  }
+  mq.addEventListener('change',onBreakpoint);
+  onBreakpoint(mq);
+  toggle.addEventListener('click',()=>{
+    if(!mq.matches) return;
+    const willCollapse=!side.classList.contains('side-collapsed');
+    side.classList.toggle('side-collapsed',willCollapse);
+    side.classList.toggle('side-expanded',!willCollapse);
+    syncToggleIcon();
+  });
+}
+
 async function init(){
   setHint('正在加载地图…');
   try{
@@ -1168,6 +1270,7 @@ async function init(){
   }
   render();
   initMapPanzoom();
+  initMobileSide();
   loadJsonGraphsBackground();
   const qs=new URLSearchParams(location.search);
   const startFromPano=qs.get('start');
