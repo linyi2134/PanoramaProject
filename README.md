@@ -16,9 +16,10 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 | 模块 | 状态 | 说明 |
 |------|------|------|
 | **二维地图导航** | ✅ | `index.html`→`map.html`：15 层 tab、浅蓝 UI、懒加载、跨层/跨区算路 |
+| **手机端优化** | ✅ | 折叠侧栏浮层、顶栏压缩、Panzoom 双指缩放、点击显示房间名 |
 | **GitHub Pages** | ✅ | https://linyi2134.github.io/PanoramaProject/（静态码扫码） |
 | **二维↔全景深链** | ✅ | `js/panorama_map_bridge.js`：走廊节点对照 + 双向 URL 跳转 |
-| 全景完整版 | ✅ | `panorama_full.html`：52 场景、3 场景缓存、可拖折导航面板 |
+| 全景完整版 | ✅ | `panorama_full.html`：52 场景、LRU 缓存、场景/房间热点 |
 | 全景 demo | ✅ | `panorama.html`：5 场景入门 |
 | CAD 取点 | ✅ | `tools/pick-coords.html` + `apply_cad_coords.py` |
 | 路网校验 | ✅ | `check_graph.py`、`verify_zone_route.py` |
@@ -33,6 +34,8 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 - **换层代价**：`crossFloorWeight: 6`；**同层起终点**禁用楼梯/电梯（A1F 翼/主楼例外）
 - **跨区**：B ↔ 连廊 ↔ A 走 `zoneLinks`，无 B-A 直连
 - **全景联动**：有对照的走廊节点（蓝虚线圈）点击可进全景；详见 [map_data/panorama_map_bridge.md](map_data/panorama_map_bridge.md)
+- **手机端（≤768px）**：侧栏默认折叠（仅起终点）→ 浮层展开 160px；地图全宽；**Panzoom** 双指/滚轮缩放
+- **房间标注**：默认隐藏，**点击节点**后显示名称；桌面与手机均适用
 
 ---
 
@@ -41,6 +44,7 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 | 层次 | 技术 |
 |------|------|
 | 地图 UI | HTML + SVG + `js/pathfind.browser.js` |
+| 地图缩放 | [@panzoom/panzoom](https://github.com/timmywil/panzoom) 4.5.1（CDN） |
 | 全景 | Pannellum 2.5.6（CDN） |
 | 服务 | Python `http.server`（`server_main.py`，端口 8000） |
 | 单层算路 CLI | `indoor_nav/`（Dijkstra） |
@@ -151,7 +155,7 @@ python node_nav/scripts/check_graph.py node_nav/data/f3_b_graph.json
 https://linyi2134.github.io/PanoramaProject/map.html
 ```
 
-项目更新后同一二维码自动生效，无需重印。
+项目更新后同一二维码自动生效，无需重印。推送后约 **1–3 分钟**生效，手机请强刷或无痕打开。
 
 **本地局域网**：`python server_main.py` 后用手机访问 `http://<电脑局域网IP>:8000/map.html`（勿用 localhost）。
 

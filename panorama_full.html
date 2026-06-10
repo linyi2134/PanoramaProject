@@ -50,21 +50,21 @@
         .nav-drag-handle { opacity: 0.55; font-size: 16px; line-height: 1; }
         .nav-title { flex: 1; font-size: 15px; font-weight: bold; }
         .nav-collapse-btn {
-            width: 28px; height: 28px; padding: 0;
+            width: 24px; height: 24px; padding: 0;
             border: 1px solid rgba(255,255,255,0.25);
-            border-radius: 8px; background: rgba(255,255,255,0.08);
-            color: white; font-size: 18px; line-height: 1;
+            border-radius: 6px; background: rgba(255,255,255,0.08);
+            color: white; font-size: 14px; line-height: 1;
             cursor: pointer; flex-shrink: 0;
         }
-        .nav-panel-body { padding: 12px 15px 15px; }
-        .nav-panel select { width: 100%; padding: 8px; border-radius: 8px; background: #2c3e50; color: white; border: none; margin-bottom: 12px; }
-        .nav-panel-body > button { width: 100%; padding: 8px; background: #e67e22; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        .nav-panel-body { padding: 10px 12px 12px; }
+        .nav-panel select { width: 100%; padding: 5px 6px; border-radius: 6px; background: #2c3e50; color: white; border: none; margin-bottom: 8px; font-size: 12px; }
+        .nav-panel-body > button { width: 100%; padding: 5px 6px; background: #e67e22; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; font-size: 12px; }
         .nav-panel-body > button:hover { background: #f39c12; }
-        .nav-panel .btn-row { display: flex; gap: 8px; margin-bottom: 0; }
-        .nav-panel .btn-row button { flex: 1; width: auto; padding: 8px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        .nav-panel .btn-row { display: flex; gap: 6px; margin-bottom: 0; }
+        .nav-panel .btn-row button { flex: 1; min-width: 0; width: auto; padding: 5px 4px; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; font-size: 11px; line-height: 1.25; white-space: nowrap; }
         .nav-panel button.btn-jump { background: #27ae60; }
         .nav-panel button.btn-jump:hover { background: #2ecc71; }
-        .nav-panel button.btn-guide { background: #34495e; font-size: 12px; }
+        .nav-panel button.btn-guide { background: #34495e; font-size: 11px; }
         .nav-panel button.btn-guide:hover { background: #4a6278; }
         .route-info { margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); font-size: 13px; }
         .next-step { background: #27ae60; border-radius: 8px; padding: 8px; margin-top: 10px; text-align: center; font-weight: bold; }
@@ -98,38 +98,38 @@
             max-width: min(92vw, 420px); text-align: center; border: 2px solid #ffaa66;
             box-shadow: 0 4px 16px rgba(0,0,0,0.35);
         }
-        /* 场景跳转：保留 Pannellum 雪碧图箭头（pnlm-scene），放大 5×；不用 cssClass 以免去掉 sprite 类 */
+        /* 场景跳转：保留 Pannellum 雪碧图箭头（pnlm-scene）；不用 cssClass 以免去掉 sprite 类 */
         .pnlm-hotspot-base.pnlm-scene {
-            width: 130px !important;
-            height: 130px !important;
-            border-radius: 65px !important;
-            background-size: 130px auto !important;
-            background-position: 0 -650px !important;
+            width: 35px !important;
+            height: 35px !important;
+            border-radius: 18px !important;
+            background-size: 35px auto !important;
+            background-position: 0 -175px !important;
         }
         div.pnlm-tooltip span {
-            font-size: 20px;
+            font-size: 13px;
             line-height: 1.35;
-            max-width: min(92vw, 520px);
-            padding: 14px 22px;
-            margin-left: -240px;
+            max-width: min(92vw, 360px);
+            padding: 8px 12px;
+            margin-left: -120px;
         }
         div.pnlm-tooltip:hover span:after {
-            border-width: 14px;
-            bottom: -28px;
-            left: -14px;
+            border-width: 8px;
+            bottom: -16px;
+            left: -8px;
         }
         /* 自定义 cssClass 会替换 Pannellum 默认 info 图标，须自行画蓝点 */
         .pnlm-hotspot-base.room-info-hotspot {
-            width: 42px; height: 42px;
+            width: 14px; height: 14px;
             background: #3498db;
-            border: 3px solid #fff;
+            border: 2px solid #fff;
             border-radius: 50%;
-            box-shadow: 0 0 16px rgba(52, 152, 219, 0.85);
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.85);
             cursor: pointer;
         }
         .pnlm-hotspot-base.room-info-hotspot:hover {
             background: #5dade2;
-            transform: scale(1.08);
+            transform: scale(1.12);
         }
     </style>
     <script src="js/room_labels_all.js"></script>

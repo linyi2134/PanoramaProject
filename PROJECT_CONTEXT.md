@@ -9,7 +9,7 @@
 
 ## 1. 项目是什么
 
-**课程项目「知途」**：B7 教学楼室内导览与导航。
+**课程项目「知途」**：B7 教学楼室内导览与导航，**以手机扫码用户为主**。
 
 | 模块 | 说明 |
 |------|------|
@@ -37,11 +37,11 @@ python server_main.py
 | http://localhost:8000/panorama_full.html | 本地全景 |
 | http://localhost:8000/tools/pick-coords.html | CAD 取点 |
 
-禁止 `file://`；禁止在上级目录启动服务。
+禁止 `file://`；禁止在上级目录启动服务。Pages 更新约 1–3 分钟，手机需强刷。
 
 ---
 
-## 3. map.html 架构（2026-06-10 晚）
+## 3. map.html 架构
 
 ### Tab 与底图
 
@@ -51,25 +51,35 @@ python server_main.py
 | 14–18 | 连廊1F–5F | `link_f{n}_graph.json` | `lk{n}_` |
 | 8–12 | A1F–A5F | `f{n}_a_graph.json` | `a{n}_` |
 
-15 层 CAD：`plans/*_cad.png`，经 `JSON_GRAPHS` 全部启用。首屏只载 B1F，其余 `floorJsonReady()` 分批后台加载；UI 浅蓝浅色主题。
+15 层 CAD：`plans/*_cad.png`。首屏只载 B1F，其余 `loadJsonGraphsBackground()` + `floorJsonReady()`。
 
 ### 算路
 
 - `buildGraph()`：合并 15 层 nodes/edges
 - `crossEdges()`：读 `map_data/cross_floor_links.json`
-  - **竖向**：B 三井（elevator / stair_east / stair_west 各 5 层）、A stair_south（5 层）、stair_small（3 层）、连廊 outdoor_stair（5 层）
-  - **跨层 weight**：`crossFloorWeight = 6`（每上下一层）
-  - **跨区**：`zoneLinks`，weight 15；**已移除** 示意 `CROSS_CAMPUS` 直连
+  - **竖向**：B 三井、A stair_south / stair_small、连廊 outdoor_stair
+  - **跨层 weight**：6；**跨区 zoneLinks**：15
 - `js/pathfind.browser.js`：Dijkstra（`?v=20260609`）
-- `buildGraph(startN,endN)`：同 tab 起终点时过滤竖向边（A1F 翼/主楼例外见 `sameFloorVerticalPolicy`）
+- `sameFloorVerticalPolicy`：同 tab 禁竖向边（A1F 翼/主楼例外）
 
-### 交互
+### 交互（桌面 + 手机共通）
 
 1. 右侧选「起点/终点」→ 地图点节点（可换 tab）
-2. 选起点后自动切终点模式；仅选起点时侧栏提示「已选起点…」，**不**报「未找到路径」
-3. 顶栏「⬡ 路网线」：默认隐藏灰色边；**导航橙色路径始终显示**
-4. 起终点：`gMarkers` 层（绿起/红终）
-5. 有全景对照的节点（蓝虚线圈）→ 弹窗进全景或继续选点
+2. 顶栏「⬡ 路网线」默认关；**导航橙色路径始终显示**
+3. 房间标注**默认隐藏**，点击节点后显示（`revealedLabels`）；起终点始终显示
+4. 有全景对照的节点（蓝虚线圈）→ 弹窗进全景或继续选点
+
+### 手机端布局（≤768px，`@media` 专用）
+
+| 区域 | 行为 |
+|------|------|
+| 顶栏 | 高度约减 1/4；字号缩小；楼层 tab 可横滑 |
+| 地图 | 占满 `.main` 宽度 |
+| 侧栏 | **浮层**叠在地图右缘；默认 **折叠 48px**（仅起点/终点） |
+| 侧栏展开 | **160px** 宽，显示图例/房间/路径；**不挤压**地图 |
+| 缩放 | Panzoom（unpkg CDN）：pinch / 滚轮；右下角 ＋－⟳；`switchFloor` 时 reset |
+
+桌面（>768px）：侧栏固定 **320px**，无折叠，较大字号。
 
 ### 二维 ↔ 全景
 
@@ -80,93 +90,86 @@ python server_main.py
 | B 二栋 | `二栋-{n}f-1`…`4` | 西南/西北/东南/东北分叉 |
 | A 一栋 | `一栋-{n}f-*` | 1F 仅 2 场景；2–5F 南侧楼梯+四分叉 |
 | 连廊 | `连廊-{n}f` | `outdoor_stair` |
-| 三栋 | `三栋-1f`…`3f` | `a{n}_stair_small`（A 座 tab 上） |
-
-### 竖向井（JSON 内 id → 勿跨井串线）
-
-| 区域 | nodeId | 跨层 |
-|------|--------|------|
-| B | `elevator`, `stair_east`, `stair_west` | 各 5 层独立链；同层仅 elevator↔stair_east |
-| A | `stair_south` | 5 层 |
-| A | `stair_small` | **仅** 3 层（A1–A3） |
-| 连廊 | `outdoor_stair` | 5 层 |
+| 三栋 | `三栋-1f`…`3f` | `a{n}_stair_small` |
 
 ---
 
-## 4. A 座东侧翼
+## 4. panorama_full.html 要点
+
+- **LRU**：最多缓存 3 个场景 DOM；`switchToScene()` 管理 destroy/load
+- **场景热点**：`buildSceneHotspots()` → `type:"scene"` + `clickHandlerFunc`（**不设 sceneId、不用 cssClass**）
+- **CSS**：`.pnlm-hotspot-base.pnlm-scene` 雪碧图放大 5×（130px）
+- **房间蓝点**：`cssClass:"room-info-hotspot"`，42px 自绘圆点
+- **陷阱**：对场景热点用 `cssClass` 会去掉 `pnlm-sprite`，图标变 info「i」或消失
+
+---
+
+## 5. A 座东侧翼
 
 - 1F 主楼与东侧翼 **层内不互通** → 须经 **A2F** + `stair_small`
-- `f1_a`：有 `room_104A/B` ↔ `stair_small`；**无** 主楼直连 104
-- 单层 `check_graph` 对 f1_a 可能 FAIL（翼内孤立子图）；以 map 合并图为准
+- `f1_a` 单层 `check_graph` 可能 FAIL；以 map 合并图为准
 
 ---
 
-## 5. 目录要点
+## 6. 目录要点
 
 ```
 PanoramaProject/
-├── map.html, panorama_full.html, server_main.py
-├── js/pathfind.browser.js, js/panorama_map_bridge.js
-├── js/room_labels_all.js
-├── plans/*_cad.png          # 15 张正式底图
-├── node_nav/data/*.json     # 15 层路网
+├── index.html, map.html, panorama_full.html, server_main.py
+├── js/pathfind.browser.js, js/panorama_map_bridge.js, js/room_labels_all.js
+├── plans/*_cad.png
+├── node_nav/data/*.json
 ├── map_data/cross_floor_links.json, panorama_map_bridge.md
 ├── tools/pick-coords.html
-├── indoor_nav/              # CLI 单层算路
-├── backup/                  # 归档（见 backup/README.md）
-├── AGENT_HANDOFF.md
-└── PROJECT_CONTEXT.md       # 本文件
+├── indoor_nav/
+├── backup/
+├── AGENT_HANDOFF.md          ← 交接 Prompt（复制用）
+├── PROJECT_CONTEXT.md        ← 本文件
+└── README.md
 ```
 
 ---
 
-## 6. 已完成 vs 待办
+## 7. 已完成 vs 待办
 
 ### 已完成
 
-- [x] 15 层 CAD + JSON 全启用；B/A/lk 前缀合并图
-- [x] 跨层 weight=6；跨区 zoneLinks；移除 CROSS_CAMPUS 直连
-- [x] 起终点 UI、路径高亮、路网线可选显示
-- [x] pathfind.browser.js 语法修复；换层指引（电梯/楼梯/连廊）
-- [x] verify_zone_route.py PASS
-- [x] 同层算路禁竖向边（A1F 翼例外）
-- [x] 二维↔全景对照 + 双向深链（B/A/连廊/三栋）
-- [x] GitHub Pages + `index.html` 扫码入口
-- [x] map 懒加载修复；全景 3 场景 LRU + 可拖折面板
-- [x] f1_a 主楼拓扑/权重调整（a_door、环廊边）
-- [x] 仓库清理：外层杂物 → `backup/`
+- [x] 15 层 CAD + JSON；跨层/跨区算路；二维↔全景深链
+- [x] GitHub Pages + index.html 扫码入口
+- [x] map 懒加载；浅蓝 UI；Panzoom 缩放
+- [x] map 手机端：折叠侧栏浮层、顶栏压缩、点击显示房间名
+- [x] 全景 LRU + 场景/房间热点修复
 
 ### 待办
 
-- [ ] 同层边权、zoneLinks weight 实地丈量
-- [ ] 清理 `cross_floor_links.json` 内 `campusCrossFloor` 废弃字段（map 已不再读）
-- [ ] 2F-B 东侧动线（237/234/236）— 草稿在 `backup/indoor_navigator_misc/2F-B座.json`
-- [ ] 可选：全景 JPG 压缩；二栋 `-5` 电梯区全景对照
+- [ ] 边权实地丈量
+- [ ] 清理 `cross_floor_links.json` 废弃字段
+- [ ] 2F-B 东侧动线（backup 草稿）
+- [ ] 可选：全景压缩；Panzoom 本地化
 
 ---
 
-## 7. 陷阱
+## 8. 陷阱
 
 1. `map.html` 只在 `</html>` 前保留**一份** `<script>`
 2. JSON id **无前缀**；map 合并图 **有** `b1_`/`a1_`/`lk1_` 前缀
-3. 改 graph / cross_floor_links → bump **`GRAPH_CACHE_VER`**（当前 `20260610-fix-load`）+ Ctrl+F5
-4. 连廊 tab 14–18 无 `FLOORS` 回退，JSON 未载完时勿对 `fd.nodes` 裸遍历
-5. 改 `panorama_map_bridge.js` → bump bridge 的 `?v=`（当前 `20260609-san`）
-6. `pathfind.browser.js` 若缓存旧版会导致「未找到路径」— 强刷或改 `?v=` 参数
-7. 三栋全景 ↔ `stair_small`，不是独立地图 tab
-8. 不主动 git commit/push
+3. 改 graph → bump **`GRAPH_CACHE_VER`**（`20260610-fix-load`）+ Ctrl+F5
+4. 手机 CSS 仅写在 `@media (max-width:768px)` 内
+5. 全景场景热点勿 `cssClass`；房间热点才用 `room-info-hotspot`
+6. 不主动 git commit/push
 
 ---
 
-## 8. 验证
+## 9. 验证
 
 ```powershell
 python node_nav/scripts/verify_zone_route.py
 python node_nav/scripts/audit_vertical_links.py
-python node_nav/scripts/check_graph.py node_nav/data/f1_a_graph.json
 ```
 
-**map 手动**：B1 `room137_front` → A1 `office101_front`（经连廊）；A1 主楼 → `room_104A`（经 A2F）。
+**map**：B1→A1 经连廊；A1 主楼→room_104 经 A2F。  
+**手机**：≤768px 侧栏折叠、地图全宽、缩放可用。  
+**全景**：场景箭头热点可点；房间蓝点 42px。
 
 ---
 
