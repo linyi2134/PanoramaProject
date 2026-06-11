@@ -180,6 +180,18 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .fab-logo-name{font-size:14px;font-weight:600;color:var(--text);text-align:center;line-height:1.35;}
 /* ── 功能球模式 ── */
 .mob-top-bar{display:none;}
+.mob-floor-nav{display:none;}
+.mob-zone-group,.mob-level-group{display:flex;align-items:center;gap:4px;}
+.mob-zone-btn,.mob-level-btn{
+  padding:6px 10px;border-radius:8px;border:1px solid var(--border);
+  background:#fff;color:var(--text);font-size:12px;font-weight:600;
+  font-family:inherit;cursor:pointer;white-space:nowrap;transition:all .12s;
+  line-height:1.2;
+}
+.mob-zone-btn.active,.mob-level-btn.active{
+  background:var(--accent);border-color:var(--accent);color:#fff;
+}
+.mob-zone-btn:not(.active):hover,.mob-level-btn:not(.active):hover{border-color:var(--accent);}
 .fab-hub{display:none;}
 body.ui-mode-fab .fab-hub{
   display:block;position:absolute;left:0;top:0;z-index:25;touch-action:none;
@@ -244,7 +256,7 @@ body.ui-mode-fab .fab-hub{
   .floor-pick-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
   .floor-pick-btn:hover:not(.active){border-color:var(--accent);}
 @media (max-width:768px){
-  body.ui-mode-fab header{min-height:48px;padding:6px 10px;gap:0;}
+  body.ui-mode-fab header{min-height:auto;padding:6px 10px 8px;gap:6px;}
   body.ui-mode-fab .logo{display:none;}
   body.ui-mode-fab .hdr-btns{display:none !important;}
   body.ui-mode-fab .floor-tabs{display:none !important;}
@@ -252,19 +264,14 @@ body.ui-mode-fab .fab-hub{
     display:flex;align-items:center;gap:8px;flex:1;width:100%;order:1;
   }
   body.ui-mode-fab .mob-brand{font-weight:700;font-size:15px;color:var(--accent);flex-shrink:0;}
-  body.ui-mode-fab .mob-floor-chip{
-    flex:1;min-width:0;padding:8px 12px;border-radius:10px;
-    border:1px solid var(--border);background:#fff;color:var(--text);
-    font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;
-    text-align:left;transition:border-color .15s;
-  }
-  body.ui-mode-fab .mob-floor-chip:hover{border-color:var(--accent);}
+  body.ui-mode-fab .mob-floor-chip{display:none;}
   body.ui-mode-fab .mob-search-btn{
     width:40px;height:40px;border-radius:10px;border:2px solid var(--accent);
     background:#fff;color:var(--accent);font-size:20px;line-height:1;
-    cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;margin-left:auto;display:flex;align-items:center;justify-content:center;
   }
   body.ui-mode-fab .mob-search-btn:hover{background:rgba(26,127,212,.08);}
+  body.ui-mode-fab .mob-floor-nav{display:flex;order:2;}
   body.ui-mode-fab .map-zoom{right:10px;bottom:12px;}
 }
 @media (min-width:769px){
@@ -283,8 +290,15 @@ body.ui-mode-fab .fab-hub{
   .logo{font-size:14px;flex:1 1 100%;order:1;}
   .hdr-btns{order:2;margin-left:0;flex-wrap:nowrap;overflow-x:auto;max-width:100%;gap:4px;-webkit-overflow-scrolling:touch;}
   .btn{padding:5px 8px;font-size:12px;white-space:nowrap;flex-shrink:0;}
-  .floor-tabs{order:3;padding:2px 0 0;gap:4px;}
-  .floor-tab{padding:5px 10px;font-size:12px;}
+  .floor-tabs{order:3;padding:2px 0 0;gap:4px;display:none !important;}
+  .mob-floor-nav{
+    display:flex;align-items:center;gap:8px;
+    flex:1 1 100%;order:3;width:100%;padding:2px 0 4px;
+  }
+  .mob-zone-group{flex-shrink:0;}
+  .mob-level-group{flex:1;justify-content:flex-end;gap:3px;}
+  .mob-level-btn{min-width:34px;padding:6px 7px;text-align:center;}
+  .mob-zone-btn{padding:6px 9px;}
   .main{position:relative;flex-direction:column;overflow:visible;}
   .side{
     order:-1;width:100%;flex-shrink:0;position:relative;z-index:28;
@@ -417,8 +431,21 @@ body.ui-mode-fab .fab-hub{
   <div class="logo">🏢 B7 软件学院 · 室内导航</div>
   <div class="mob-top-bar" id="mobTopBar">
     <span class="mob-brand">知途</span>
-    <button type="button" class="mob-floor-chip" id="mobFloorChip" title="选择楼层">B1F ▾</button>
     <button type="button" class="mob-search-btn" id="mobHeaderSearch" title="搜索目的地">🔍</button>
+  </div>
+  <div class="mob-floor-nav" id="mobFloorNav" aria-label="选择区域与楼层">
+    <div class="mob-zone-group" role="tablist" aria-label="区域">
+      <button type="button" class="mob-zone-btn active" data-zone="b" role="tab" aria-selected="true">B座</button>
+      <button type="button" class="mob-zone-btn" data-zone="link" role="tab" aria-selected="false">连廊</button>
+      <button type="button" class="mob-zone-btn" data-zone="a" role="tab" aria-selected="false">A座</button>
+    </div>
+    <div class="mob-level-group" role="tablist" aria-label="楼层">
+      <button type="button" class="mob-level-btn active" data-level="1" role="tab" aria-selected="true">1F</button>
+      <button type="button" class="mob-level-btn" data-level="2" role="tab" aria-selected="false">2F</button>
+      <button type="button" class="mob-level-btn" data-level="3" role="tab" aria-selected="false">3F</button>
+      <button type="button" class="mob-level-btn" data-level="4" role="tab" aria-selected="false">4F</button>
+      <button type="button" class="mob-level-btn" data-level="5" role="tab" aria-selected="false">5F</button>
+    </div>
   </div>
   <div class="floor-tabs" id="floorTabs"></div>
   <div class="hdr-btns">
@@ -875,6 +902,18 @@ const FLOOR_PICKER_GROUPS=[
   {title:'连廊',floors:[14,15,16,17,18]},
   {title:'A 座',floors:[8,9,10,11,12]},
 ];
+function tabToZoneLevel(tab){
+  if(tab>=1&&tab<=5) return {zone:'b',level:tab};
+  if(tab>=14&&tab<=18) return {zone:'link',level:tab-13};
+  if(tab>=8&&tab<=12) return {zone:'a',level:tab-7};
+  return {zone:'b',level:1};
+}
+function zoneLevelToTab(zone,level){
+  const lv=Math.max(1,Math.min(5,+level||1));
+  if(zone==='link') return 13+lv;
+  if(zone==='a') return 7+lv;
+  return lv;
+}
 const UI_MODE_KEY='map_ui_mode';
 const FAB_LOGO_KEY='map_fab_logo';
 const FAB_LOGOS=[
@@ -1989,18 +2028,47 @@ function maybeShowA1fEntryNotice(f){
   if(m) m.hidden=false;
 }
 
-function updateMobFloorChip(){
-  const chip=document.getElementById('mobFloorChip');
-  if(chip) chip.textContent=(FLOOR_TAB_LABELS[floor]||floor+'F')+' ▾';
+function updateMobFloorNav(){
+  const {zone,level}=tabToZoneLevel(floor);
+  document.querySelectorAll('.mob-zone-btn').forEach(b=>{
+    const on=b.dataset.zone===zone;
+    b.classList.toggle('active',on);
+    b.setAttribute('aria-selected',String(on));
+  });
+  document.querySelectorAll('.mob-level-btn').forEach(b=>{
+    const on=+b.dataset.level===level;
+    b.classList.toggle('active',on);
+    b.setAttribute('aria-selected',String(on));
+  });
   document.querySelectorAll('.floor-pick-btn').forEach(b=>{
     b.classList.toggle('active',+b.dataset.f===floor);
   });
 }
 
+function initMobFloorNav(){
+  const nav=document.getElementById('mobFloorNav');
+  if(!nav) return;
+  nav.querySelectorAll('.mob-zone-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const zone=btn.dataset.zone;
+      const cur=tabToZoneLevel(floor);
+      const lv=cur.zone===zone?cur.level:1;
+      switchFloor(zoneLevelToTab(zone,lv));
+    });
+  });
+  nav.querySelectorAll('.mob-level-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const cur=tabToZoneLevel(floor);
+      switchFloor(zoneLevelToTab(cur.zone,+btn.dataset.level));
+    });
+  });
+  updateMobFloorNav();
+}
+
 async function switchFloor(f){
   floor=f;
   document.querySelectorAll('.floor-tab').forEach(t=>t.classList.toggle('active',+t.dataset.f===f));
-  updateMobFloorChip();
+  updateMobFloorNav();
   if(JSON_GRAPHS[f]&&!graphCache[f]){
     setHint('正在加载本层地图…');
     await loadJsonGraph(f);
@@ -2512,14 +2580,13 @@ function initFabUi(){
     }
     else if(action==='ui-mode') showUiModePicker();
   });
-  document.getElementById('mobFloorChip')?.addEventListener('click',openFloorPicker);
   document.getElementById('mobHeaderSearch')?.addEventListener('click',()=>openSearchModal());
   document.getElementById('floorPickerClose')?.addEventListener('click',closeFloorPicker);
   document.getElementById('floorPickerModal')?.addEventListener('click',(e)=>{
     if(e.target.id==='floorPickerModal') closeFloorPicker();
   });
   syncFabEdgesBtn();
-  updateMobFloorChip();
+  initMobFloorNav();
   initFabPhysics();
 }
 
@@ -2633,9 +2700,9 @@ async function init(){
   }else{
     setPickMode('start');
     if(document.body.classList.contains('ui-mode-fab')&&window.matchMedia('(max-width:768px)').matches){
-      setHint('点上方选起点/终点；左下角校徽球打开更多功能');
+      setHint('顶栏：左选 B座/连廊/A座，右选 1–5F；上方选起终点');
     }else if(window.matchMedia('(max-width:768px)').matches){
-      setHint('点上方「起点」，再在地图上选点；▼ 展开路线详情');
+      setHint('顶栏选区域与楼层；上方选起终点，▼ 展开路线');
     }else{
       setHint('先点右侧「起点」，再在地图上选点；双指/滚轮可缩放地图');
     }

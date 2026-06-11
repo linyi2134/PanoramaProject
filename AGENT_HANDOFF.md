@@ -10,7 +10,7 @@
 你正在接手 B7 教学楼「校园导览与信息导航系统」（课程项目「知途」）。
 
 【产品形态】
-- Web 应用（HTML + JS + Python 静态服务），不是 Qt 客户端
+- Web 应用（HTML + JS + Python 静态服务）
 - 主入口：index.html → 自动跳转 map.html（默认 **B1F** tab）
 - 辅助：panorama_full.html（52 场景全景 + 与二维深链互通）
 - 公网演示：GitHub Pages；局域网：python server_main.py
@@ -69,9 +69,10 @@
 重缩放：`node_nav/scripts/scale_b_plans_to_f1.py`、`scale_cad_unify.py`；改节点后 `generate_id_maps.py`
 
 【map.html · 手机端（≤768px）】
-- **路径面板在地图上方**（非右侧）：折叠一行 `[🔍] 起点 | 终点 [▼]`；展开浮层显示路线 +「图例」「本层房间」bottom sheet
-- 折叠态不占地图宽度、不挡功能球；展开浮层可盖住球
-- 功能球模式：顶栏三按钮行收起进功能球菜单；侧栏 🔍 隐藏（顶栏已有）
+- **顶栏选层**：左 `[B座][连廊][A座]` + 右 `[1F–5F]`（`mob-floor-nav`）；替代 15 tab 与旧 floor chip
+- **路径面板在地图上方**：折叠 `[🔍] 起点 | 终点 [▼]`；展开浮层显示路线 +「图例」「本层房间」bottom sheet
+- 折叠态不挡功能球；展开浮层可盖住球
+- 功能球模式：顶栏「知途 + 选层 + 🔍」；侧栏 🔍 隐藏
 - Panzoom：`js/panzoom.min.js` 4.5.1；切层 `resetMapZoom()`
 
 【panorama_full.html】
