@@ -162,11 +162,27 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
   display:inline-block;margin-top:6px;font-size:11px;font-weight:700;
   padding:2px 8px;border-radius:999px;background:rgba(26,127,212,.12);color:var(--accent);
 }
+.fab-logo-modal{position:fixed;inset:0;background:rgba(15,35,55,.48);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;z-index:210;padding:16px;}
+.fab-logo-modal[hidden]{display:none;}
+.fab-logo-options{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.fab-logo-card{
+  flex:1 1 140px;max-width:200px;display:flex;flex-direction:column;align-items:center;gap:10px;
+  padding:14px 12px;border:2px solid var(--border);border-radius:14px;background:#fff;
+  cursor:pointer;font-family:inherit;transition:border-color .15s,box-shadow .15s;
+}
+.fab-logo-card:hover{border-color:var(--accent);box-shadow:0 4px 14px rgba(26,127,212,.12);}
+.fab-logo-card.active{border-color:var(--accent);background:rgba(26,127,212,.06);}
+.fab-logo-preview{
+  width:72px;height:72px;border-radius:50%;background:#fff;padding:4px;
+  box-shadow:0 2px 10px rgba(0,0,0,.1);display:flex;align-items:center;justify-content:center;
+}
+.fab-logo-preview img{width:100%;height:100%;object-fit:contain;border-radius:50%;}
+.fab-logo-name{font-size:14px;font-weight:600;color:var(--text);text-align:center;line-height:1.35;}
 /* ── 功能球模式 ── */
 .mob-top-bar{display:none;}
 .fab-hub{display:none;}
 body.ui-mode-fab .fab-hub{
-  display:block;position:absolute;left:16px;bottom:16px;z-index:25;
+  display:block;position:absolute;left:0;top:0;z-index:25;touch-action:none;
 }
 .fab-backdrop{
     position:fixed;inset:0;background:rgba(15,35,55,.28);z-index:0;
@@ -179,6 +195,8 @@ body.ui-mode-fab .fab-hub{
     min-width:168px;opacity:0;pointer-events:none;transform:translateY(6px);
     transition:opacity .18s,transform .18s;
   }
+  .fab-hub.menu-below .fab-menu{bottom:auto;top:58px;transform:translateY(-6px);}
+  .fab-hub.menu-below.open .fab-menu{transform:none;}
   .fab-hub.open .fab-menu{opacity:1;pointer-events:auto;transform:none;}
   .fab-menu-item{
     display:flex;align-items:center;gap:8px;padding:10px 14px;
@@ -193,10 +211,12 @@ body.ui-mode-fab .fab-hub{
     width:52px;height:52px;border-radius:50%;border:2px solid #fff;
     background:#fff;padding:2px;
     box-shadow:0 4px 18px rgba(26,60,90,.28);
-    cursor:pointer;display:flex;align-items:center;justify-content:center;
-    transition:transform .15s,box-shadow .15s;
+    cursor:grab;display:flex;align-items:center;justify-content:center;
+    touch-action:none;user-select:none;-webkit-user-select:none;
+    transition:box-shadow .15s;
   }
-  .fab-ball:hover{transform:scale(1.04);box-shadow:0 6px 22px rgba(26,127,212,.5);}
+  .fab-hub:not(.fab-dragging) .fab-ball:hover{box-shadow:0 6px 22px rgba(26,127,212,.5);}
+  .fab-hub.fab-dragging .fab-ball{cursor:grabbing;box-shadow:0 6px 22px rgba(26,127,212,.45);}
   .fab-hub.open .fab-ball{box-shadow:0 6px 24px rgba(26,127,212,.55);}
   .fab-badge-img{width:46px;height:46px;object-fit:contain;border-radius:50%;display:block;}
   .floor-picker-modal{
@@ -245,12 +265,15 @@ body.ui-mode-fab .fab-hub{
     cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
   }
   body.ui-mode-fab .mob-search-btn:hover{background:rgba(26,127,212,.08);}
-  body.ui-mode-fab .fab-hub{left:10px;bottom:12px;}
   body.ui-mode-fab .hint{left:calc(50% + 20px);max-width:calc(100vw - 130px);}
   body.ui-mode-fab .map-zoom{right:10px;bottom:12px;}
   body.ui-mode-fab .side{top:0;}
 }
 @media (min-width:769px){
+  body.ui-mode-fab .fab-ball{width:104px;height:104px;}
+  body.ui-mode-fab .fab-badge-img{width:92px;height:92px;}
+  body.ui-mode-fab .fab-menu{bottom:116px;}
+  body.ui-mode-fab .fab-hub.menu-below .fab-menu{top:116px;}
   .floor-picker-modal:not([hidden]){align-items:center;padding:16px;}
   .floor-picker-box{width:min(420px,92vw);border-radius:18px;animation:none;}
 }
@@ -357,6 +380,13 @@ body.ui-mode-fab .fab-hub{
     </div>
   </div>
 </div>
+<div id="fabLogoModal" class="fab-logo-modal ui-mode-modal" hidden>
+  <div class="ui-mode-box" role="dialog" aria-labelledby="fabLogoTitle" aria-modal="true">
+    <h2 id="fabLogoTitle">选择功能球校徽</h2>
+    <p class="ui-mode-intro">选定后显示在左下角可拖动的功能球上，可随时在功能球菜单里更换。</p>
+    <div class="fab-logo-options" id="fabLogoOptions"></div>
+  </div>
+</div>
 <header>
   <div class="logo">🏢 B7 软件学院 · 室内导航</div>
   <div class="mob-top-bar" id="mobTopBar">
@@ -394,6 +424,7 @@ body.ui-mode-fab .fab-hub{
         <button type="button" class="fab-menu-item" id="fabEdgesBtn" data-fab-action="edges" role="menuitem">⬡ 显示路网线</button>
         <a class="fab-menu-item" href="panorama_full.html" data-fab-action="pano" role="menuitem" style="text-decoration:none">🌐 全景漫游</a>
         <button type="button" class="fab-menu-item" data-fab-action="clear" role="menuitem">✕ 清除路线</button>
+        <button type="button" class="fab-menu-item" data-fab-action="fab-logo" role="menuitem">🏫 切换校徽</button>
         <button type="button" class="fab-menu-item" data-fab-action="ui-mode" role="menuitem">🎨 切换界面样式</button>
       </div>
       <button type="button" class="fab-ball" id="fabBall" aria-label="打开功能菜单" aria-expanded="false" aria-haspopup="menu">
@@ -786,6 +817,11 @@ const FLOOR_PICKER_GROUPS=[
   {title:'A 座',floors:[8,9,10,11,12]},
 ];
 const UI_MODE_KEY='map_ui_mode';
+const FAB_LOGO_KEY='map_fab_logo';
+const FAB_LOGOS=[
+  {id:'xidian',src:'assets/xidian-logo-512.png',name:'华南理工大学',recommended:true},
+  {id:'sysu',src:'assets/sysu-logo-512.png',name:'中山大学',recommended:false},
+];
 const CORRIDOR_FLOOR={14:1,15:2,16:3,17:4,18:5};
 function graphIdPrefix(f){
   if(f>=1&&f<=5) return `b${f}_`;
@@ -818,7 +854,7 @@ const JSON_GRAPHS={
   17:'node_nav/data/link_f4_graph.json',
   18:'node_nav/data/link_f5_graph.json',
 };
-const GRAPH_CACHE_VER='20260611-cad-unify-all';
+const GRAPH_CACHE_VER='20260611-f1b-south-door-line';
 // 各层示意 PNG（760×520）；JSON 未合并时仍可用 FLOORS 坐标叠在上面
 const PLAN_CACHE_VER='20260611-cad-unify-all';
 const PLAN_IMAGES={
@@ -1993,6 +2029,61 @@ function initMapPanzoom(){
   document.getElementById('zoomResetBtn')?.addEventListener('click',()=>resetMapZoom());
 }
 
+function getFabLogoId(){
+  try{
+    const id=localStorage.getItem(FAB_LOGO_KEY);
+    if(FAB_LOGOS.some(l=>l.id===id)) return id;
+  }catch(e){}
+  return FAB_LOGOS[0].id;
+}
+
+function applyFabLogo(id){
+  const logo=FAB_LOGOS.find(l=>l.id===id)||FAB_LOGOS[0];
+  const img=document.querySelector('#fabBall .fab-badge-img');
+  if(img){
+    img.src=logo.src;
+    img.alt=logo.name;
+  }
+  try{localStorage.setItem(FAB_LOGO_KEY,logo.id);}catch(e){}
+  document.querySelectorAll('.fab-logo-card').forEach(b=>{
+    b.classList.toggle('active',b.dataset.fabLogo===logo.id);
+  });
+  return logo;
+}
+
+function buildFabLogoPicker(){
+  const box=document.getElementById('fabLogoOptions');
+  if(!box) return;
+  const cur=getFabLogoId();
+  box.innerHTML='';
+  for(const logo of FAB_LOGOS){
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='fab-logo-card'+(logo.id===cur?' active':'');
+    btn.dataset.fabLogo=logo.id;
+    btn.innerHTML=
+      `<span class="fab-logo-preview"><img src="${logo.src}" alt="" width="64" height="64" decoding="async"></span>`+
+      `<span class="fab-logo-name">${logo.name}</span>`+
+      (logo.recommended?'<span class="ui-mode-tag">推荐使用</span>':'');
+    btn.onclick=()=>{
+      applyFabLogo(logo.id);
+      document.getElementById('fabLogoModal').hidden=true;
+      if(fabLogoPickDone) fabLogoPickDone();
+      fabLogoPickDone=null;
+    };
+    box.appendChild(btn);
+  }
+}
+
+let fabLogoPickDone=null;
+
+function showFabLogoPicker(onDone){
+  buildFabLogoPicker();
+  fabLogoPickDone=onDone||null;
+  const m=document.getElementById('fabLogoModal');
+  if(m) m.hidden=false;
+}
+
 function applyUiMode(mode){
   document.body.classList.remove('ui-mode-classic','ui-mode-fab');
   document.body.classList.add(mode==='fab'?'ui-mode-fab':'ui-mode-classic');
@@ -2001,6 +2092,16 @@ function applyUiMode(mode){
     hub.hidden=mode!=='fab';
     hub.setAttribute('aria-hidden',mode!=='fab'?'true':'false');
   }
+  if(mode==='fab'){
+    applyFabLogo(getFabLogoId());
+    if(fabPhys?.placeDefault) requestAnimationFrame(()=>fabPhys.placeDefault());
+  }
+}
+
+function finishUiModePick(mode,onPick){
+  if(onPick) onPick(mode);
+  else if(mode==='fab') setHint('已切换为功能球模式；拖动左下角校徽球打开菜单');
+  else setHint('已切换为经典布局');
 }
 
 function bindUiModePicker(onPick){
@@ -2011,10 +2112,15 @@ function bindUiModePicker(onPick){
       const mode=btn.dataset.uiMode;
       try{localStorage.setItem(UI_MODE_KEY,mode);}catch(e){}
       modal.hidden=true;
-      applyUiMode(mode);
-      if(onPick) onPick(mode);
-      else if(mode==='fab') setHint('已切换为功能球模式；地图左下角校徽球打开菜单');
-      else setHint('已切换为经典布局');
+      if(mode==='fab'){
+        showFabLogoPicker(()=>{
+          applyUiMode('fab');
+          finishUiModePick('fab',onPick);
+        });
+      }else{
+        applyUiMode(mode);
+        finishUiModePick(mode,onPick);
+      }
     };
   });
 }
@@ -2101,11 +2207,168 @@ function closeFloorPicker(){
   if(m) m.hidden=true;
 }
 
-function initFabUi(){
-  document.getElementById('fabBall')?.addEventListener('click',(e)=>{
-    e.stopPropagation();
-    toggleFabMenu();
+const FAB_PHYS={
+  sizeMobile:52,sizeDesktop:104,padding:8,friction:0.972,bounce:0.68,minSpeed:0.28,
+  rotGain:0.35,angFriction:0.94,tapThreshold:10,velScale:0.85,
+};
+let fabPhys=null;
+
+function fabBallSize(){
+  return window.matchMedia('(min-width:769px)').matches?FAB_PHYS.sizeDesktop:FAB_PHYS.sizeMobile;
+}
+
+function initFabPhysics(){
+  const hub=document.getElementById('fabHub');
+  const ball=document.getElementById('fabBall');
+  const wrap=document.querySelector('.map-wrap');
+  if(!hub||!ball||!wrap) return;
+
+  const state={
+    x:16,y:0,vx:0,vy:0,angle:0,va:0,
+    dragging:false,raf:0,pointerId:null,
+    totalMove:0,lastPtrX:0,lastPtrY:0,lastPtrT:0,
+  };
+  fabPhys=state;
+
+  function bounds(){
+    const s=fabBallSize();
+    const w=wrap.clientWidth,h=wrap.clientHeight,p=FAB_PHYS.padding;
+    return{minX:p,minY:p,maxX:Math.max(p,w-s-p),maxY:Math.max(p,h-s-p),size:s};
+  }
+
+  function syncMenuSide(){
+    const b=bounds();
+    hub.classList.toggle('menu-below',state.y<b.minY+b.size);
+  }
+
+  function applyPose(){
+    hub.style.left=state.x+'px';
+    hub.style.top=state.y+'px';
+    ball.style.transform='rotate('+state.angle+'deg)';
+    syncMenuSide();
+  }
+
+  function placeDefault(){
+    const b=bounds();
+    state.x=b.minX;
+    state.y=b.maxY;
+    state.vx=0;state.vy=0;state.va=0;state.angle=0;
+    applyPose();
+  }
+
+  function clampBounce(){
+    const b=bounds();
+    if(state.x<b.minX){state.x=b.minX;state.vx=-state.vx*FAB_PHYS.bounce;state.va+=state.vx*0.06;}
+    if(state.y<b.minY){state.y=b.minY;state.vy=-state.vy*FAB_PHYS.bounce;state.va+=state.vy*0.06;}
+    if(state.x>b.maxX){state.x=b.maxX;state.vx=-state.vx*FAB_PHYS.bounce;state.va+=state.vx*0.06;}
+    if(state.y>b.maxY){state.y=b.maxY;state.vy=-state.vy*FAB_PHYS.bounce;state.va+=state.vy*0.06;}
+  }
+
+  function stopAnim(){
+    if(state.raf){cancelAnimationFrame(state.raf);state.raf=0;}
+  }
+
+  function tick(){
+    state.vx*=FAB_PHYS.friction;
+    state.vy*=FAB_PHYS.friction;
+    state.va*=FAB_PHYS.angFriction;
+    state.angle+=state.va;
+    state.x+=state.vx;
+    state.y+=state.vy;
+    clampBounce();
+    applyPose();
+    const sp=Math.hypot(state.vx,state.vy);
+    if(sp>FAB_PHYS.minSpeed||Math.abs(state.va)>0.12){
+      state.raf=requestAnimationFrame(tick);
+    }else{
+      state.raf=0;
+      state.vx=0;state.vy=0;state.va=0;
+    }
+  }
+
+  function startInertia(){
+    stopAnim();
+    if(Math.hypot(state.vx,state.vy)>FAB_PHYS.minSpeed||Math.abs(state.va)>0.12)
+      state.raf=requestAnimationFrame(tick);
+  }
+
+  function ptrToLocal(e){
+    const r=wrap.getBoundingClientRect();
+    const half=fabBallSize()/2;
+    return{
+      x:e.clientX-r.left-half,
+      y:e.clientY-r.top-half,
+    };
+  }
+
+  function onPtrDown(e){
+    if(!document.body.classList.contains('ui-mode-fab')) return;
+    e.preventDefault();
+    stopAnim();
+    state.dragging=true;
+    state.pointerId=e.pointerId;
+    state.totalMove=0;
+    ball.setPointerCapture(e.pointerId);
+    const p=ptrToLocal(e);
+    state.lastPtrX=p.x;state.lastPtrY=p.y;state.lastPtrT=performance.now();
+    hub.classList.add('fab-dragging');
+    closeFabMenu();
+  }
+
+  function onPtrMove(e){
+    if(!state.dragging||e.pointerId!==state.pointerId) return;
+    e.preventDefault();
+    const p=ptrToLocal(e);
+    const b=bounds();
+    const dx=p.x-state.x,dy=p.y-state.y;
+    state.totalMove+=Math.hypot(dx,dy);
+    const now=performance.now();
+    const dt=(now-state.lastPtrT)/1000;
+    if(dt>0){
+      state.vx=(p.x-state.lastPtrX)/dt*FAB_PHYS.velScale*0.016;
+      state.vy=(p.y-state.lastPtrY)/dt*FAB_PHYS.velScale*0.016;
+    }
+    state.lastPtrX=p.x;state.lastPtrY=p.y;state.lastPtrT=now;
+    state.x=Math.max(b.minX,Math.min(b.maxX,p.x));
+    state.y=Math.max(b.minY,Math.min(b.maxY,p.y));
+    state.va+=dx*FAB_PHYS.rotGain;
+    applyPose();
+  }
+
+  function onPtrUp(e){
+    if(!state.dragging||e.pointerId!==state.pointerId) return;
+    state.dragging=false;
+    try{ball.releasePointerCapture(e.pointerId);}catch(_){}
+    hub.classList.remove('fab-dragging');
+    if(state.totalMove<FAB_PHYS.tapThreshold){
+      state.vx=0;state.vy=0;state.va=0;
+      toggleFabMenu();
+      return;
+    }
+    startInertia();
+  }
+
+  ball.addEventListener('pointerdown',onPtrDown);
+  ball.addEventListener('pointermove',onPtrMove);
+  ball.addEventListener('pointerup',onPtrUp);
+  ball.addEventListener('pointercancel',onPtrUp);
+
+  if(typeof ResizeObserver!=='undefined'){
+    new ResizeObserver(()=>{
+      clampBounce();
+      applyPose();
+    }).observe(wrap);
+  }
+  window.addEventListener('resize',()=>{
+    clampBounce();
+    applyPose();
   });
+
+  state.placeDefault=placeDefault;
+  placeDefault();
+}
+
+function initFabUi(){
   document.getElementById('fabBackdrop')?.addEventListener('click',()=>{
     closeFabMenu();
     closeFloorPicker();
@@ -2121,6 +2384,10 @@ function initFabUi(){
     else if(action==='refresh') forceRender();
     else if(action==='edges') toggleShowEdges();
     else if(action==='clear') clearAll();
+    else if(action==='fab-logo'){
+      closeFabMenu();
+      showFabLogoPicker();
+    }
     else if(action==='ui-mode') showUiModePicker();
   });
   document.getElementById('mobFloorChip')?.addEventListener('click',openFloorPicker);
@@ -2131,6 +2398,7 @@ function initFabUi(){
   });
   syncFabEdgesBtn();
   updateMobFloorChip();
+  initFabPhysics();
 }
 
 function initMobileSide(){
@@ -2166,6 +2434,11 @@ function initMobileSide(){
 async function init(){
   const uiMode=await resolveUiMode();
   applyUiMode(uiMode);
+  if(uiMode==='fab'){
+    try{
+      if(!localStorage.getItem(FAB_LOGO_KEY)) showFabLogoPicker(()=>applyFabLogo(getFabLogoId()));
+    }catch(e){}
+  }
   setHint('正在加载地图…');
   try{
     await Promise.all([loadJsonGraph(1),loadCrossFloorSpec(),loadRoomSearchAliases()]);

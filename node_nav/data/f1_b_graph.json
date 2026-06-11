@@ -270,8 +270,8 @@
       "weight": 9
     },
     {
-      "from": "mobile_room",
-      "to": "lab_door",
+      "from": "teacher_room",
+      "to": "mobile_room",
       "weight": 2
     },
     {
