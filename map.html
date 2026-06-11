@@ -250,6 +250,15 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
         </div>
       </div>
     </div>
+    <div id="a1fNoticeModal" class="pano-modal" hidden>
+      <div class="pano-modal-box" role="dialog" aria-labelledby="a1fNoticeTitle" aria-modal="true">
+        <p id="a1fNoticeTitle" style="font-weight:700;margin-bottom:10px;">A1F 进入提示</p>
+        <p>软件学院A1F南侧东侧门时常关闭，若从外面进入建议由连廊从北侧进入。</p>
+        <div class="pano-modal-btns">
+          <button type="button" class="pano-go" id="a1fNoticeAck">我已知晓</button>
+        </div>
+      </div>
+    </div>
     <div id="searchModal" class="search-modal" hidden>
       <div class="search-modal-box" role="dialog" aria-labelledby="searchModalTitle" aria-modal="true">
         <div class="search-modal-header">
@@ -1293,6 +1302,7 @@ function applyStartFromPanorama(navNodeId){
   forceRender();
   showResult();
   document.getElementById('hint').textContent='已从全景定位起点，请在地图上选择终点';
+  maybeShowA1fEntryNotice(floor);
 }
 
 function calcPath(){
@@ -1618,6 +1628,25 @@ function initPlaceSearch(){
   });
 }
 
+const A1F_NOTICE_KEY='map_a1f_entry_notice_ack';
+
+function closeA1fEntryNotice(){
+  const m=document.getElementById('a1fNoticeModal');
+  if(m) m.hidden=true;
+}
+
+function ackA1fEntryNotice(){
+  try{localStorage.setItem(A1F_NOTICE_KEY,'1');}catch(e){}
+  closeA1fEntryNotice();
+}
+
+function maybeShowA1fEntryNotice(f){
+  if(f!==8||startN&&endN) return;
+  try{if(localStorage.getItem(A1F_NOTICE_KEY)==='1') return;}catch(e){}
+  const m=document.getElementById('a1fNoticeModal');
+  if(m) m.hidden=false;
+}
+
 async function switchFloor(f){
   floor=f;
   document.querySelectorAll('.floor-tab').forEach(t=>t.classList.toggle('active',+t.dataset.f===f));
@@ -1629,6 +1658,7 @@ async function switchFloor(f){
   forceRender();
   resetMapZoom();
   schedulePanoramaPrefetch(f);
+  maybeShowA1fEntryNotice(f);
 }
 function setHint(text){
   const el=document.getElementById('hint');
@@ -1819,6 +1849,7 @@ async function init(){
   document.getElementById('portalModal')?.addEventListener('click',(e)=>{
     if(e.target.id==='portalModal') closePortalModal();
   });
+  document.getElementById('a1fNoticeAck')?.addEventListener('click',ackA1fEntryNotice);
   document.getElementById('gNode').addEventListener('click',(e)=>{
     const el=e.target.closest('[data-node-id]');
     if(el) onNodeClick(el.getAttribute('data-node-id'));
