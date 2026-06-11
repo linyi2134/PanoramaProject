@@ -14,10 +14,10 @@
 | 模块 | 说明 |
 |------|------|
 | **主产品** | `index.html` → `map.html`：CAD + 起终点 + Dijkstra + **地点搜索** |
-| **公网** | GitHub Pages：`https://linyi2134.github.io/PanoramaProject/` |
-| **辅助** | `panorama_full.html`：52 场景（JPG 已压缩 ~32 MB） |
-| **联动** | `panorama_map_bridge.js`：走廊节点 ↔ 全景；map 浏览时 **预取全景 JPG** |
-| **不做** | Qt 客户端、BLE/WiFi 定位 |
+| **公网** | GitHub Pages：`https://linyi2134.github.io/PanoramaProject/map.html` |
+| **辅助** | `panorama_full.html`：52 场景（JPG ~32 MB） |
+| **联动** | `panorama_map_bridge.js`：走廊节点 ↔ 全景；map 浏览时预取全景 JPG |
+| **不做** | Qt 客户端、BLE/WiFi 定位、访问统计 |
 
 ---
 
@@ -35,8 +35,6 @@ python server_main.py
 | http://localhost:8000/panorama_full.html | 本地全景 |
 
 禁止 `file://`。push 推荐 SSH：`git push git@github.com:linyi2134/PanoramaProject.git main`
-
-**Pages 部署**：`.github/workflows/deploy-pages.yml` + `.nojekyll`；Settings → Pages → GitHub Actions → Deploy GitHub Pages。
 
 ---
 
@@ -62,51 +60,61 @@ python server_main.py
 
 1. 侧栏选起点/终点 → 地图点节点
 2. **🔍 地点搜索**：弹窗 → 跳层 + 设终点 + 算路
-3. **可跳转节点**（琥珀圈 `#e8912d`、常显标签）：连廊口 / 电梯 / 楼梯 → `portalModal` 跳 B·连廊·A 或上/下楼
+3. **可跳转节点**（琥珀圈）：连廊口 / 电梯 / 楼梯 → `portalModal`
 4. **设施（facility）**：标注默认显示；房间点击后 `revealedLabels`
 5. 对照节点蓝虚线圈 → 弹窗可进全景
-6. **预取**：`prefetchAllCadImages` → `runPanoramaPrefetch`（当前层优先，再 FLOOR_ORDER 其余层；切 tab abort）
+6. **预取**：CAD → 全景（当前层优先；切 tab abort）
 
-### 搜索房号说明
+### 双界面模式（2026-06-11）
 
-- JSON 节点 label 常无房号（如「移动计算与软件实验室」）
-- 15 层 `map_data/id_map_*.json` → `loadRoomSearchAliases()`
-- 其他楼层：从节点 `id` / label 内数字匹配（如 `room331_front` → 331）
+| 模式 | localStorage | 说明 |
+|------|--------------|------|
+| **经典** | `map_ui_mode=classic` | 顶栏全景/路网/刷新/厕所 + 楼层 tab + 侧栏 320px（手机折叠 52px） |
+| **功能球** | `map_ui_mode=fab` | 精简顶栏 + 左下角校徽球；次要操作收入菜单 |
+
+功能球特性：
+
+- **拖动 / 惯性 / 旋转 / 边界反弹**（`initFabPhysics`）
+- 手机球 52px；桌面 104px
+- 选功能球后选校徽：`map_fab_logo` → `xidian`（华南理工，推荐）或 `sysu`（中山大学）
+- 资源：`assets/xidian-logo-512.png`、`assets/sysu-logo-512.png`
+- 菜单含：选层、厕所、刷新、路网线、全景、清除、切换校徽、切换界面
+
+### 搜索房号
+
+- JSON label 常无房号 → 15 层 `map_data/id_map_*.json`
+- 其他楼层从节点 id / label 内数字匹配
 
 ### 手机端（≤768px）
 
-| 区域 | 行为 |
-|------|------|
-| 侧栏折叠 | **52px**：◀ + **🔍** + 起/终点竖排 |
-| 侧栏展开 | 160px 浮层，不挤地图 |
-| 缩放 | Panzoom 本地 js/panzoom.min.js；切层 reset |
+| 区域 | 经典模式 | 功能球模式 |
+|------|----------|------------|
+| 路径面板 | 地图**上方**折叠条；▼ 展开路线浮层；图例/房间用 bottom sheet | 同左（侧栏无 🔍） |
+| 顶栏 | logo + 按钮行 + 楼层 tab | 知途 + 楼层 chip + 🔍 |
+| 缩放 | Panzoom 本地 | 同左 |
 
-桌面（>768px）：侧栏 320px；搜索在「路径规划」标题旁 🔍。
+桌面（>768px）：经典侧栏 320px；功能球模式保留完整顶栏 + 左下大球（104px）。
 
 ---
 
 ## 4. panorama_full.html 要点
 
-- JPG：**3000px q80**，52 张 ~32 MB；`?v=20260610-compress`
-- **无全屏 loader**（已删除半黑转圈）
-- LRU **5 场景**：`addScene` / `loadScene` / `removeScene`（**勿 destroy 整 viewer**）
-- 场景热点 **35px**（`.pnlm-scene`）；房间蓝点 **14px**
-- 底部「二维地图」链接：**下划线**
-- 场景热点：`type:"scene"` + `clickHandlerFunc`；**禁止 cssClass / sceneId**
-
-压缩脚本：`python node_nav/scripts/compress_panoramas.py`（原图 `backup/panoramas_original/`）
+- JPG 3000px q80，52 张 ~32 MB；`PANORAMA_CACHE_VER=20260610-compress`
+- 无全屏 loader；LRU **5 场景**
+- 场景热点 **35px**；房间蓝点 **14px**
+- 场景热点禁止 cssClass 替代 `pnlm-scene`
 
 ---
 
 ## 5. 二维 ↔ 全景
 
-见 [map_data/panorama_map_bridge.md](./map_data/panorama_map_bridge.md)。Bridge `?v=20260610-prefetch`，含 `panoramaImageUrl(sceneId)`。
+见 [map_data/panorama_map_bridge.md](./map_data/panorama_map_bridge.md)。Bridge `?v=20260610-prefetch`。
 
 ---
 
 ## 6. A 座东侧翼
 
-A1F 主楼 ↔ 翼内 **不互通** → 须 A2F + `stair_small`。`f1_a` 单层 check_graph 可能 FAIL。
+A1F 主楼 ↔ 翼内 **不互通** → 须 A2F + `stair_small`。
 
 ---
 
@@ -116,35 +124,38 @@ A1F 主楼 ↔ 翼内 **不互通** → 须 A2F + `stair_small`。`f1_a` 单层 
 PanoramaProject/
 ├── .github/workflows/deploy-pages.yml
 ├── map.html, panorama_full.html, index.html, server_main.py
-├── js/panorama_map_bridge.js, js/pathfind.browser.js, js/room_labels_all.js
+├── assets/                     # 校徽等功能球 PNG（须在此目录才能被 HTTP 服务）
+├── js/panorama_map_bridge.js, js/pathfind.browser.js, js/panzoom.min.js
 ├── panoramas/*.jpg
 ├── map_data/id_map_*.json, cross_floor_links.json
-├── node_nav/data/*.json, node_nav/scripts/compress_panoramas.py
+├── node_nav/data/*.json
 ├── AGENT_HANDOFF.md, README.md, PROJECT_CONTEXT.md
-└── backup/（含 panoramas_original/，gitignore）
+└── backup/
 ```
+
+外层 `indoor_navigator/` 下的 PNG 不会自动进站，需复制到 `assets/`。
 
 ---
 
 ## 8. 功能完成度
 
 - [x] 15 层 CAD + 跨层/跨区算路 + 二维↔全景深链
-- [x] GitHub Pages（deploy-pages.yml）；map 搜索；跨区跳转 portalModal
-- [x] CAD/全景分级预取；设施与跳转节点常显标注
-- [x] 全景压缩与 LRU；cross_floor 废弃字段清理
-- [x] 边权实地走查（同层/跨区/跨层）
-- [x] 2F-B 东侧动线（237/234/236 等）
-- [x] 15 层 id_map 搜索别名；Panzoom 本地化
+- [x] GitHub Pages；map 搜索；跨区 portalModal
+- [x] CAD/全景分级预取；设施与跳转节点常显
+- [x] **经典 / 功能球双 UI**；校徽皮肤；可拖动功能球
+- [x] 全景压缩与 LRU；边权实地走查
+- [x] B1F 南侧三门路网连线（2026-06-11 修补）
 
 ---
 
 ## 9. 陷阱
 
 1. `map.html` 仅一份 `<script>`，勿在 `</html>` 后再加 JS
-2. JSON id 无前缀；map 运行时 b1_/a1_/lk1_
-3. bump `GRAPH_CACHE_VER` / bridge `?v=` / `PANORAMA_CACHE_VER`
+2. JSON id 无前缀；map 运行时 `b1_` / `a1_` / `lk1_`
+3. bump `GRAPH_CACHE_VER`（当前 `20260611-f1b-south-door-line`）、`PLAN_CACHE_VER`、bridge `?v=`、`PANORAMA_CACHE_VER`
 4. 全景场景热点勿 cssClass
 5. 不主动 commit/push
+6. 改 graph 后跑 `verify_zone_route.py`
 
 ---
 
@@ -152,13 +163,12 @@ PanoramaProject/
 
 ```powershell
 python node_nav/scripts/verify_zone_route.py
-python node_nav/scripts/audit_vertical_links.py
 ```
 
-- map 点连廊口/电梯 → 琥珀圈弹窗跳转
+- 功能球：选 fab → 校徽 → 拖动反弹；菜单切换校徽/界面
+- B1F 路网线：南侧三门一线
 - 手机折叠侧栏见 🔍
-- Network：先 CAD 再 panoramas；切层 canceled
 
 ---
 
-*最后更新：2026-06-11（待办已清空）*
+*最后更新：2026-06-11（功能球 UI + 校徽选择 + B1F graph 修补）*

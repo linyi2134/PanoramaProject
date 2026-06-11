@@ -17,7 +17,9 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 |------|------|------|
 | **二维地图导航** | ✅ | `index.html`→`map.html`：15 层 tab、浅蓝 UI、懒加载、跨层/跨区算路 |
 | **地点搜索** | ✅ | 侧栏 🔍：房号/名称模糊匹配 → 跳层设终点并算路 |
-| **手机端优化** | ✅ | 折叠侧栏 52px（含搜索图标）、Panzoom、设施常显标注 |
+| **手机端优化** | ✅ | 地图上方路径面板（可展开）、Panzoom、设施常显标注 |
+| **双 UI 模式** | ✅ | 经典顶栏 vs **功能球模式**（手机推荐）；`map_ui_mode` |
+| **校徽功能球** | ✅ | 可拖动/惯性/反弹；华南理工（推荐）与中山大学两款皮肤 |
 | **跨区跳转** | ✅ | 连廊口/楼梯/电梯：琥珀圈常显 → 弹窗跳转对应区域或上/下楼 |
 | **资源预取** | ✅ | 先 15 张 CAD → 当前层全景 → 其余层；切 tab 取消旧全景下载 |
 | **GitHub Pages** | ✅ | 自定义 Actions 部署；https://linyi2134.github.io/PanoramaProject/ |
@@ -33,14 +35,16 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 ### map.html 要点（2026-06-11）
 
 - **Tab 标签**：B1F–B5F、连廊1F–5F、A1F–A5F
+- **界面选择**：首次进入选 **经典布局** 或 **功能球模式**（手机推荐）；顶栏 **🎨 界面** 可随时切换
+- **功能球模式**：地图左下角校徽球（可拖动、松手惯性、撞边反弹）；菜单收纳全景/路网/刷新/厕所等；桌面球 104px、手机 52px
+- **校徽皮肤**：选功能球后可选 **华南理工大学**（推荐）或 **中山大学**（`assets/*.png`）
 - **地点搜索**：侧栏 🔍 → 房号/名称 → 跳层设终点并算路
-- **可跳转节点**：连廊口、电梯、各楼梯 — **琥珀色外圈 + 常显标签**；点击可选跳转到 B/连廊/A 或上/下楼，也可进全景或继续选点
-- **设施标注**：洗手间等 **默认显示**（橙色）；普通房间点击后显示
-- **资源预取**：先缓存 15 张 CAD 底图，再拉当前层全景，最后依次其它层；切换 tab 会取消进行中的全景下载
-- **顶栏全景**：红色「🌐 全景」；对照节点另有蓝虚线圈
-- **路网边线**：默认隐藏；**导航路径始终高亮**
-- **跨层/跨区**：`crossFloorWeight: 6`；`zoneLinks: 15`；无 B-A 直连
-- **手机端（≤768px）**：折叠侧栏 52px + Panzoom
+- **可跳转节点**：连廊口、电梯、各楼梯 — **琥珀色外圈 + 常显标签**
+- **设施标注**：洗手间等默认显示（橙色）；普通房间点击后显示
+- **资源预取**：先 15 张 CAD → 当前层全景 → 其余层；切 tab 取消旧全景下载
+- **路网边线**：默认隐藏；导航路径始终高亮
+- **跨层/跨区**：`crossFloorWeight: 6`；`zoneLinks: 15`
+- **手机端（≤768px）**：地图上方路径面板（▼ 展开路线/图例/房间）+ Panzoom；功能球模式精简顶栏
 
 ---
 
@@ -67,6 +71,7 @@ PanoramaProject/
 ├── map.html                    # ★ 二维导航主页面
 ├── panorama_full.html          # 全景 52 场景
 ├── panorama.html               # 全景 5 场景 demo
+├── assets/                     # 功能球校徽 PNG（须在此目录方可 HTTP 访问）
 ├── js/
 │   ├── pathfind.browser.js     # 浏览器 Dijkstra（与 indoor_nav 同逻辑）
 │   ├── panorama_map_bridge.js  # 二维节点 ↔ 全景场景对照
@@ -150,10 +155,12 @@ python node_nav/scripts/check_graph.py node_nav/data/f3_b_graph.json
 
 ## 修改后记得
 
-1. 改 graph 或 `cross_floor_links.json` → bump `map.html` 的 **`GRAPH_CACHE_VER`**（当前 `20260610-clean-cf`）
-2. 改 `panorama_map_bridge.js` → bump bridge **`?v=`**（当前 `20260610-prefetch`）
-3. 改 `panoramas/*.jpg` → bump `PANORAMA_CACHE_VER`（`20260610-compress`）+ 强刷
-4. 浏览器 **Ctrl+F5** 强刷
+1. 改 graph 或 `cross_floor_links.json` → bump `map.html` 的 **`GRAPH_CACHE_VER`**（当前 `20260611-f1b-south-door-line`）
+2. 改 CAD PNG 缩放 → bump **`PLAN_CACHE_VER`**（当前 `20260611-cad-unify-all`）
+3. 改 `panorama_map_bridge.js` → bump bridge **`?v=`**（当前 `20260610-prefetch`）
+4. 改 `panoramas/*.jpg` → bump `PANORAMA_CACHE_VER`（`20260610-compress`）+ 强刷
+5. 新增校徽等静态图 → 放入 `assets/` 并更新 `FAB_LOGOS`（`map.html`）
+6. 浏览器 **Ctrl+F5** 强刷
 
 ---
 

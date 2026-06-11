@@ -265,9 +265,7 @@ body.ui-mode-fab .fab-hub{
     cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
   }
   body.ui-mode-fab .mob-search-btn:hover{background:rgba(26,127,212,.08);}
-  body.ui-mode-fab .hint{left:calc(50% + 20px);max-width:calc(100vw - 130px);}
   body.ui-mode-fab .map-zoom{right:10px;bottom:12px;}
-  body.ui-mode-fab .side{top:0;}
 }
 @media (min-width:769px){
   body.ui-mode-fab .fab-ball{width:104px;height:104px;}
@@ -277,70 +275,92 @@ body.ui-mode-fab .fab-hub{
   .floor-picker-modal:not([hidden]){align-items:center;padding:16px;}
   .floor-picker-box{width:min(420px,92vw);border-radius:18px;animation:none;}
 }
+.mob-pt-pair{display:block;}
+.mob-side-drawer-inner{display:block;}
+.mob-picker-row{display:none;}
 @media (max-width:768px){
   header{min-height:66px;padding:8px 10px 6px;gap:5px 6px;}
-  .route-hint{font-size:8px;margin-top:6px;}
-  .route-err{font-size:9px;margin-top:6px;}
   .logo{font-size:14px;flex:1 1 100%;order:1;}
   .hdr-btns{order:2;margin-left:0;flex-wrap:nowrap;overflow-x:auto;max-width:100%;gap:4px;-webkit-overflow-scrolling:touch;}
   .btn{padding:5px 8px;font-size:12px;white-space:nowrap;flex-shrink:0;}
   .floor-tabs{order:3;padding:2px 0 0;gap:4px;}
   .floor-tab{padding:5px 10px;font-size:12px;}
-  .main{position:relative;}
-  .map-wrap{width:100%;flex:1;}
-  .hint{font-size:11px;padding:5px 10px;max-width:calc(100vw - 72px);white-space:normal;text-align:center;line-height:1.35;}
-  .map-zoom{bottom:10px;right:62px;padding:4px 6px;}
+  .main{position:relative;flex-direction:column;}
+  .side{
+    order:-1;width:100%;flex-shrink:0;position:relative;z-index:28;
+    border-left:none;border-bottom:1px solid var(--border);
+    box-shadow:0 2px 10px rgba(0,0,0,.06);
+    display:flex;flex-wrap:nowrap;align-items:stretch;
+    min-height:48px;background:var(--surface);
+  }
+  .side.side-expanded{z-index:45;}
+  .side-toggle{
+    display:flex;align-items:center;justify-content:center;
+    width:40px;flex-shrink:0;padding:0;border:none;border-left:1px solid var(--border);
+    background:var(--surface);color:var(--accent);font-size:13px;cursor:pointer;
+    order:4;
+  }
+  .side-search-btn{
+    display:flex !important;width:40px;height:40px;margin:4px;padding:0;
+    border-width:2px;border-radius:10px;flex-shrink:0;order:1;
+  }
+  .side-search-lbl{display:none;}
+  .side-search-icon{font-size:20px;}
+  body.ui-mode-fab .side .side-search-btn{display:none !important;}
+  .side-body{order:2;flex:1;min-width:0;display:flex;flex-direction:column;overflow:visible;}
+  .side .sec-head{display:none;}
+  .side .sec-pick{
+    padding:4px 6px 4px 0;border-bottom:none;display:flex;flex-wrap:wrap;
+    align-items:center;gap:4px;width:100%;
+  }
+  .mob-pt-pair{display:flex;flex:1;min-width:0;gap:4px;order:2;}
+  .side .pt-row{
+    flex:1;min-width:0;gap:6px;margin-bottom:0;padding:6px 8px;
+    min-height:40px;border-width:1px;margin-left:0;margin-right:0;
+  }
+  .side .pt-dot{width:10px;height:10px;flex-shrink:0;}
+  .side .pt-lbl{font-size:11px;min-width:2em;flex-shrink:0;}
+  .side .pt-val{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .mob-side-drawer-inner{
+    display:none;order:10;flex-basis:100%;
+  }
+  .side.side-expanded .mob-side-drawer-inner{
+    display:block;position:absolute;top:100%;left:0;right:0;z-index:1;
+    background:var(--surface);border-bottom:1px solid var(--border);
+    box-shadow:0 10px 28px rgba(0,0,0,.14);
+    max-height:min(50vh,300px);overflow-y:auto;padding:10px 12px 12px;
+  }
+  .side #routeResult{margin-top:0;}
+  .side .route-hint{font-size:12px;margin-top:0;line-height:1.45;}
+  .side .route-err{font-size:13px;margin-top:0;}
+  .side .dist{font-size:15px;}
+  .side .step{font-size:13px;margin-bottom:6px;gap:6px;}
+  .side .snum{font-size:11px;padding:2px 6px;}
+  .side .sfloor{font-size:13px;}
+  .mob-picker-row{
+    display:flex;gap:8px;margin-top:10px;padding-top:10px;
+    border-top:1px solid var(--border);
+  }
+  .mob-pick-chip{
+    flex:1;padding:10px 12px;border-radius:10px;border:1px solid var(--border);
+    background:#fff;color:var(--text);font-size:13px;font-weight:600;
+    font-family:inherit;cursor:pointer;transition:border-color .12s,background .12s;
+  }
+  .mob-pick-chip:hover{border-color:var(--accent);background:rgba(26,127,212,.05);}
+  .side .side-extra{display:none !important;}
+  .map-wrap{width:100%;flex:1;min-height:0;}
+  .hint{font-size:11px;padding:5px 10px;max-width:calc(100vw - 24px);white-space:normal;text-align:center;line-height:1.35;}
+  body.ui-mode-fab .hint{left:50%;max-width:calc(100vw - 80px);}
+  .map-zoom{bottom:10px;right:10px;padding:4px 6px;}
   .map-zoom button{width:34px;height:34px;font-size:18px;}
   .map-zoom .zoom-reset{font-size:11px;padding:0 6px;}
-  .side{
-    position:absolute;right:0;top:0;bottom:0;z-index:30;
-    width:min(160px,42vw);
-    box-shadow:-3px 0 14px rgba(0,0,0,.12);
-    transition:width .2s ease;
-  }
-  .side.side-collapsed{width:52px;}
-  .side-toggle{
-    display:block;width:100%;padding:6px 0;border:none;border-bottom:1px solid var(--border);
-    background:var(--surface);color:var(--accent);font-size:14px;cursor:pointer;flex-shrink:0;
-  }
-  .side-search-btn{display:flex;}
-  .side .sec{padding:8px;}
-  .side .sec h3{font-size:7px;margin-bottom:6px;letter-spacing:1px;}
-  .side .pt-row{gap:6px;margin-bottom:6px;padding:7px 5px;min-height:36px;border-width:1px;}
-  .side .pt-dot{width:9px;height:9px;}
-  .side .pt-lbl{font-size:10px;min-width:0;}
-  .side .pt-val{font-size:8px;}
-  .side #routeResult{margin-top:6px;}
-  .side .dist{font-size:10px;}
-  .side .step{font-size:8px;margin-bottom:4px;gap:4px;}
-  .side .snum{font-size:7px;padding:1px 4px;}
-  .side .sfloor{font-size:8px;}
-  .side .room-item{padding:5px 6px;font-size:8px;gap:5px;}
-  .side .rdot{width:6px;height:6px;}
-  .side .leg{font-size:8px;gap:5px;}
-  .side .ldot{width:6px;height:6px;}
-  .side .room-list{padding:5px;}
-  .side.side-collapsed .side-extra,
-  .side.side-collapsed .sec-pick h3,
-  .side.side-collapsed #routeResult,
-  .side.side-collapsed .pt-val{display:none;}
-  .side.side-collapsed .sec-pick{padding:4px 2px;}
-  .side.side-collapsed .pt-row{
-    flex-direction:column;align-items:center;gap:3px;
-    padding:8px 2px;margin-bottom:4px;margin-left:0;margin-right:0;
-  }
-  .side.side-collapsed .pt-lbl{
-    writing-mode:vertical-rl;text-orientation:upright;
-    font-size:9px;letter-spacing:1px;
-  }
-  .side.side-collapsed .side-search-lbl{display:none;}
-  .side.side-collapsed .side-search-btn{
-    display:flex !important;
-    width:42px;height:42px;margin:6px auto 8px;padding:0;
-    border-width:2px;border-radius:11px;
-  }
-  .side.side-collapsed .side-search-icon{font-size:24px;}
-  .side.side-collapsed .sec-head{display:none;}
+  body.ui-mode-fab .fab-hub{z-index:35;}
+  .modal-legend{padding:4px 2px 8px;}
+  .modal-legend .leg{font-size:15px;gap:10px;margin-bottom:8px;}
+  .modal-legend .ldot{width:12px;height:12px;}
+  #roomPickerModal .room-list{max-height:min(56vh,360px);overflow-y:auto;padding:4px 0 8px;}
+  #roomPickerModal .room-item{padding:12px 14px;font-size:15px;border-radius:10px;margin-bottom:4px;}
+  #roomPickerModal .rdot{width:10px;height:10px;}
   #btnOpenSearchHead{display:none;}
   .search-modal-box{padding:16px;}
   .search-modal-header h2{font-size:17px;}
@@ -440,7 +460,32 @@ body.ui-mode-fab .fab-hub{
         <div id="floorPickerBody"></div>
       </div>
     </div>
-    <div class="hint" id="hint">先点右侧「起点」，再在地图上选点；双指/滚轮可缩放地图</div>
+    <div id="legendModal" class="floor-picker-modal" hidden>
+      <div class="floor-picker-box" role="dialog" aria-labelledby="legendModalTitle">
+        <div class="floor-picker-head">
+          <h3 id="legendModalTitle">图例</h3>
+          <button type="button" class="floor-picker-close" id="legendModalClose" title="关闭">✕</button>
+        </div>
+        <div class="legend modal-legend">
+          <div class="leg"><div class="ldot" style="background:var(--accent)"></div>走廊节点</div>
+          <div class="leg"><div class="ldot" style="background:var(--accent2)"></div>设施（洗手间等）</div>
+          <div class="leg"><div class="ldot" style="background:var(--green)"></div>房间</div>
+          <div class="leg"><div class="ldot" style="background:var(--purple)"></div>楼梯 / 电梯</div>
+          <div class="leg"><div class="ldot" style="background:var(--yellow)"></div>出入口 / 连廊</div>
+          <div class="leg"><div class="ldot" style="background:#e8912d;border:2px solid #e8912d;border-radius:50%;box-sizing:border-box"></div>可跳转（跨区/楼梯）</div>
+        </div>
+      </div>
+    </div>
+    <div id="roomPickerModal" class="floor-picker-modal" hidden>
+      <div class="floor-picker-box" role="dialog" aria-labelledby="roomPickerTitle">
+        <div class="floor-picker-head">
+          <h3 id="roomPickerTitle">本层房间</h3>
+          <button type="button" class="floor-picker-close" id="roomPickerClose" title="关闭">✕</button>
+        </div>
+        <div class="room-list" id="roomPickerList"></div>
+      </div>
+    </div>
+    <div class="hint" id="hint">先点上方「起点」，再在地图上选点；双指/滚轮可缩放地图</div>
     <div id="portalModal" class="pano-modal" hidden>
       <div class="pano-modal-box">
         <p id="portalModalText"></p>
@@ -478,7 +523,7 @@ body.ui-mode-fab .fab-hub{
     </div>
   </div>
   <div class="side side-collapsed" id="sidePanel">
-    <button type="button" class="side-toggle" id="sideToggle" title="展开/折叠侧栏" aria-expanded="false">◀</button>
+    <button type="button" class="side-toggle" id="sideToggle" title="展开/折叠路径面板" aria-expanded="false">▼</button>
     <button type="button" class="side-search-btn" id="btnOpenSearch" title="搜索目的地">
       <span class="side-search-icon">🔍</span><span class="side-search-lbl">搜索地点</span>
     </button>
@@ -488,6 +533,7 @@ body.ui-mode-fab .fab-hub{
         <h3>路径规划</h3>
         <button type="button" class="btn-search" id="btnOpenSearchHead" title="搜索目的地">🔍</button>
       </div>
+      <div class="mob-pt-pair">
       <div class="pt-row active" id="pickStart" onclick="setPickMode('start')" title="点击激活，再在地图上选起点">
         <div class="pt-dot" style="background:var(--green)"></div>
         <div class="pt-lbl">起点</div>
@@ -498,7 +544,14 @@ body.ui-mode-fab .fab-hub{
         <div class="pt-lbl">终点</div>
         <div class="pt-val" id="lblEnd">点击地图选择</div>
       </div>
-      <div id="routeResult"></div>
+      </div>
+      <div class="mob-side-drawer-inner" id="mobSideDrawer">
+        <div id="routeResult"></div>
+        <div class="mob-picker-row">
+          <button type="button" class="mob-pick-chip" id="btnOpenLegendMob">图例</button>
+          <button type="button" class="mob-pick-chip" id="btnOpenRoomsMob">本层房间</button>
+        </div>
+      </div>
     </div>
     <div class="side-extra">
     <div class="sec">
@@ -1576,6 +1629,7 @@ function showResult(){
     :`<div class="step"><span class="snum">${i+1}</span><span>${s.text}</span></div>`
   ).join('');
   div.innerHTML=`<div class="dist" style="margin-top:8px;">约 ${Math.round(curPath.distance)} 米</div><div class="steps">${html}</div>`;
+  if(window.matchMedia('(max-width:768px)').matches) expandMobSide();
 }
 
 function updateSide(){
@@ -1584,9 +1638,14 @@ function updateSide(){
   updatePickRows();
   const fd=getFloorView(floor);
   const rooms=(fd.nodes||[]).filter(n=>n.role==='room'||n.role==='facility'||n.role==='door');
-  document.getElementById('roomList').innerHTML=rooms.map(n=>
+  const roomHtml=rooms.map(n=>
     `<div class="room-item" onclick="onNodeClick('${n.id}')"><div class="rdot" style="background:${RC[n.role]||'#888'}"></div>${n.label}</div>`
   ).join('');
+  document.getElementById('roomList').innerHTML=roomHtml;
+  const rpList=document.getElementById('roomPickerList');
+  if(rpList) rpList.innerHTML=roomHtml;
+  const rpTitle=document.getElementById('roomPickerTitle');
+  if(rpTitle) rpTitle.textContent=`本层房间 · ${FLOOR_TAB_LABELS[floor]||floor+'F'}`;
   const src=fd.source==='json'?' · JSON路网':' · 示意数据';
   document.querySelector('.logo').textContent=`🏢 B7 软件学院 · 室内导航${src}`;
 }
@@ -1822,11 +1881,48 @@ async function applySearchDestination(nodeId){
   setHint(startN?`已设终点：${nodePickLabel(nodeId)}，路径已更新`:`已定位：${nodePickLabel(nodeId)}，请再选起点`);
   const side=document.getElementById('sidePanel');
   const mq=window.matchMedia('(max-width:768px)');
-  if(side&&mq.matches){
-    side.classList.remove('side-collapsed');
-    side.classList.add('side-expanded');
-    document.getElementById('sideToggle')?.setAttribute('aria-expanded','true');
+  if(side&&mq.matches) expandMobSide();
+}
+
+function expandMobSide(){
+  const side=document.getElementById('sidePanel');
+  const toggle=document.getElementById('sideToggle');
+  if(!side||!window.matchMedia('(max-width:768px)').matches) return;
+  side.classList.remove('side-collapsed');
+  side.classList.add('side-expanded');
+  if(toggle){
+    toggle.textContent='▲';
+    toggle.setAttribute('aria-expanded','true');
   }
+}
+
+function collapseMobSide(){
+  const side=document.getElementById('sidePanel');
+  const toggle=document.getElementById('sideToggle');
+  if(!side) return;
+  side.classList.add('side-collapsed');
+  side.classList.remove('side-expanded');
+  if(toggle){
+    toggle.textContent='▼';
+    toggle.setAttribute('aria-expanded','false');
+  }
+}
+
+function openLegendModal(){
+  document.getElementById('legendModal').hidden=false;
+}
+
+function closeLegendModal(){
+  document.getElementById('legendModal').hidden=true;
+}
+
+function openRoomPickerModal(){
+  updateSide();
+  document.getElementById('roomPickerModal').hidden=false;
+}
+
+function closeRoomPickerModal(){
+  document.getElementById('roomPickerModal').hidden=true;
 }
 
 function initPlaceSearch(){
@@ -2408,13 +2504,12 @@ function initMobileSide(){
   const mq=window.matchMedia('(max-width:768px)');
   function syncToggleIcon(){
     const col=side.classList.contains('side-collapsed');
-    toggle.textContent=col?'◀':'▶';
+    toggle.textContent=col?'▼':'▲';
     toggle.setAttribute('aria-expanded',String(!col));
   }
   function onBreakpoint(e){
     if(e.matches){
-      side.classList.add('side-collapsed');
-      side.classList.remove('side-expanded');
+      collapseMobSide();
     }else{
       side.classList.remove('side-collapsed','side-expanded');
     }
@@ -2425,9 +2520,26 @@ function initMobileSide(){
   toggle.addEventListener('click',()=>{
     if(!mq.matches) return;
     const willCollapse=!side.classList.contains('side-collapsed');
-    side.classList.toggle('side-collapsed',willCollapse);
-    side.classList.toggle('side-expanded',!willCollapse);
+    if(willCollapse) collapseMobSide();
+    else expandMobSide();
     syncToggleIcon();
+  });
+}
+
+function initMobPickers(){
+  document.getElementById('btnOpenLegendMob')?.addEventListener('click',openLegendModal);
+  document.getElementById('btnOpenRoomsMob')?.addEventListener('click',openRoomPickerModal);
+  document.getElementById('legendModalClose')?.addEventListener('click',closeLegendModal);
+  document.getElementById('roomPickerClose')?.addEventListener('click',closeRoomPickerModal);
+  document.getElementById('legendModal')?.addEventListener('click',(e)=>{
+    if(e.target.id==='legendModal') closeLegendModal();
+  });
+  document.getElementById('roomPickerModal')?.addEventListener('click',(e)=>{
+    if(e.target.id==='roomPickerModal') closeRoomPickerModal();
+  });
+  document.getElementById('roomPickerList')?.addEventListener('click',(e)=>{
+    const item=e.target.closest('.room-item');
+    if(item) closeRoomPickerModal();
   });
 }
 
@@ -2476,6 +2588,7 @@ async function init(){
   render();
   initMapPanzoom();
   initMobileSide();
+  initMobPickers();
   initFabUi();
   document.getElementById('btnUiMode')?.addEventListener('click',showUiModePicker);
   initPlaceSearch();
@@ -2494,7 +2607,9 @@ async function init(){
   }else{
     setPickMode('start');
     if(document.body.classList.contains('ui-mode-fab')&&window.matchMedia('(max-width:768px)').matches){
-      setHint('点右侧选起点/终点；左下角「知」字球打开更多功能');
+      setHint('点上方选起点/终点；左下角校徽球打开更多功能');
+    }else if(window.matchMedia('(max-width:768px)').matches){
+      setHint('点上方「起点」，再在地图上选点；▼ 展开路线详情');
     }else{
       setHint('先点右侧「起点」，再在地图上选点；双指/滚轮可缩放地图');
     }
