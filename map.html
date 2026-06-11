@@ -179,7 +179,12 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .fab-logo-preview img{width:100%;height:100%;object-fit:contain;border-radius:50%;}
 .fab-logo-name{font-size:14px;font-weight:600;color:var(--text);text-align:center;line-height:1.35;}
 /* ── 功能球模式 ── */
-.mob-top-bar{display:none;}
+.mob-top-bar{display:none;align-items:center;gap:6px;min-width:0;}
+.mob-brand{font-weight:700;color:var(--accent);flex-shrink:0;}
+.mob-title{
+  flex:1;min-width:0;font-size:12px;font-weight:600;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
 .mob-floor-nav{display:none;}
 .mob-zone-group,.mob-level-group{display:flex;align-items:center;gap:4px;}
 .mob-zone-btn,.mob-level-btn{
@@ -231,6 +236,18 @@ body.ui-mode-fab .fab-hub{
   .fab-hub.fab-dragging .fab-ball{cursor:grabbing;box-shadow:0 6px 22px rgba(26,127,212,.45);}
   .fab-hub.open .fab-ball{box-shadow:0 6px 24px rgba(26,127,212,.55);}
   .fab-badge-img{width:46px;height:46px;object-fit:contain;border-radius:50%;display:block;}
+  .fab-combo-display{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    font-size:clamp(36px,12vw,56px);font-weight:800;letter-spacing:2px;
+    color:#eaff00;
+    text-shadow:0 0 10px rgba(234,255,0,.95),0 0 22px rgba(234,255,0,.55),0 2px 8px rgba(0,0,0,.25);
+    pointer-events:none;z-index:40;opacity:0;transition:none;
+    font-family:inherit;
+  }
+  .fab-combo-display.fab-combo-green{
+    color:#39ff14;
+    text-shadow:0 0 10px rgba(57,255,20,.95),0 0 22px rgba(57,255,20,.55),0 2px 8px rgba(0,0,0,.25);
+  }
   .floor-picker-modal{
     position:fixed;inset:0;background:rgba(15,35,55,.42);backdrop-filter:blur(4px);
     align-items:flex-end;justify-content:center;z-index:120;padding:0;
@@ -256,38 +273,27 @@ body.ui-mode-fab .fab-hub{
   .floor-pick-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
   .floor-pick-btn:hover:not(.active){border-color:var(--accent);}
 @media (max-width:768px){
+  header{min-height:auto;padding:8px 10px 6px;gap:5px 6px;}
+  .logo{display:none !important;}
+  .mob-top-bar{
+    display:flex;align-items:center;gap:6px;flex:1 1 100%;order:1;width:100%;min-width:0;
+  }
+  .mob-brand{font-size:15px;}
+  .mob-title{font-size:12px;}
+  body:not(.ui-mode-fab) .mob-search-btn{display:none;}
   body.ui-mode-fab header{min-height:auto;padding:6px 10px 8px;gap:6px;}
-  body.ui-mode-fab .logo{display:none;}
   body.ui-mode-fab .hdr-btns{display:none !important;}
   body.ui-mode-fab .floor-tabs{display:none !important;}
-  body.ui-mode-fab .mob-top-bar{
-    display:flex;align-items:center;gap:8px;flex:1;width:100%;order:1;
-  }
-  body.ui-mode-fab .mob-brand{font-weight:700;font-size:15px;color:var(--accent);flex-shrink:0;}
-  body.ui-mode-fab .mob-floor-chip{display:none;}
   body.ui-mode-fab .mob-search-btn{
     width:40px;height:40px;border-radius:10px;border:2px solid var(--accent);
     background:#fff;color:var(--accent);font-size:20px;line-height:1;
-    cursor:pointer;flex-shrink:0;margin-left:auto;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;margin-left:0;display:flex;align-items:center;justify-content:center;
   }
   body.ui-mode-fab .mob-search-btn:hover{background:rgba(26,127,212,.08);}
   body.ui-mode-fab .mob-floor-nav{display:flex;order:2;}
   body.ui-mode-fab .map-zoom{right:10px;bottom:12px;}
 }
-@media (min-width:769px){
-  body.ui-mode-fab .fab-ball{width:104px;height:104px;}
-  body.ui-mode-fab .fab-badge-img{width:92px;height:92px;}
-  body.ui-mode-fab .fab-menu{bottom:116px;}
-  body.ui-mode-fab .fab-hub.menu-below .fab-menu{top:116px;}
-  .floor-picker-modal:not([hidden]){align-items:center;padding:16px;}
-  .floor-picker-box{width:min(420px,92vw);border-radius:18px;animation:none;}
-}
-.mob-pt-pair{display:block;}
-.mob-side-drawer-inner{display:block;}
-.mob-picker-row{display:none;}
 @media (max-width:768px){
-  header{min-height:66px;padding:8px 10px 6px;gap:5px 6px;}
-  .logo{font-size:14px;flex:1 1 100%;order:1;}
   .hdr-btns{order:2;margin-left:0;flex-wrap:nowrap;overflow-x:auto;max-width:100%;gap:4px;-webkit-overflow-scrolling:touch;}
   .btn{padding:5px 8px;font-size:12px;white-space:nowrap;flex-shrink:0;}
   .floor-tabs{order:3;padding:2px 0 0;gap:4px;display:none !important;}
@@ -393,6 +399,12 @@ body.ui-mode-fab .fab-hub{
   .pano-modal-btns button{font-size:13px;padding:9px;}
 }
 @media (min-width:769px){
+  body.ui-mode-fab .fab-ball{width:104px;height:104px;}
+  body.ui-mode-fab .fab-badge-img{width:92px;height:92px;}
+  body.ui-mode-fab .fab-menu{bottom:116px;}
+  body.ui-mode-fab .fab-hub.menu-below .fab-menu{top:116px;}
+  .floor-picker-modal:not([hidden]){align-items:center;padding:16px;}
+  .floor-picker-box{width:min(420px,92vw);border-radius:18px;animation:none;}
   .side.side-collapsed,.side.side-expanded{width:320px;}
   .side-search-btn{display:none;}
 }
@@ -431,6 +443,7 @@ body.ui-mode-fab .fab-hub{
   <div class="logo">🏢 B7 软件学院 · 室内导航</div>
   <div class="mob-top-bar" id="mobTopBar">
     <span class="mob-brand">知途</span>
+    <span class="mob-title" id="mobTitle">B7 软件学院 · 室内导航</span>
     <button type="button" class="mob-search-btn" id="mobHeaderSearch" title="搜索目的地">🔍</button>
   </div>
   <div class="mob-floor-nav" id="mobFloorNav" aria-label="选择区域与楼层">
@@ -468,6 +481,7 @@ body.ui-mode-fab .fab-hub{
       <button type="button" id="zoomOutBtn" title="缩小">－</button>
       <button type="button" id="zoomResetBtn" class="zoom-reset" title="重置视图">⟳</button>
     </div>
+    <div class="fab-combo-display" id="fabComboDisplay" aria-live="polite" aria-hidden="true"></div>
     <div class="fab-hub" id="fabHub" aria-hidden="true">
       <div class="fab-backdrop" id="fabBackdrop"></div>
       <div class="fab-menu" id="fabMenu" role="menu">
@@ -1709,7 +1723,10 @@ function updateSide(){
   const rpTitle=document.getElementById('roomPickerTitle');
   if(rpTitle) rpTitle.textContent=`本层房间 · ${FLOOR_TAB_LABELS[floor]||floor+'F'}`;
   const src=fd.source==='json'?' · JSON路网':' · 示意数据';
-  document.querySelector('.logo').textContent=`🏢 B7 软件学院 · 室内导航${src}`;
+  const titleText='B7 软件学院 · 室内导航'+src;
+  document.querySelector('.logo').textContent='🏢 '+titleText;
+  const mobTitle=document.getElementById('mobTitle');
+  if(mobTitle) mobTitle.textContent=titleText;
 }
 
 function nearestToilet(){
@@ -2282,6 +2299,7 @@ function applyUiMode(mode){
     hub.hidden=mode!=='fab';
     hub.setAttribute('aria-hidden',mode!=='fab'?'true':'false');
   }
+  if(mode!=='fab') resetFabCombo();
   if(mode==='fab'){
     applyFabLogo(getFabLogoId());
     if(fabPhys?.placeDefault) requestAnimationFrame(()=>fabPhys.placeDefault());
@@ -2401,7 +2419,62 @@ const FAB_PHYS={
   sizeMobile:52,sizeDesktop:104,padding:8,friction:0.972,bounce:0.68,minSpeed:0.28,
   rotGain:0.35,angFriction:0.94,tapThreshold:10,velScale:0.85,
 };
+const FAB_COMBO={windowMs:3000,minHits:2,fadeMs:3000,greenAt:50};
 let fabPhys=null;
+let fabCombo={active:false,count:0,hits:[],idleTimer:0,fadeRaf:0,fadeStart:0};
+
+function resetFabCombo(){
+  fabCombo.active=false;
+  fabCombo.count=0;
+  fabCombo.hits=[];
+  if(fabCombo.idleTimer){clearTimeout(fabCombo.idleTimer);fabCombo.idleTimer=0;}
+  if(fabCombo.fadeRaf){cancelAnimationFrame(fabCombo.fadeRaf);fabCombo.fadeRaf=0;}
+  const el=document.getElementById('fabComboDisplay');
+  if(el){
+    el.textContent='';
+    el.style.opacity='0';
+    el.classList.remove('fab-combo-green');
+    el.setAttribute('aria-hidden','true');
+  }
+}
+
+function showFabComboDisplay(n){
+  const el=document.getElementById('fabComboDisplay');
+  if(!el) return;
+  el.textContent=n+'连击';
+  el.classList.toggle('fab-combo-green',n>=FAB_COMBO.greenAt);
+  el.style.opacity='1';
+  el.setAttribute('aria-hidden','false');
+  fabCombo.fadeStart=performance.now();
+  if(fabCombo.fadeRaf) cancelAnimationFrame(fabCombo.fadeRaf);
+  function fadeTick(now){
+    const t=Math.min((now-fabCombo.fadeStart)/FAB_COMBO.fadeMs,1);
+    el.style.opacity=String(Math.max(0.08,1-t*0.92));
+    if(t<1&&fabCombo.active) fabCombo.fadeRaf=requestAnimationFrame(fadeTick);
+    else fabCombo.fadeRaf=0;
+  }
+  fabCombo.fadeRaf=requestAnimationFrame(fadeTick);
+}
+
+function registerFabBorderHit(){
+  if(!document.body.classList.contains('ui-mode-fab')) return;
+  if(fabPhys?.dragging) return;
+  const now=performance.now();
+  fabCombo.hits.push(now);
+  fabCombo.hits=fabCombo.hits.filter(t=>now-t<=FAB_COMBO.windowMs);
+  if(fabCombo.idleTimer) clearTimeout(fabCombo.idleTimer);
+  fabCombo.idleTimer=setTimeout(resetFabCombo,FAB_COMBO.windowMs);
+  if(!fabCombo.active){
+    if(fabCombo.hits.length>=FAB_COMBO.minHits){
+      fabCombo.active=true;
+      fabCombo.count=fabCombo.hits.length;
+      showFabComboDisplay(fabCombo.count);
+    }
+  }else{
+    fabCombo.count++;
+    showFabComboDisplay(fabCombo.count);
+  }
+}
 
 function fabBallSize(){
   return window.matchMedia('(min-width:769px)').matches?FAB_PHYS.sizeDesktop:FAB_PHYS.sizeMobile;
@@ -2448,10 +2521,12 @@ function initFabPhysics(){
 
   function clampBounce(){
     const b=bounds();
-    if(state.x<b.minX){state.x=b.minX;state.vx=-state.vx*FAB_PHYS.bounce;state.va+=state.vx*0.06;}
-    if(state.y<b.minY){state.y=b.minY;state.vy=-state.vy*FAB_PHYS.bounce;state.va+=state.vy*0.06;}
-    if(state.x>b.maxX){state.x=b.maxX;state.vx=-state.vx*FAB_PHYS.bounce;state.va+=state.vx*0.06;}
-    if(state.y>b.maxY){state.y=b.maxY;state.vy=-state.vy*FAB_PHYS.bounce;state.va+=state.vy*0.06;}
+    let hit=false;
+    if(state.x<b.minX){state.x=b.minX;state.vx=-state.vx*FAB_PHYS.bounce;state.va+=state.vx*0.06;hit=true;}
+    if(state.y<b.minY){state.y=b.minY;state.vy=-state.vy*FAB_PHYS.bounce;state.va+=state.vy*0.06;hit=true;}
+    if(state.x>b.maxX){state.x=b.maxX;state.vx=-state.vx*FAB_PHYS.bounce;state.va+=state.vx*0.06;hit=true;}
+    if(state.y>b.maxY){state.y=b.maxY;state.vy=-state.vy*FAB_PHYS.bounce;state.va+=state.vy*0.06;hit=true;}
+    if(hit) registerFabBorderHit();
   }
 
   function stopAnim(){
