@@ -134,6 +134,126 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .side-extra{display:flex;flex-direction:column;overflow:hidden;flex:1;min-height:0;}
 .route-hint{color:var(--muted);font-size:17px;margin-top:10px;}
 .route-err{color:var(--red);font-size:18px;margin-top:10px;}
+/* ── 界面模式选择（首次进入）── */
+.ui-mode-modal{position:fixed;inset:0;background:rgba(15,35,55,.48);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;}
+.ui-mode-modal[hidden]{display:none;}
+.ui-mode-box{width:min(440px,100%);background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 20px 18px;box-shadow:0 20px 56px rgba(26,60,90,.2);}
+.ui-mode-box h2{font-size:20px;font-weight:700;margin-bottom:6px;}
+.ui-mode-intro{font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:16px;}
+.ui-mode-options{display:flex;flex-direction:column;gap:10px;}
+.ui-mode-card{
+  display:flex;align-items:flex-start;gap:14px;padding:14px 14px;
+  border:2px solid var(--border);border-radius:14px;background:#fff;
+  cursor:pointer;font-family:inherit;text-align:left;transition:border-color .15s,background .15s,box-shadow .15s;
+}
+.ui-mode-card:hover{border-color:var(--accent);background:rgba(26,127,212,.04);box-shadow:0 4px 14px rgba(26,127,212,.1);}
+.ui-mode-card strong{display:block;font-size:16px;color:var(--text);margin-bottom:4px;}
+.ui-mode-card span{font-size:13px;color:var(--muted);line-height:1.45;}
+.ui-mode-badge{
+  flex-shrink:0;width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(145deg,#1a7fd4,#0d5a9e);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(26,127,212,.35);
+}
+.ui-mode-badge svg{width:36px;height:36px;}
+.ui-mode-badge-logo{background:#fff;padding:3px;box-shadow:0 2px 10px rgba(0,0,0,.12);}
+.ui-mode-badge-logo img{width:100%;height:100%;object-fit:contain;border-radius:50%;display:block;}
+.ui-mode-tag{
+  display:inline-block;margin-top:6px;font-size:11px;font-weight:700;
+  padding:2px 8px;border-radius:999px;background:rgba(26,127,212,.12);color:var(--accent);
+}
+/* ── 功能球模式 ── */
+.mob-top-bar{display:none;}
+.fab-hub{display:none;}
+body.ui-mode-fab .fab-hub{
+  display:block;position:absolute;left:16px;bottom:16px;z-index:25;
+}
+.fab-backdrop{
+    position:fixed;inset:0;background:rgba(15,35,55,.28);z-index:0;
+    opacity:0;pointer-events:none;transition:opacity .2s;
+  }
+  .fab-hub.open .fab-backdrop{opacity:1;pointer-events:auto;}
+  .fab-menu,.fab-ball{position:relative;z-index:1;}
+  .fab-menu{
+    position:absolute;left:0;bottom:58px;display:flex;flex-direction:column;gap:6px;
+    min-width:168px;opacity:0;pointer-events:none;transform:translateY(6px);
+    transition:opacity .18s,transform .18s;
+  }
+  .fab-hub.open .fab-menu{opacity:1;pointer-events:auto;transform:none;}
+  .fab-menu-item{
+    display:flex;align-items:center;gap:8px;padding:10px 14px;
+    border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.97);
+    color:var(--text);font-size:14px;font-weight:600;font-family:inherit;
+    cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.1);transition:filter .12s;
+    white-space:nowrap;
+  }
+  .fab-menu-item:hover{filter:brightness(1.03);border-color:var(--accent);}
+  .fab-menu-item.fab-menu-on{border-color:var(--accent2);color:var(--accent2);}
+  .fab-ball{
+    width:52px;height:52px;border-radius:50%;border:2px solid #fff;
+    background:#fff;padding:2px;
+    box-shadow:0 4px 18px rgba(26,60,90,.28);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:transform .15s,box-shadow .15s;
+  }
+  .fab-ball:hover{transform:scale(1.04);box-shadow:0 6px 22px rgba(26,127,212,.5);}
+  .fab-hub.open .fab-ball{box-shadow:0 6px 24px rgba(26,127,212,.55);}
+  .fab-badge-img{width:46px;height:46px;object-fit:contain;border-radius:50%;display:block;}
+  .floor-picker-modal{
+    position:fixed;inset:0;background:rgba(15,35,55,.42);backdrop-filter:blur(4px);
+    align-items:flex-end;justify-content:center;z-index:120;padding:0;
+  }
+  .floor-picker-modal:not([hidden]){display:flex;}
+  .floor-picker-box{
+    width:100%;max-height:72vh;background:var(--surface);
+    border-radius:18px 18px 0 0;padding:16px 14px 20px;
+    box-shadow:0 -8px 32px rgba(0,0,0,.15);animation:floor-picker-in .2s ease-out;
+  }
+  @keyframes floor-picker-in{from{transform:translateY(100%);}to{transform:none;}}
+  .floor-picker-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .floor-picker-head h3{font-size:17px;font-weight:700;}
+  .floor-picker-close{width:32px;height:32px;border:none;border-radius:8px;background:var(--border);color:var(--text);font-size:18px;cursor:pointer;}
+  .floor-picker-group{margin-bottom:12px;}
+  .floor-picker-group h4{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .floor-picker-grid{display:flex;flex-wrap:wrap;gap:8px;}
+  .floor-pick-btn{
+    padding:8px 14px;border-radius:10px;border:1px solid var(--border);
+    background:#fff;color:var(--text);font-size:13px;font-weight:600;
+    font-family:inherit;cursor:pointer;transition:all .12s;
+  }
+  .floor-pick-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .floor-pick-btn:hover:not(.active){border-color:var(--accent);}
+@media (max-width:768px){
+  body.ui-mode-fab header{min-height:48px;padding:6px 10px;gap:0;}
+  body.ui-mode-fab .logo{display:none;}
+  body.ui-mode-fab .hdr-btns{display:none !important;}
+  body.ui-mode-fab .floor-tabs{display:none !important;}
+  body.ui-mode-fab .mob-top-bar{
+    display:flex;align-items:center;gap:8px;flex:1;width:100%;order:1;
+  }
+  body.ui-mode-fab .mob-brand{font-weight:700;font-size:15px;color:var(--accent);flex-shrink:0;}
+  body.ui-mode-fab .mob-floor-chip{
+    flex:1;min-width:0;padding:8px 12px;border-radius:10px;
+    border:1px solid var(--border);background:#fff;color:var(--text);
+    font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;
+    text-align:left;transition:border-color .15s;
+  }
+  body.ui-mode-fab .mob-floor-chip:hover{border-color:var(--accent);}
+  body.ui-mode-fab .mob-search-btn{
+    width:40px;height:40px;border-radius:10px;border:2px solid var(--accent);
+    background:#fff;color:var(--accent);font-size:20px;line-height:1;
+    cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  }
+  body.ui-mode-fab .mob-search-btn:hover{background:rgba(26,127,212,.08);}
+  body.ui-mode-fab .fab-hub{left:10px;bottom:12px;}
+  body.ui-mode-fab .hint{left:calc(50% + 20px);max-width:calc(100vw - 130px);}
+  body.ui-mode-fab .map-zoom{right:10px;bottom:12px;}
+  body.ui-mode-fab .side{top:0;}
+}
+@media (min-width:769px){
+  .floor-picker-modal:not([hidden]){align-items:center;padding:16px;}
+  .floor-picker-box{width:min(420px,92vw);border-radius:18px;animation:none;}
+}
 @media (max-width:768px){
   header{min-height:66px;padding:8px 10px 6px;gap:5px 6px;}
   .route-hint{font-size:8px;margin-top:6px;}
@@ -217,8 +337,33 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <script src="js/panzoom.min.js"></script>
 </head>
 <body>
+<div id="uiModeModal" class="ui-mode-modal" hidden>
+  <div class="ui-mode-box" role="dialog" aria-labelledby="uiModeTitle" aria-modal="true">
+    <h2 id="uiModeTitle">选择导航界面</h2>
+    <p class="ui-mode-intro">两种布局互不干扰，可随时在功能球菜单里切换。手机端推荐使用功能球，地图区域更宽敞。</p>
+    <div class="ui-mode-options">
+      <button type="button" class="ui-mode-card" data-ui-mode="classic">
+        <span class="ui-mode-badge" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none"><rect x="8" y="12" width="48" height="40" rx="6" stroke="#fff" stroke-width="2.5"/><line x1="8" y1="22" x2="56" y2="22" stroke="#fff" stroke-width="2"/><rect x="14" y="28" width="14" height="8" rx="2" fill="#fff" opacity=".9"/><rect x="36" y="28" width="14" height="8" rx="2" fill="#fff" opacity=".9"/></svg>
+        </span>
+        <span><strong>经典布局</strong><span>顶栏保留全景、路网、刷新、厕所等按钮，以及横向楼层 tab。适合习惯传统地图界面的用户。</span></span>
+      </button>
+      <button type="button" class="ui-mode-card" data-ui-mode="fab">
+        <span class="ui-mode-badge ui-mode-badge-logo" aria-hidden="true">
+          <img src="assets/xidian-logo-512.png" alt="" width="48" height="48" decoding="async">
+        </span>
+        <span><strong>功能球模式</strong><span>精简顶栏 + 左下角校徽功能球收纳次要操作；搜索与起终点仍一触即达。</span><span class="ui-mode-tag">手机推荐</span></span>
+      </button>
+    </div>
+  </div>
+</div>
 <header>
   <div class="logo">🏢 B7 软件学院 · 室内导航</div>
+  <div class="mob-top-bar" id="mobTopBar">
+    <span class="mob-brand">知途</span>
+    <button type="button" class="mob-floor-chip" id="mobFloorChip" title="选择楼层">B1F ▾</button>
+    <button type="button" class="mob-search-btn" id="mobHeaderSearch" title="搜索目的地">🔍</button>
+  </div>
   <div class="floor-tabs" id="floorTabs"></div>
   <div class="hdr-btns">
     <a class="btn btn-panorama" href="panorama_full.html" style="text-decoration:none;display:inline-flex;align-items:center;" title="52场景全景漫游">🌐 全景</a>
@@ -226,6 +371,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
     <button class="btn" onclick="forceRender()" title="重新绘制地图与起终点标记">↻ 刷新</button>
     <button class="btn btn-toilet" onclick="nearestToilet()">🚻 最近厕所</button>
     <button class="btn" onclick="clearAll()">✕ 清除</button>
+    <button class="btn" id="btnUiMode" type="button" title="切换经典布局 / 功能球模式">🎨 界面</button>
   </div>
 </header>
 <div class="main">
@@ -238,6 +384,30 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
       <button type="button" id="zoomInBtn" title="放大">＋</button>
       <button type="button" id="zoomOutBtn" title="缩小">－</button>
       <button type="button" id="zoomResetBtn" class="zoom-reset" title="重置视图">⟳</button>
+    </div>
+    <div class="fab-hub" id="fabHub" aria-hidden="true">
+      <div class="fab-backdrop" id="fabBackdrop"></div>
+      <div class="fab-menu" id="fabMenu" role="menu">
+        <button type="button" class="fab-menu-item" data-fab-action="floor" role="menuitem">🏢 选择楼层</button>
+        <button type="button" class="fab-menu-item" data-fab-action="toilet" role="menuitem">🚻 最近厕所</button>
+        <button type="button" class="fab-menu-item" data-fab-action="refresh" role="menuitem">↻ 刷新地图</button>
+        <button type="button" class="fab-menu-item" id="fabEdgesBtn" data-fab-action="edges" role="menuitem">⬡ 显示路网线</button>
+        <a class="fab-menu-item" href="panorama_full.html" data-fab-action="pano" role="menuitem" style="text-decoration:none">🌐 全景漫游</a>
+        <button type="button" class="fab-menu-item" data-fab-action="clear" role="menuitem">✕ 清除路线</button>
+        <button type="button" class="fab-menu-item" data-fab-action="ui-mode" role="menuitem">🎨 切换界面样式</button>
+      </div>
+      <button type="button" class="fab-ball" id="fabBall" aria-label="打开功能菜单" aria-expanded="false" aria-haspopup="menu">
+        <img class="fab-badge-img" src="assets/xidian-logo-512.png" alt="校徽" width="46" height="46" decoding="async">
+      </button>
+    </div>
+    <div id="floorPickerModal" class="floor-picker-modal" hidden>
+      <div class="floor-picker-box" role="dialog" aria-labelledby="floorPickerTitle">
+        <div class="floor-picker-head">
+          <h3 id="floorPickerTitle">选择楼层</h3>
+          <button type="button" class="floor-picker-close" id="floorPickerClose" title="关闭">✕</button>
+        </div>
+        <div id="floorPickerBody"></div>
+      </div>
     </div>
     <div class="hint" id="hint">先点右侧「起点」，再在地图上选点；双指/滚轮可缩放地图</div>
     <div id="portalModal" class="pano-modal" hidden>
@@ -610,6 +780,12 @@ const FLOORS = {
 
 const FLOOR_TAB_LABELS={1:'B1F',2:'B2F',3:'B3F',4:'B4F',5:'B5F',8:'A1F',9:'A2F',10:'A3F',11:'A4F',12:'A5F',14:'连廊1F',15:'连廊2F',16:'连廊3F',17:'连廊4F',18:'连廊5F'};
 const FLOOR_ORDER=[1,2,3,4,5,14,15,16,17,18,8,9,10,11,12];
+const FLOOR_PICKER_GROUPS=[
+  {title:'B 座',floors:[1,2,3,4,5]},
+  {title:'连廊',floors:[14,15,16,17,18]},
+  {title:'A 座',floors:[8,9,10,11,12]},
+];
+const UI_MODE_KEY='map_ui_mode';
 const CORRIDOR_FLOOR={14:1,15:2,16:3,17:4,18:5};
 function graphIdPrefix(f){
   if(f>=1&&f<=5) return `b${f}_`;
@@ -1065,6 +1241,13 @@ function renderEdges(){
   }
 }
 
+function syncFabEdgesBtn(){
+  const fab=document.getElementById('fabEdgesBtn');
+  if(!fab) return;
+  fab.textContent=showEdges?'⬡ 隐藏路网线':'⬡ 显示路网线';
+  fab.classList.toggle('fab-menu-on',showEdges);
+}
+
 function toggleShowEdges(){
   showEdges=!showEdges;
   const btn=document.getElementById('btnToggleEdges');
@@ -1072,6 +1255,7 @@ function toggleShowEdges(){
     btn.classList.toggle('btn-on',showEdges);
     btn.textContent=showEdges?'⬡ 隐藏路网':'⬡ 路网线';
   }
+  syncFabEdgesBtn();
   renderEdges();
 }
 
@@ -1647,9 +1831,18 @@ function maybeShowA1fEntryNotice(f){
   if(m) m.hidden=false;
 }
 
+function updateMobFloorChip(){
+  const chip=document.getElementById('mobFloorChip');
+  if(chip) chip.textContent=(FLOOR_TAB_LABELS[floor]||floor+'F')+' ▾';
+  document.querySelectorAll('.floor-pick-btn').forEach(b=>{
+    b.classList.toggle('active',+b.dataset.f===floor);
+  });
+}
+
 async function switchFloor(f){
   floor=f;
   document.querySelectorAll('.floor-tab').forEach(t=>t.classList.toggle('active',+t.dataset.f===f));
+  updateMobFloorChip();
   if(JSON_GRAPHS[f]&&!graphCache[f]){
     setHint('正在加载本层地图…');
     await loadJsonGraph(f);
@@ -1800,6 +1993,146 @@ function initMapPanzoom(){
   document.getElementById('zoomResetBtn')?.addEventListener('click',()=>resetMapZoom());
 }
 
+function applyUiMode(mode){
+  document.body.classList.remove('ui-mode-classic','ui-mode-fab');
+  document.body.classList.add(mode==='fab'?'ui-mode-fab':'ui-mode-classic');
+  const hub=document.getElementById('fabHub');
+  if(hub){
+    hub.hidden=mode!=='fab';
+    hub.setAttribute('aria-hidden',mode!=='fab'?'true':'false');
+  }
+}
+
+function bindUiModePicker(onPick){
+  const modal=document.getElementById('uiModeModal');
+  if(!modal) return;
+  modal.querySelectorAll('[data-ui-mode]').forEach(btn=>{
+    btn.onclick=()=>{
+      const mode=btn.dataset.uiMode;
+      try{localStorage.setItem(UI_MODE_KEY,mode);}catch(e){}
+      modal.hidden=true;
+      applyUiMode(mode);
+      if(onPick) onPick(mode);
+      else if(mode==='fab') setHint('已切换为功能球模式；地图左下角校徽球打开菜单');
+      else setHint('已切换为经典布局');
+    };
+  });
+}
+
+function showUiModePicker(){
+  const modal=document.getElementById('uiModeModal');
+  if(!modal) return;
+  bindUiModePicker();
+  modal.hidden=false;
+}
+
+function resolveUiMode(){
+  try{
+    const v=localStorage.getItem(UI_MODE_KEY);
+    if(v==='classic'||v==='fab') return Promise.resolve(v);
+  }catch(e){}
+  return new Promise(resolve=>{
+    const modal=document.getElementById('uiModeModal');
+    if(!modal){resolve('classic');return;}
+    modal.hidden=false;
+    bindUiModePicker(resolve);
+  });
+}
+
+function closeFabMenu(){
+  const hub=document.getElementById('fabHub');
+  const ball=document.getElementById('fabBall');
+  if(hub) hub.classList.remove('open');
+  if(ball) ball.setAttribute('aria-expanded','false');
+}
+
+function openFabMenu(){
+  const hub=document.getElementById('fabHub');
+  const ball=document.getElementById('fabBall');
+  if(hub) hub.classList.add('open');
+  if(ball) ball.setAttribute('aria-expanded','true');
+}
+
+function toggleFabMenu(){
+  const hub=document.getElementById('fabHub');
+  if(!hub) return;
+  if(hub.classList.contains('open')) closeFabMenu();
+  else openFabMenu();
+}
+
+function buildFloorPicker(){
+  const body=document.getElementById('floorPickerBody');
+  if(!body) return;
+  body.innerHTML='';
+  for(const g of FLOOR_PICKER_GROUPS){
+    const wrap=document.createElement('div');
+    wrap.className='floor-picker-group';
+    const h=document.createElement('h4');
+    h.textContent=g.title;
+    wrap.appendChild(h);
+    const grid=document.createElement('div');
+    grid.className='floor-picker-grid';
+    for(const f of g.floors){
+      const b=document.createElement('button');
+      b.type='button';
+      b.className='floor-pick-btn'+(f===floor?' active':'');
+      b.dataset.f=f;
+      b.textContent=FLOOR_TAB_LABELS[f];
+      b.onclick=async()=>{
+        closeFloorPicker();
+        closeFabMenu();
+        await switchFloor(f);
+      };
+      grid.appendChild(b);
+    }
+    wrap.appendChild(grid);
+    body.appendChild(wrap);
+  }
+}
+
+function openFloorPicker(){
+  buildFloorPicker();
+  const m=document.getElementById('floorPickerModal');
+  if(m) m.hidden=false;
+}
+
+function closeFloorPicker(){
+  const m=document.getElementById('floorPickerModal');
+  if(m) m.hidden=true;
+}
+
+function initFabUi(){
+  document.getElementById('fabBall')?.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    toggleFabMenu();
+  });
+  document.getElementById('fabBackdrop')?.addEventListener('click',()=>{
+    closeFabMenu();
+    closeFloorPicker();
+  });
+  document.getElementById('fabMenu')?.addEventListener('click',(e)=>{
+    const item=e.target.closest('[data-fab-action]');
+    if(!item) return;
+    const action=item.dataset.fabAction;
+    if(action==='floor'){ openFloorPicker(); return; }
+    if(action==='pano'){ closeFabMenu(); return; }
+    closeFabMenu();
+    if(action==='toilet') nearestToilet();
+    else if(action==='refresh') forceRender();
+    else if(action==='edges') toggleShowEdges();
+    else if(action==='clear') clearAll();
+    else if(action==='ui-mode') showUiModePicker();
+  });
+  document.getElementById('mobFloorChip')?.addEventListener('click',openFloorPicker);
+  document.getElementById('mobHeaderSearch')?.addEventListener('click',()=>openSearchModal());
+  document.getElementById('floorPickerClose')?.addEventListener('click',closeFloorPicker);
+  document.getElementById('floorPickerModal')?.addEventListener('click',(e)=>{
+    if(e.target.id==='floorPickerModal') closeFloorPicker();
+  });
+  syncFabEdgesBtn();
+  updateMobFloorChip();
+}
+
 function initMobileSide(){
   const side=document.getElementById('sidePanel');
   const toggle=document.getElementById('sideToggle');
@@ -1831,6 +2164,8 @@ function initMobileSide(){
 }
 
 async function init(){
+  const uiMode=await resolveUiMode();
+  applyUiMode(uiMode);
   setHint('正在加载地图…');
   try{
     await Promise.all([loadJsonGraph(1),loadCrossFloorSpec(),loadRoomSearchAliases()]);
@@ -1868,6 +2203,8 @@ async function init(){
   render();
   initMapPanzoom();
   initMobileSide();
+  initFabUi();
+  document.getElementById('btnUiMode')?.addEventListener('click',showUiModePicker);
   initPlaceSearch();
   prefetchAllCadImages();
   loadJsonGraphsBackground();
@@ -1883,7 +2220,11 @@ async function init(){
     applyStartFromPanorama(startFromPano);
   }else{
     setPickMode('start');
-    setHint('先点右侧「起点」，再在地图上选点；双指/滚轮可缩放地图');
+    if(document.body.classList.contains('ui-mode-fab')&&window.matchMedia('(max-width:768px)').matches){
+      setHint('点右侧选起点/终点；左下角「知」字球打开更多功能');
+    }else{
+      setHint('先点右侧「起点」，再在地图上选点；双指/滚轮可缩放地图');
+    }
   }
 }
 window.onload=init;
