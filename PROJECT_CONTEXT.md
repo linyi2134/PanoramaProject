@@ -36,6 +36,8 @@ python server_main.py
 
 禁止 `file://`。push 推荐 SSH：`git push git@github.com:linyi2134/PanoramaProject.git main`
 
+**Pages 部署**：`.github/workflows/deploy-pages.yml` + `.nojekyll`；Settings → Pages → GitHub Actions → Deploy GitHub Pages。
+
 ---
 
 ## 3. map.html 架构
@@ -59,10 +61,11 @@ python server_main.py
 ### 交互要点
 
 1. 侧栏选起点/终点 → 地图点节点
-2. **🔍 地点搜索**：弹窗输入 → 匹配房间/门/设施 → 跳层 + 设终点 + 算路
-3. **设施（facility）**：标注 **默认显示**（橙色）；房间点击后 `revealedLabels` 显示
-4. 顶栏红色「🌐 全景」；对照节点蓝虚线圈 → 弹窗进全景
-5. **prefetchPanoramaImage**：按层预取 `panoramas/*.jpg?v=20260610-compress`
+2. **🔍 地点搜索**：弹窗 → 跳层 + 设终点 + 算路
+3. **可跳转节点**（琥珀圈 `#e8912d`、常显标签）：连廊口 / 电梯 / 楼梯 → `portalModal` 跳 B·连廊·A 或上/下楼
+4. **设施（facility）**：标注默认显示；房间点击后 `revealedLabels`
+5. 对照节点蓝虚线圈 → 弹窗可进全景
+6. **预取**：`prefetchAllCadImages` → `runPanoramaPrefetch`（当前层优先，再 FLOOR_ORDER 其余层；切 tab abort）
 
 ### 搜索房号说明
 
@@ -111,6 +114,7 @@ A1F 主楼 ↔ 翼内 **不互通** → 须 A2F + `stair_small`。`f1_a` 单层 
 
 ```
 PanoramaProject/
+├── .github/workflows/deploy-pages.yml
 ├── map.html, panorama_full.html, index.html, server_main.py
 ├── js/panorama_map_bridge.js, js/pathfind.browser.js, js/room_labels_all.js
 ├── panoramas/*.jpg
@@ -127,13 +131,13 @@ PanoramaProject/
 ### 已完成
 
 - [x] 15 层 CAD + 跨层/跨区算路 + 二维↔全景深链
-- [x] GitHub Pages；map 搜索；设施常显；全景压缩与 LRU 优化
-- [x] map 预取全景；互链 UI（红框全景 / 下划线二维）
+- [x] GitHub Pages（deploy-pages.yml）；map 搜索；跨区跳转 portalModal
+- [x] CAD/全景分级预取；设施与跳转节点常显标注
+- [x] 全景压缩与 LRU；cross_floor 废弃字段清理
 
 ### 待办
 
 - [ ] 边权实地丈量
-- [ ] 清理 cross_floor_links 废弃字段
 - [ ] 2F-B 东侧动线；搜索 id_map 扩层；Panzoom 本地化
 
 ---
@@ -155,10 +159,10 @@ python node_nav/scripts/verify_zone_route.py
 python node_nav/scripts/audit_vertical_links.py
 ```
 
-- map 搜「133」「洗手间」
+- map 点连廊口/电梯 → 琥珀圈弹窗跳转
 - 手机折叠侧栏见 🔍
-- 全景无黑屏 loader；Network JPG ~800KB
+- Network：先 CAD 再 panoramas；切层 canceled
 
 ---
 
-*最后更新：2026-06-10*
+*最后更新：2026-06-11*

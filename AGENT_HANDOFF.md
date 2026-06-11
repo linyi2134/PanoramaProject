@@ -23,79 +23,72 @@
 - 勿用 file://；不要未经用户要求 commit / push
 - 国内 push 优先：git push git@github.com:linyi2134/PanoramaProject.git main（HTTPS 经代理易断）
 
-【公网 / 扫码】
+【公网 / 扫码 / Pages 部署】
 - Pages 根址：https://linyi2134.github.io/PanoramaProject/
 - 推荐二维码：https://linyi2134.github.io/PanoramaProject/map.html
-- 全景从 map 顶栏红色「🌐 全景」进入（已压缩，单张约 0.5–0.8 MB）
-- Pages 推送后约 1–3 分钟生效；手机需强刷或无痕
+- 自定义 workflow：`.github/workflows/deploy-pages.yml` + 根目录 `.nojekyll`（显式 pages: write，避免内置 pages-build-deployment 401/卡 Queued）
+- Settings → Pages → Source：**GitHub Actions** → **Deploy GitHub Pages**；Actions 权限 **Read and write**
+- 推送后约 1–3 分钟生效；手机强刷或无痕
 
-【map.html · 2026-06-10 现状】
+【map.html · 2026-06-11 现状】
 - 15 tab：B1F–B5F（1–5）、连廊1F–5F（14–18）、A1F–A5F（8–12）
 - JSON_GRAPHS：15 层 CAD + node_nav/data/*_graph.json 全部启用
 - 合并图前缀：B b{n}_、A a{n}_、连廊 lk{n}_（JSON 内仍无前缀原 id）
 - 懒加载：首屏仅 B1F；loadJsonGraphsBackground()；floorJsonReady() 控制未加载层不参与算路
 - UI：浅蓝主题；路网边线默认隐藏；导航橙色路径始终显示；起终点绿/红标记
 - 设施节点（洗手间等）：role=facility **默认显示橙色标注**（房间仍点击后 revealedLabels 显示）
-- 顶栏「🌐 全景」：红色描边按钮（无「可选」字样）
-- **地点搜索**：侧栏 🔍（折叠 52px 宽时仍显示大图标）→ 弹窗输入 → 匹配房间/门/设施
-  · 房号搜索靠节点 id 数字 + map_data/id_map_f1_b.json 别名（如 133 → b1_mobile_room）
-  · 选中后：切层 + 设终点 + 有起点则自动算路
-- **全景预取**：浏览 map 时后台 prefetch panoramas/*.jpg（bridge.panoramaImageUrl），进全景走浏览器缓存
-- 竖向/跨区：crossFloorWeight=6；zoneLinks=15；同层禁竖向边（A1F 翼/主楼例外）
+- **可跳转节点**（跨区/楼梯/电梯）：琥珀色外圈 `#e8912d` + **常显标签**；图例「可跳转（跨区/楼梯）」
+  · 节点：link_to_a / link_to_b、elevator、stair_*、outdoor_stair
+  · 点击 → portalModal：可选跳转到对应区域二维图；楼梯/电梯提供上楼/下楼；仍可进全景或继续选点
+  · 逻辑：getCrossRegionPortal() 读 crossFloorSpec.zoneLinks + unifiedVertical；jumpToPortalOption() → switchFloor
+- **地点搜索**：侧栏 🔍 → 弹窗 → 房号/名称匹配 → 跳层设终点 + 算路（B1 别名 id_map_f1_b.json）
+- **资源预取**：prefetchAllCadImages() 先 15 张 CAD（当前层优先）→ runPanoramaPrefetch() 当前层全景 → 依次其它层
+  · 切 tab：AbortController 取消进行中的全景 fetch，重新排队；已缓存 scene 不重复拉
+- 顶栏「🌐 全景」：红色描边按钮
+- 竖向/跨区：crossFloorWeight=6；zoneLinks=15；cross_floor_links.json 已删 campusCrossFloor 废弃字段
 
 【map.html · 手机端（≤768px）】
-- 顶栏压缩；右侧栏 position:absolute 浮层，默认折叠 52px（◀/▶ + 🔍 + 起/终点竖排）
-- 展开 160px：图例、房间列表、路径；不挤压地图宽度
-- Panzoom 4.5.1（CDN）：双指/滚轮；切层 resetMapZoom()
-- 关键函数：initMobileSide()、initMapPanzoom()、initPlaceSearch()、prefetchPanoramaImage()
+- 顶栏压缩；侧栏折叠 52px（◀ + 🔍 + 起/终点）→ 展开 160px 浮层
+- Panzoom 4.5.1（CDN）；切层 resetMapZoom()
+- 关键函数：initMobileSide()、initMapPanzoom()、initPlaceSearch()、schedulePanoramaPrefetch()、offerPortalModal()
 
-【panorama_full.html · 2026-06-10】
-- 全景 JPG 已压缩：52 张合计 ~32 MB（原 ~324 MB），3000px q80；原图 backup/panoramas_original/（gitignore）
-- URL 缓存戳：?v=20260610-compress（bridge PANORAMA_CACHE_VER 与之一致）
-- **无全屏加载遮罩**（已删 sceneLoader 半黑转圈）
-- LRU **5 场景**：addScene/loadScene/removeScene，**勿 destroy 整 viewer**（旧逻辑极慢）
-- 场景热点：35px 雪碧图箭头（.pnlm-scene）；房间蓝点 14px（room-info-hotspot）
-- 导航面板可拖动/折叠；底部「二维地图」链接 **下划线加粗**
-- 场景热点：buildSceneHotspots() → type:"scene" + clickHandlerFunc→switchToScene
-  · 禁止 cssClass（会去 pnlm-sprite）；禁止 config 设 sceneId（会绕过 LRU）
+【panorama_full.html】
+- 全景 JPG 压缩：52 张 ~32 MB；?v=20260610-compress
+- 无全屏 loader；LRU 5 场景（勿 destroy 整 viewer）
+- 场景热点 35px；房间蓝点 14px；buildSceneHotspots 禁止 cssClass / sceneId
 
 【二维 ↔ 全景】
-- js/panorama_map_bridge.js?v=20260610-prefetch（含 panoramaImageUrl(sceneId)）
-- 二维对照节点蓝虚线圈 → 弹窗 → panorama_full.html?scene=…
-- 全景侧栏链到 map.html?start=…
+- js/panorama_map_bridge.js?v=20260610-prefetch（panoramaImageUrl）
+- 对照节点蓝虚线圈；portalModal 也可进全景
 
 【A 座东侧翼】
 - A1F 主楼与翼内不互通，须 A2F + stair_small；f1_a 单层 check_graph 可能 FAIL
 
 【必读】
 - AGENT_HANDOFF.md、PROJECT_CONTEXT.md、README.md
-- map_data/panorama_map_bridge.md、cross_floor_links.md
-- map_data/id_map_f1_b.json（B1 搜索房号别名来源）
+- map_data/cross_floor_links.md、panorama_map_bridge.md、id_map_f1_b.json
 
 【运行】
 cd PanoramaProject
 python server_main.py
 → http://localhost:8000/map.html
-→ http://localhost:8000/panorama_full.html
 
 【改 graph / map / 对照后】
-- 改 graph 或 cross_floor_links → bump map.html GRAPH_CACHE_VER（当前 20260610-fix-load）
+- 改 graph 或 cross_floor_links → bump map.html GRAPH_CACHE_VER（当前 20260610-clean-cf）
 - 改 panorama_map_bridge.js → bump ?v=（当前 20260610-prefetch）
-- 改 panoramas/*.jpg → bump PANORAMA_CACHE_VER + 可选重跑 compress_panoramas.py
-- pathfind.browser.js ?v=20260609
+- 改 panoramas/*.jpg → bump PANORAMA_CACHE_VER（20260610-compress）
+- 改 .github/workflows/deploy-pages.yml → push 后看 Actions「Deploy GitHub Pages」
 
 【验证】
 python node_nav/scripts/verify_zone_route.py
 python node_nav/scripts/audit_vertical_links.py
-# map：侧栏搜「133」→ 移动计算实验室；搜「洗手间」→ 多结果
-# map 手机：折叠侧栏可见 🔍；设施橙色字常显
-# 全景：无黑屏转圈；Network 里 JPG ~800KB 且带 ?v=20260610-compress
+# map：搜「133」；点 B1 连廊口见琥珀圈+跳转弹窗；切层后 Network 见旧全景 canceled
+# 全景：无黑屏；JPG ~800KB
 
 【待办 · 建议优先级】
 1. 边权实地丈量（同层边、zoneLinks 等）
-2. 清理 cross_floor_links.json 内 campusCrossFloor 废弃字段
-3. 2F-B 东侧动线（237/234/236，草稿 backup/indoor_navigator_misc/2F-B座.json）
-4. 搜索别名扩展到全楼层 id_map（目前仅 f1_b）；Panzoom 改本地 js/
+2. 2F-B 东侧动线（237/234/236，草稿 backup/indoor_navigator_misc/2F-B座.json）
+3. 搜索 id_map 扩层；Panzoom 改本地 js/；二栋 -5 电梯全景对照
 
 不做：BLE、Qt 客户端、恢复独立「小楼」tab
 
@@ -112,66 +105,53 @@ python node_nav/scripts/audit_vertical_links.py
 
 ---
 
-## 当前进度摘要（2026-06-10 晚）
+## 当前进度摘要（2026-06-11）
 
 ### 已完成
 
 | 项 | 说明 |
 |----|------|
 | 二维导航 MVP | 15 tab、CAD、Dijkstra、跨层/跨区、路径高亮 |
-| GitHub Pages | index → map；SSH push 稳定 |
-| map 手机端 | 折叠侧栏 52px + 搜索图标；Panzoom；设施常显标注 |
-| map 搜索 | initPlaceSearch；id_map 房号别名；选结果→终点+算路 |
-| map 全景预取 | 看二维时后台拉 panoramas JPG |
-| 全景压缩 | 324→32 MB；compress_panoramas.py；原图 backup/panoramas_original/ |
-| 全景性能/UI | 无 loader 遮罩；addScene LRU×5；热点 35px/蓝点 14px |
-| 互链样式 | map 红框「全景」；全景二维链接下划线 |
+| GitHub Pages | 自定义 `deploy-pages.yml`；index → map |
+| map 搜索 | initPlaceSearch；id_map 房号别名 |
+| map 跨区跳转 | portalModal；楼梯上/下楼；琥珀圈常显标注 |
+| map 预取 | 先 15 CAD → 当前层全景 → 其余层；切层 abort |
+| map 手机端 | 折叠侧栏 + Panzoom + 设施常显 |
+| 全景压缩/性能 | ~32 MB；LRU×5；无 loader |
 | 二维↔全景 | bridge + 双向深链 |
+| cross_floor 清理 | 删除 campusCrossFloor 废弃字段 |
 
 ### 待办
 
 1. 同层与跨区边权实地丈量
-2. 清理 `cross_floor_links.json` 废弃字段
-3. 2F-B 东侧动线（backup 草稿）
-4. 搜索 id_map 扩层；Panzoom 本地化；二栋 `-5` 电梯全景对照
+2. 2F-B 东侧动线（backup 草稿）
+3. 搜索 id_map 扩层；Panzoom 本地化
 
 ### map.html 关键符号
 
 | 符号/函数 | 作用 |
 |-----------|------|
-| `floorJsonReady` / `loadJsonGraph` | 分层懒加载 |
-| `initPlaceSearch` / `runPlaceSearch` | 地点搜索弹窗 |
-| `loadRoomSearchAliases` | 读 id_map_f1_b 补房号 |
-| `prefetchPanoramaImage` | 二维浏览时预取全景 JPG |
-| `revealedLabels` | 房间标注（facility 除外，facility 常显） |
+| `isCrossRegionPortalNode` / `getCrossRegionPortal` | 识别可跳转节点与目标 |
+| `offerPortalModal` / `jumpToPortalOption` | 跨区/换层弹窗与切 tab |
+| `prefetchAllCadImages` / `runPanoramaPrefetch` | CAD 与全景预取队列 |
+| `schedulePanoramaPrefetch` | 切层时 abort 并重排队 |
+| `initPlaceSearch` / `loadRoomSearchAliases` | 地点搜索 |
 | `GRAPH_CACHE_VER` | 强刷 JSON / cross_floor / id_map |
 
-### panorama_full.html 关键符号
+### 部署
 
-| 符号/函数 | 作用 |
-|-----------|------|
-| `switchToScene` | addScene + loadScene；LRU 5；**不 destroy viewer** |
-| `buildSceneHotspots` | 场景热点；无 cssClass / 无 sceneId |
-| `PANORAMA_CACHE_VER` | 全景 JPG 缓存戳 |
+| 文件 | 说明 |
+|------|------|
+| `.github/workflows/deploy-pages.yml` | Pages 发布（permissions: pages write） |
+| `.nojekyll` | 静态站不走 Jekyll |
 
 ### 工具脚本
 
 | 脚本 | 用途 |
 |------|------|
-| `node_nav/scripts/compress_panoramas.py` | 批量压缩 panoramas/*.jpg |
+| `compress_panoramas.py` | 批量压缩 panoramas |
 | `verify_zone_route.py` | 跨区路线 |
 | `audit_vertical_links.py` | 竖向边分组 |
-
-### 文件对照
-
-| 用途 | 路径 |
-|------|------|
-| 扫码入口 | index.html → map.html |
-| 二维导航 | map.html |
-| 全景 | panorama_full.html |
-| 二维↔全景 | js/panorama_map_bridge.js |
-| B1 搜索别名 | map_data/id_map_f1_b.json |
-| 压缩全景 | panoramas/*.jpg（原图 backup/panoramas_original/） |
 
 ---
 
@@ -181,23 +161,21 @@ python node_nav/scripts/audit_vertical_links.py
 
 改 `node_nav/data/*.json` → 校验 → bump `GRAPH_CACHE_VER` → map Ctrl+F5。
 
-### B. 改 map 搜索 / 手机侧栏
+### B. 改 map 交互 / 跳转 / 预取
 
 只改 `map.html` 内 `<style>` + `<script>`；手机样式放 `@media (max-width:768px)`。
 
 ### C. 改全景
 
-场景热点改 `buildSceneHotspots`；性能勿恢复 destroyViewer 全量重建；JPG 改完 bump `PANORAMA_CACHE_VER`。
+改 `buildSceneHotspots`；勿 destroy viewer；JPG 改完 bump `PANORAMA_CACHE_VER`。
 
-### D. 压缩 / 换全景图
-
-`python node_nav/scripts/compress_panoramas.py`（先备份）→ bump 缓存戳 → push。
-
-### E. push GitHub
+### D. push GitHub / Pages
 
 ```powershell
 git push git@github.com:linyi2134/PanoramaProject.git main
 ```
+
+Actions 看 **Deploy GitHub Pages**（非卡死的 pages-build-deployment #7）。
 
 ---
 
@@ -207,27 +185,26 @@ git push git@github.com:linyi2134/PanoramaProject.git main
 cd c:\Users\yoimi\indoor_navigator\PanoramaProject
 python server_main.py
 python node_nav/scripts/verify_zone_route.py
-python node_nav/scripts/compress_panoramas.py --dry-run
 ```
 
 **手动测例**
 
-1. map 搜索「133」「洗手间」→ 有结果 → 跳层设终点
-2. 手机 ≤768px：折叠侧栏仍见 🔍；展开见完整搜索条
-3. 全景：切场景无黑屏；JPG 体积 ~0.8 MB
-4. B1→A1 经连廊；A1 主楼→room_104 经 A2F
+1. map 搜「133」「洗手间」→ 跳层设终点
+2. 点 B1「连廊（接A区）」→ 琥珀圈 → 弹窗「进入连廊1F」
+3. 点电梯 → 上楼/下楼选项；选后切到对应 tab
+4. DevTools Network：先 plans/*_cad.png，再 panoramas/*.jpg；切层见 canceled
+5. B1→A1 经连廊；全景无黑屏 loader
 
 ---
 
 ## 给 Agent 的提醒
 
 1. Windows PowerShell：`&&` 不可用，用 `;`
-2. `panorama_full.html` 才是完整版
-3. JSON 无前缀 / map 有 b1_ 前缀
-4. 搜「133」依赖 id_map_f1_b，其他楼层靠 label/id 内数字
-5. 全景场景热点：**cssClass 与 pnlm-sprite 互斥**
-6. 不主动 commit/push
+2. JSON 无前缀 / map 有 b1_ 前缀
+3. 内置 Pages workflow 可能 401 或 Queued 卡死 → 用 deploy-pages.yml
+4. 全景场景热点：**cssClass 与 pnlm-sprite 互斥**
+5. 不主动 commit/push
 
 ---
 
-*最后更新：2026-06-10*
+*最后更新：2026-06-11*

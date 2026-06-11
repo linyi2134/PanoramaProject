@@ -53,9 +53,6 @@ def cross_edges() -> list[tuple[str, str, float, str]]:
         a, b = nav_id(tabs[i], nid), nav_id(tabs[i + 1], nid)
         out.append((a, b, w0, "LINK.outdoor_stair"))
 
-    for a, b in SPEC.get("campusCrossFloor", {}).get("pairs", []):
-        out.append((a, b, w0, "LEGACY.campusCrossFloor"))
-
     zw = float(SPEC.get("zoneLinks", {}).get("crossZoneWeight", 15))
     for z in SPEC.get("zoneLinks", {}).get("pairs", []):
         out.append((nav_id(z["bTab"], z["bNode"]), nav_id(z["linkTab"], z["linkNode"]), zw, "zoneLinks"))
@@ -97,7 +94,7 @@ def main() -> None:
             print(f"  {a} <-> {b}  (weight=0)")
         print()
 
-    print("=== 遗留边是否进图（应跳过 campusCrossFloor；CROSS_CAMPUS 直连需关注）===\n")
+    print("=== 遗留边是否进图（map 不应含 CROSS_CAMPUS 直连）===\n")
     for a, b, w, tag in edges:
         if not tag.startswith("LEGACY"):
             continue

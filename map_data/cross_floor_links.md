@@ -8,7 +8,7 @@
 | **说明文档（人读）** | 本文件 |
 | **同层路网** | `node_nav/data/f{1..5}_{a\|b}_graph.json` 内的 `nodes` / `edges` |
 | **运行时生成跨层边** | `map.html` → `loadCrossFloorSpec()` 读 json，`crossEdges()` 拼进算路图 |
-| **同层跨区（非换层）** | `map.html` 内 `CROSS_CAMPUS` 常量 |
+| **同层跨区（非换层）** | [`cross_floor_links.json`](cross_floor_links.json) → `zoneLinks` |
 
 ---
 
@@ -77,12 +77,6 @@ JSON 内 nodeId 无前缀；map 由 `navNodeId(tab, nodeId)` 加 `b{n}_` / `lk{n
 跨层边在 **`cross_floor_links.json` → `linkCorridor`**，由 `map.html` 生成：
 
 `lk1_outdoor_stair` — `lk2_…` — … — `lk5_outdoor_stair`，**每层 weight = 6**
-
----
-
-## campusCrossFloor（遗留示意）
-
-`cross_floor_links.json` → `campusCrossFloor` 含早期 A 座示意换层边（`a1_nw` 等）；**JSON 启用层不依赖**。`sb1_stairs` 等小楼示意链已删除。可择机清理。
 
 ---
 

@@ -18,8 +18,9 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 | **二维地图导航** | ✅ | `index.html`→`map.html`：15 层 tab、浅蓝 UI、懒加载、跨层/跨区算路 |
 | **地点搜索** | ✅ | 侧栏 🔍：房号/名称模糊匹配 → 跳层设终点并算路 |
 | **手机端优化** | ✅ | 折叠侧栏 52px（含搜索图标）、Panzoom、设施常显标注 |
-| **全景预取** | ✅ | 浏览二维 map 时后台缓存对应全景 JPG |
-| **GitHub Pages** | ✅ | https://linyi2134.github.io/PanoramaProject/（静态码扫码） |
+| **跨区跳转** | ✅ | 连廊口/楼梯/电梯：琥珀圈常显 → 弹窗跳转对应区域或上/下楼 |
+| **资源预取** | ✅ | 先 15 张 CAD → 当前层全景 → 其余层；切 tab 取消旧全景下载 |
+| **GitHub Pages** | ✅ | 自定义 Actions 部署；https://linyi2134.github.io/PanoramaProject/ |
 | **二维↔全景深链** | ✅ | `js/panorama_map_bridge.js`：走廊节点对照 + 双向 URL 跳转 |
 | 全景完整版 | ✅ | `panorama_full.html`：52 场景、LRU×5、已压缩 JPG（~32 MB 合计） |
 | 全景 demo | ✅ | `panorama.html`：5 场景入门 |
@@ -29,17 +30,17 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 | 边权 | 🔄 | 跨层已设 **每层 +6**；同层/跨区多为占位，待实地丈量 |
 | 自动定位 | ⏸ | 不做 BLE/WiFi；公网扫码或局域网演示 |
 
-### map.html 要点（2026-06-10）
+### map.html 要点（2026-06-11）
 
 - **Tab 标签**：B1F–B5F、连廊1F–5F、A1F–A5F
-- **地点搜索**：侧栏 🔍 → 输入房间号（如 `133`）或名称 → 选结果自动跳层并设终点
-- **设施标注**：洗手间等设施 **默认显示**（橙色）；普通房间点击后显示
-- **顶栏全景**：红色「🌐 全景」按钮（无「可选」字样）
-- **路网边线**：默认隐藏；顶栏「⬡ 路网线」可开关；**导航路径始终高亮**
-- **换层代价**：`crossFloorWeight: 6`；**同层起终点**禁用楼梯/电梯（A1F 翼/主楼例外）
-- **跨区**：B ↔ 连廊 ↔ A 走 `zoneLinks`，无 B-A 直连
-- **全景联动**：对照节点蓝虚线圈 → 弹窗进全景；浏览 map 时后台预取全景图
-- **手机端（≤768px）**：侧栏折叠 52px（🔍 + 起/终点）→ 展开 160px 浮层；Panzoom 缩放
+- **地点搜索**：侧栏 🔍 → 房号/名称 → 跳层设终点并算路
+- **可跳转节点**：连廊口、电梯、各楼梯 — **琥珀色外圈 + 常显标签**；点击可选跳转到 B/连廊/A 或上/下楼，也可进全景或继续选点
+- **设施标注**：洗手间等 **默认显示**（橙色）；普通房间点击后显示
+- **资源预取**：先缓存 15 张 CAD 底图，再拉当前层全景，最后依次其它层；切换 tab 会取消进行中的全景下载
+- **顶栏全景**：红色「🌐 全景」；对照节点另有蓝虚线圈
+- **路网边线**：默认隐藏；**导航路径始终高亮**
+- **跨层/跨区**：`crossFloorWeight: 6`；`zoneLinks: 15`；无 B-A 直连
+- **手机端（≤768px）**：折叠侧栏 52px + Panzoom
 
 ---
 
@@ -72,8 +73,10 @@ PanoramaProject/
 │   └── room_labels_all.js      # 全景房间标注
 ├── plans/                      # 15 张 *_cad.png（map 底图）
 │   └── _archive/               # 旧示意 PNG/SVG（已不用）
+├── .github/workflows/deploy-pages.yml  # GitHub Pages 发布
+├── .nojekyll                   # 静态站（不走 Jekyll）
 ├── map_data/
-│   ├── cross_floor_links.json  # 跨层/跨区定义
+│   ├── cross_floor_links.json  # 跨层/跨区定义（已无 campusCrossFloor）
 │   ├── panorama_map_bridge.md  # 二维↔全景对照表（权威）
 │   ├── cad_pick_*.json         # pick-coords 导出归档
 │   └── README.md
@@ -145,7 +148,7 @@ python node_nav/scripts/check_graph.py node_nav/data/f3_b_graph.json
 
 ## 修改后记得
 
-1. 改 graph 或 `cross_floor_links.json` → bump `map.html` 的 **`GRAPH_CACHE_VER`**（当前 `20260610-fix-load`）
+1. 改 graph 或 `cross_floor_links.json` → bump `map.html` 的 **`GRAPH_CACHE_VER`**（当前 `20260610-clean-cf`）
 2. 改 `panorama_map_bridge.js` → bump bridge **`?v=`**（当前 `20260610-prefetch`）
 3. 改 `panoramas/*.jpg` → bump `PANORAMA_CACHE_VER`（`20260610-compress`）+ 强刷
 4. 浏览器 **Ctrl+F5** 强刷
@@ -160,7 +163,7 @@ python node_nav/scripts/check_graph.py node_nav/data/f3_b_graph.json
 https://linyi2134.github.io/PanoramaProject/map.html
 ```
 
-项目更新后同一二维码自动生效，无需重印。推送后约 **1–3 分钟**生效，手机请强刷或无痕打开。
+项目更新后同一二维码自动生效。推送后 Actions 跑 **Deploy GitHub Pages**（约 1–3 分钟），手机请强刷或无痕打开。若内置 `pages-build-deployment` 失败/卡 Queued，以 `.github/workflows/deploy-pages.yml` 为准。
 
 **本地局域网**：`python server_main.py` 后用手机访问 `http://<电脑局域网IP>:8000/map.html`（勿用 localhost）。
 

@@ -41,26 +41,5 @@
     "nodeId": "outdoor_stair",
     "label": "户外楼梯",
     "tabs": [14, 15, 16, 17, 18]
-  },
-  "campusCrossFloor": {
-    "note": "A 座示意层换层（JSON 启用时无效；正式跨层见 aZone.unifiedVertical）",
-    "pairs": [
-      ["a1_nw", "a2_nw"],
-      ["a2_nw", "a3_nw"],
-      ["a3_nw", "a4_nw"],
-      ["a4_nw", "a5_nw"],
-      ["a1_ne", "a2_ne"],
-      ["a2_ne", "a3_ne"],
-      ["a3_ne", "a4_ne"],
-      ["a4_ne", "a5_ne"],
-      ["a1_se", "a2_se"],
-      ["a2_se", "a3_se"],
-      ["a3_se", "a4_se"],
-      ["a4_se", "a5_se"],
-      ["a1_sw", "a2_sw"],
-      ["a2_sw", "a3_sw"],
-      ["a3_sw", "a4_sw"],
-      ["a4_sw", "a5_sw"]
-    ]
   }
 }

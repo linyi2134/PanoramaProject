@@ -120,6 +120,10 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .pano-modal-btns button:hover{border-color:var(--accent);color:var(--accent);}
 .pano-modal-btns .pano-go{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
 .pano-modal-btns .pano-go:hover{filter:brightness(1.08);}
+.portal-modal-btns{flex-direction:column;gap:8px;}
+.portal-modal-btns .portal-go{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;width:100%;}
+.portal-modal-btns .portal-go:hover{filter:brightness(1.08);}
+.portal-modal-foot{margin-top:10px;}
 .map-zoom{position:absolute;bottom:16px;right:16px;z-index:20;display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.92);border:1px solid var(--border);padding:6px 8px;border-radius:999px;box-shadow:0 2px 12px rgba(0,0,0,.1);pointer-events:auto;}
 .map-zoom button{background:none;border:none;color:var(--text);cursor:pointer;font-family:inherit;line-height:1;width:44px;height:44px;font-size:24px;border-radius:50%;transition:background .12s;}
 .map-zoom button:hover{background:var(--border);}
@@ -236,12 +240,13 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
       <button type="button" id="zoomResetBtn" class="zoom-reset" title="重置视图">⟳</button>
     </div>
     <div class="hint" id="hint">先点右侧「起点」，再在地图上选点；双指/滚轮可缩放地图</div>
-    <div id="panoModal" class="pano-modal" hidden>
+    <div id="portalModal" class="pano-modal" hidden>
       <div class="pano-modal-box">
-        <p id="panoModalText"></p>
-        <div class="pano-modal-btns">
-          <button type="button" class="pano-go" id="panoModalGo">🌐 进入全景</button>
-          <button type="button" id="panoModalPick">📍 继续选点</button>
+        <p id="portalModalText"></p>
+        <div class="pano-modal-btns portal-modal-btns" id="portalModalBtns"></div>
+        <div class="pano-modal-btns portal-modal-foot">
+          <button type="button" class="pano-go" id="portalModalPano" hidden>🌐 进入全景</button>
+          <button type="button" id="portalModalPick">📍 继续选点</button>
         </div>
       </div>
     </div>
@@ -294,6 +299,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
         <div class="leg"><div class="ldot" style="background:var(--green)"></div>房间</div>
         <div class="leg"><div class="ldot" style="background:var(--purple)"></div>楼梯 / 电梯</div>
         <div class="leg"><div class="ldot" style="background:var(--yellow)"></div>出入口 / 连廊</div>
+        <div class="leg"><div class="ldot" style="background:#e8912d;border:2px solid #e8912d;border-radius:50%;box-sizing:border-box"></div>可跳转（跨区/楼梯）</div>
       </div>
     </div>
     <div class="sec" style="padding-bottom:6px;"><h3>本层房间（点击导航）</h3></div>
@@ -627,7 +633,7 @@ const JSON_GRAPHS={
   17:'node_nav/data/link_f4_graph.json',
   18:'node_nav/data/link_f5_graph.json',
 };
-const GRAPH_CACHE_VER='20260610-fix-load';
+const GRAPH_CACHE_VER='20260610-clean-cf';
 // 各层示意 PNG（760×520）；JSON 未合并时仍可用 FLOORS 坐标叠在上面
 const PLAN_CACHE_VER='20260607-all-cad';
 const PLAN_IMAGES={
@@ -672,20 +678,16 @@ async function loadJsonGraphs(floors){
 let bgLoadGen=0;
 async function loadJsonGraphsBackground(){
   const pending=Object.keys(JSON_GRAPHS).map(Number).filter(f=>!graphCache[f]);
-  if(!pending.length){
-    prefetchPanoramasInBackground(floor);
-    return;
-  }
+  if(!pending.length) return;
   const gen=++bgLoadGen;
   for(let i=0;i<pending.length;i+=3){
     if(gen!==bgLoadGen) return;
     await loadJsonGraphs(pending.slice(i,i+3));
     buildNodeMap();
     if(floor&&graphCache[floor]) render();
-    for(const f of pending.slice(i,i+3)) prefetchPanoramasForFloor(f);
     await new Promise(r=>setTimeout(r,0));
   }
-  prefetchPanoramasInBackground(floor);
+  if(cadPrefetchDone) schedulePanoramaPrefetch(floor);
 }
 
 function jsonToFloorView(g,f){
@@ -779,7 +781,86 @@ function crossEdges(){
 
 // 同层起终点禁用楼梯/电梯；A1F 小楼侧（与主楼 1F 不互通）须保留 A 座竖向边
 const VERTICAL_NODE_IDS=new Set(['elevator','stair_east','stair_west','stair_south','stair_small','outdoor_stair']);
+const ZONE_PORTAL_LOCALS=new Set(['link_to_a','link_to_b']);
+const VERTICAL_LABELS={
+  elevator:'电梯',stair_east:'东侧楼梯',stair_west:'西侧楼梯',
+  stair_south:'南侧楼梯',stair_small:'东侧翼楼梯',outdoor_stair:'户外楼梯',
+};
 const F1_A_WING_LOCALS=new Set(['stair_small','room_104A','room_104B']);
+function getVerticalShaftTabs(p){
+  const spec=crossFloorSpec;
+  if(!spec||!p.tab) return [];
+  if(p.zone==='b'){
+    const v=spec.bZone?.unifiedVertical?.[p.local];
+    return v?.tabs||[];
+  }
+  if(p.zone==='a'){
+    const v=spec.aZone?.unifiedVertical?.[p.local];
+    return v?.tabs||[];
+  }
+  if(p.zone==='lk'&&p.local==='outdoor_stair'){
+    return spec.linkCorridor?.tabs||[];
+  }
+  return [];
+}
+
+function getZonePortalOptions(navId){
+  const p=parseNavNodeId(navId);
+  if(!p.tab||!ZONE_PORTAL_LOCALS.has(p.local)) return [];
+  const out=[];
+  for(const z of crossFloorSpec?.zoneLinks?.pairs||[]){
+    if(p.tab===z.bTab&&p.local===z.bNode){
+      out.push({label:`进入连廊${z.floor}F`,tab:z.linkTab,local:z.linkNode});
+      break;
+    }
+    if(p.tab===z.linkTab&&p.local===z.linkNode){
+      out.push({label:`进入B${z.floor}F`,tab:z.bTab,local:z.bNode});
+      break;
+    }
+    if(p.tab===z.linkTab&&p.local==='link_to_a'){
+      out.push({label:`进入A${z.floor}F`,tab:z.aTab,local:z.aNode});
+      break;
+    }
+    if(p.tab===z.aTab&&p.local===z.aNode){
+      out.push({label:`进入连廊${z.floor}F`,tab:z.linkTab,local:'link_to_a'});
+      break;
+    }
+  }
+  return out;
+}
+
+function getVerticalPortalOptions(navId){
+  const p=parseNavNodeId(navId);
+  if(!p.tab||!VERTICAL_NODE_IDS.has(p.local)) return [];
+  const tabs=getVerticalShaftTabs(p);
+  const idx=tabs.indexOf(p.tab);
+  if(idx<0) return [];
+  const shaft=VERTICAL_LABELS[p.local]||p.local;
+  const out=[];
+  if(idx>0){
+    const t=tabs[idx-1];
+    out.push({label:`下楼 · ${shaft} → ${FLOOR_TAB_LABELS[t]}`,tab:t,local:p.local});
+  }
+  if(idx<tabs.length-1){
+    const t=tabs[idx+1];
+    out.push({label:`上楼 · ${shaft} → ${FLOOR_TAB_LABELS[t]}`,tab:t,local:p.local});
+  }
+  return out;
+}
+
+function getCrossRegionPortal(navId){
+  const options=[...getZonePortalOptions(navId),...getVerticalPortalOptions(navId)];
+  return options.length?{nodeId:navId,options}:null;
+}
+
+function isCrossRegionPortalNode(nodeId){
+  const p=parseNavNodeId(nodeId);
+  return !!p.tab&&(ZONE_PORTAL_LOCALS.has(p.local)||VERTICAL_NODE_IDS.has(p.local));
+}
+
+const PORTAL_RING_COLOR='#e8912d';
+const PORTAL_LABEL_COLOR='#f0b040';
+
 function parseNavNodeId(id){
   let m=id.match(/^b(\d)_(.+)$/);
   if(m) return {tab:+m[1],local:m[2],zone:'b'};
@@ -854,7 +935,6 @@ function runDijkstra(s,e){
 let floor=1,startN=null,endN=null,curPath=null,pickMode='start',showEdges=false;
 let allNodes={};
 const revealedLabels=new Set();
-let pendingPanoramaNode=null,pendingPanoramaScene=null;
 let panzoomInstance=null;
 function buildNodeMap(){
   allNodes={};
@@ -1021,24 +1101,28 @@ function renderNodes(){
   const onPath=new Set(curPath?curPath.path:[]);
   for(const n of getFloorView(floor).nodes||[]){
     const isS=n.id===startN,isE=n.id===endN,inP=onPath.has(n.id);
+    const isPortal=isCrossRegionPortalNode(n.id);
     const col=RC[n.role]||'#888';
     const r=isS||isE?12:8;
     const hasPano=typeof PanoramaMapBridge!=='undefined'&&PanoramaMapBridge.hasPanoramaLink(n.id);
     const grp=svg('g',{'data-node-id':n.id});
     grp.style.cursor='pointer';
-    if(hasPano) grp.setAttribute('title','可进入对应全景场景');
+    if(isPortal&&!isS&&!isE) grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:r+18,fill:'none',stroke:PORTAL_RING_COLOR,'stroke-width':'2.5',opacity:'0.95','pointer-events':'none'}));
     if(hasPano&&!isS&&!isE) grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:r+14,fill:'none',stroke:'#58a6ff','stroke-width':'1.5','stroke-dasharray':'3,2',opacity:'0.75','pointer-events':'none'}));
     if(inP&&!isS&&!isE) grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:r+10,fill:'#ffb347',opacity:'0.28','pointer-events':'none'}));
     grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r,
-      fill:inP?(isS||isE?col:'#ffb347'):(n.role==='corridor'?'#162030':col),
-      stroke:inP?'#ff8c42':col,'stroke-width':inP?'3':'2',opacity:inP?'1':'0.8','pointer-events':'none'}));
+      fill:inP?(isS||isE?col:'#ffb347'):(n.role==='corridor'&&!isPortal?'#162030':col),
+      stroke:inP?'#ff8c42':(isPortal?PORTAL_RING_COLOR:col),'stroke-width':inP?'3':(isPortal?'2.5':'2'),opacity:inP?'1':'0.9','pointer-events':'none'}));
     grp.appendChild(svg('circle',{cx:n.x,cy:n.y,r:28,fill:'transparent',stroke:'none','pointer-events':'all'}));
+    if(isPortal) grp.setAttribute('title','可跳转到对应区域');
+    else if(hasPano) grp.setAttribute('title','可进入对应全景场景');
     gN.appendChild(grp);
-    const showLabel=n.role==='facility'||revealedLabels.has(n.id)||isS||isE;
-    if(n.role!=='corridor'&&showLabel){
-      const lblFill=n.role==='facility'?(inP?'#ffd699':'#f0883e'):(inP?'#ffd699':'#5a7a9a');
-      const t=svg('text',{x:n.x+r+4,y:n.y+5,'font-size':'20',fill:lblFill,
-        'font-family':'Segoe UI,sans-serif','font-weight':'600','pointer-events':'none'});
+    const showLabel=n.role==='facility'||isPortal||revealedLabels.has(n.id)||isS||isE;
+    if((n.role!=='corridor'||isPortal)&&showLabel){
+      let lblFill=n.role==='facility'?(inP?'#ffd699':'#f0883e'):(inP?'#ffd699':'#5a7a9a');
+      if(isPortal&&!isS&&!isE) lblFill=inP?'#ffd699':PORTAL_LABEL_COLOR;
+      const t=svg('text',{x:n.x+r+4,y:n.y+5,'font-size':isPortal?'21':'20',fill:lblFill,
+        'font-family':'Segoe UI,sans-serif','font-weight':isPortal?'700':'600','pointer-events':'none'});
       t.textContent=n.label;gL.appendChild(t);
     }
   }
@@ -1128,34 +1212,65 @@ function applyNodePick(id){
   showResult();
 }
 
-function closePanoramaModal(){
-  const m=document.getElementById('panoModal');
+let pendingPortalNodeId=null;
+let pendingPortalScene=null;
+
+function closePortalModal(){
+  const m=document.getElementById('portalModal');
   if(m) m.hidden=true;
-  pendingPanoramaNode=null;
-  pendingPanoramaScene=null;
+  pendingPortalNodeId=null;
+  pendingPortalScene=null;
+  const btns=document.getElementById('portalModalBtns');
+  if(btns) btns.innerHTML='';
 }
 
-function offerPanoramaJump(nodeId,sceneId){
+function offerPortalModal(nodeId,portal,sceneId){
   const n=findNodeOnAnyFloor(nodeId);
   const fl=FLOOR_TAB_LABELS[n?.floor]||'';
-  pendingPanoramaNode=nodeId;
-  pendingPanoramaScene=sceneId;
-  document.getElementById('panoModalText').textContent=
-    `当前位置：${n?.label||nodeId}${fl?' · '+fl:''}\n对应全景：${sceneId}\n是否进入该位置的全景图？`;
-  document.getElementById('panoModal').hidden=false;
+  pendingPortalNodeId=nodeId;
+  pendingPortalScene=sceneId||null;
+  let text=`当前位置：${n?.label||nodeId}${fl?' · '+fl:''}`;
+  if(portal?.options?.length) text+='\n是否跳转到对应区域？';
+  if(sceneId) text+=portal?.options?.length?'\n也可进入全景或继续选点。':'\n是否进入该位置的全景图？';
+  document.getElementById('portalModalText').textContent=text;
+  const box=document.getElementById('portalModalBtns');
+  box.innerHTML='';
+  for(const opt of portal?.options||[]){
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='portal-go';
+    btn.textContent='🗺 '+opt.label;
+    btn.onclick=()=>jumpToPortalOption(opt);
+    box.appendChild(btn);
+  }
+  const panoBtn=document.getElementById('portalModalPano');
+  if(panoBtn){
+    panoBtn.hidden=!sceneId;
+    panoBtn.style.display=sceneId?'':'none';
+  }
+  document.getElementById('portalModal').hidden=false;
 }
 
-function confirmPanoramaJump(){
-  if(!pendingPanoramaScene) return;
-  const url=PanoramaMapBridge.panoramaUrlForScene(pendingPanoramaScene);
-  window.location.href=url;
+async function jumpToPortalOption(opt){
+  closePortalModal();
+  const targetId=navNodeId(opt.tab,opt.local);
+  revealedLabels.add(targetId);
+  await switchFloor(opt.tab);
+  const tn=findNodeOnAnyFloor(targetId);
+  setHint(`已切换至 ${FLOOR_TAB_LABELS[opt.tab]}${tn?.label?' · '+tn.label:''}`);
+}
+
+function confirmPortalPanorama(){
+  if(!pendingPortalScene) return;
+  window.location.href=PanoramaMapBridge.panoramaUrlForScene(pendingPortalScene);
 }
 
 function onNodeClick(id){
   revealNodeLabel(id);
+  const portal=getCrossRegionPortal(id);
   const scene=typeof PanoramaMapBridge!=='undefined'?PanoramaMapBridge.nodeToPanoramaScene(id):null;
-  if(scene){
-    offerPanoramaJump(id,scene);
+  if(portal||scene){
+    offerPortalModal(id,portal,scene);
     return;
   }
   applyNodePick(id);
@@ -1487,17 +1602,52 @@ async function switchFloor(f){
   }
   forceRender();
   resetMapZoom();
-  prefetchPanoramasForFloor(f);
-  prefetchPanoramasInBackground(f);
+  schedulePanoramaPrefetch(f);
 }
 function setHint(text){
   const el=document.getElementById('hint');
   if(el) el.textContent=text;
 }
 
-// 二维浏览时后台预取本层及对照全景 JPG（压缩后单张约 0.5–0.8 MB，进全景时走浏览器缓存）
+// 预取：先 15 张 CAD；再当前层全景，完成后依次拉其它层；切层 abort 旧任务并重新排队
+const prefetchedCadFloors=new Set();
 const prefetchedPanoramaImages=new Set();
+let cadPrefetchDone=false;
+let cadPrefetchTask=null;
 let panoPrefetchGen=0;
+const panoAbortControllers=new Set();
+
+function cadImageUrl(f){
+  const plan=PLAN_IMAGES[f];
+  if(!plan?.src) return null;
+  const sep=plan.src.includes('?')?'&':'?';
+  return plan.src+sep+'_cv='+encodeURIComponent(PLAN_CACHE_VER);
+}
+
+function prefetchCadImage(f){
+  if(prefetchedCadFloors.has(f)) return Promise.resolve();
+  const url=cadImageUrl(f);
+  if(!url) return Promise.resolve();
+  prefetchedCadFloors.add(f);
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.decoding='async';
+    img.onload=img.onerror=()=>resolve();
+    img.src=url;
+  });
+}
+
+function prefetchAllCadImages(){
+  if(cadPrefetchTask) return cadPrefetchTask;
+  cadPrefetchTask=(async()=>{
+    const all=Object.keys(PLAN_IMAGES).map(Number);
+    const order=[floor,...all.filter(x=>x!==floor)];
+    for(const f of order) await prefetchCadImage(f);
+    cadPrefetchDone=true;
+    runPanoramaPrefetch(floor);
+  })();
+  return cadPrefetchTask;
+}
 
 function collectPanoramaScenesForFloor(f){
   const scenes=new Set();
@@ -1509,30 +1659,57 @@ function collectPanoramaScenesForFloor(f){
   return scenes;
 }
 
-function prefetchPanoramaImage(sceneId){
-  if(!sceneId||prefetchedPanoramaImages.has(sceneId)) return;
-  const url=PanoramaMapBridge?.panoramaImageUrl?.(sceneId);
+function panoramaFloorOrder(priorityFloor){
+  return[priorityFloor,...FLOOR_ORDER.filter(f=>f!==priorityFloor)];
+}
+
+function abortPanoramaPrefetches(){
+  for(const ac of panoAbortControllers){
+    try{ ac.abort(); }catch(_){}
+  }
+  panoAbortControllers.clear();
+}
+
+async function prefetchPanoramaScene(sid,gen){
+  if(!sid||prefetchedPanoramaImages.has(sid)) return;
+  const url=PanoramaMapBridge?.panoramaImageUrl?.(sid);
   if(!url) return;
-  prefetchedPanoramaImages.add(sceneId);
-  const img=new Image();
-  img.decoding='async';
-  img.src=url;
-}
-
-function prefetchPanoramasForFloor(f){
-  if(!floorJsonReady(f)) return;
-  for(const sid of collectPanoramaScenesForFloor(f)) prefetchPanoramaImage(sid);
-}
-
-async function prefetchPanoramasInBackground(priorityFloor){
-  const gen=++panoPrefetchGen;
-  if(priorityFloor!=null) prefetchPanoramasForFloor(priorityFloor);
-  for(const f of FLOOR_ORDER){
+  const ac=new AbortController();
+  panoAbortControllers.add(ac);
+  try{
+    const r=await fetch(url,{signal:ac.signal,cache:'force-cache'});
     if(gen!==panoPrefetchGen) return;
-    if(f===priorityFloor||!floorJsonReady(f)) continue;
-    for(const sid of collectPanoramaScenesForFloor(f)) prefetchPanoramaImage(sid);
+    if(r.ok) prefetchedPanoramaImages.add(sid);
+  }catch(e){
+    if(e?.name!=='AbortError') console.warn('panorama prefetch',sid,e);
+  }finally{
+    panoAbortControllers.delete(ac);
+  }
+}
+
+async function runPanoramaPrefetch(priorityFloor){
+  panoPrefetchGen++;
+  const gen=panoPrefetchGen;
+  abortPanoramaPrefetches();
+  for(const f of panoramaFloorOrder(priorityFloor)){
+    if(gen!==panoPrefetchGen) return;
+    if(!floorJsonReady(f)) continue;
+    const scenes=[...collectPanoramaScenesForFloor(f)];
+    let idx=0;
+    async function worker(){
+      while(idx<scenes.length){
+        if(gen!==panoPrefetchGen) return;
+        const sid=scenes[idx++];
+        await prefetchPanoramaScene(sid,gen);
+      }
+    }
+    await Promise.all([worker(),worker()]);
     await new Promise(r=>setTimeout(r,0));
   }
+}
+
+function schedulePanoramaPrefetch(f){
+  if(cadPrefetchDone) runPanoramaPrefetch(f);
 }
 
 function resetMapZoom(){
@@ -1607,14 +1784,14 @@ async function init(){
     return;
   }
   buildNodeMap();
-  document.getElementById('panoModalGo')?.addEventListener('click',confirmPanoramaJump);
-  document.getElementById('panoModalPick')?.addEventListener('click',()=>{
-    const id=pendingPanoramaNode;
-    closePanoramaModal();
+  document.getElementById('portalModalPano')?.addEventListener('click',confirmPortalPanorama);
+  document.getElementById('portalModalPick')?.addEventListener('click',()=>{
+    const id=pendingPortalNodeId;
+    closePortalModal();
     if(id) applyNodePick(id);
   });
-  document.getElementById('panoModal')?.addEventListener('click',(e)=>{
-    if(e.target.id==='panoModal') closePanoramaModal();
+  document.getElementById('portalModal')?.addEventListener('click',(e)=>{
+    if(e.target.id==='portalModal') closePortalModal();
   });
   document.getElementById('gNode').addEventListener('click',(e)=>{
     const el=e.target.closest('[data-node-id]');
@@ -1635,7 +1812,7 @@ async function init(){
   initMapPanzoom();
   initMobileSide();
   initPlaceSearch();
-  prefetchPanoramasForFloor(floor);
+  prefetchAllCadImages();
   loadJsonGraphsBackground();
   const qs=new URLSearchParams(location.search);
   const startFromPano=qs.get('start');
