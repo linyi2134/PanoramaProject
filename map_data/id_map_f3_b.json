@@ -2,8 +2,8 @@
   "description": "3F B座：map.html tab 3 ↔ f3_b_graph.json 节点对照",
   "floor": 3,
   "planImage": "plans/f3_b_cad.png",
-  "planWidth": 1027,
-  "planHeight": 1125,
+  "planWidth": 844,
+  "planHeight": 925,
   "source": "node_nav/data/f3_b_graph.json + map.html tab 3",
   "note": "坐标取自 CAD graph（x_px/y_px）；仅用于搜索别名与文档对照，勿对 CAD 层运行 apply_layout_coords.py",
   "mappings": [

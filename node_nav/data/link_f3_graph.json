@@ -7,9 +7,9 @@
     "building": "B7",
     "units": "meter",
     "planImage": "plans/link_f3_cad.png",
-    "planWidth": 138,
-    "planHeight": 407,
-    "note": "2–5F 共用底图；边权占位 1，请按实地丈量替换。 坐标基于 CAD 底图（tools/pick-coords.html 标注）。"
+    "planWidth": 205,
+    "planHeight": 624,
+    "note": "2–5F 共用底图；边权占位 1，请按实地丈量替换。 坐标基于 CAD 底图（tools/pick-coords.html 标注）。 已统一缩放到 205×624（原 138×407）。"
   },
   "nodes": [
     {
@@ -17,24 +17,24 @@
       "label": "通往B区",
       "floor": 3,
       "role": "corridor",
-      "x_px": 53,
-      "y_px": 40
+      "x_px": 79,
+      "y_px": 61
     },
     {
       "id": "outdoor_stair",
       "label": "户外楼梯",
       "floor": 3,
       "role": "vertical",
-      "x_px": 53,
-      "y_px": 218
+      "x_px": 79,
+      "y_px": 334
     },
     {
       "id": "link_to_a",
       "label": "通往A区",
       "floor": 3,
       "role": "corridor",
-      "x_px": 48,
-      "y_px": 347
+      "x_px": 71,
+      "y_px": 532
     }
   ],
   "edges": [

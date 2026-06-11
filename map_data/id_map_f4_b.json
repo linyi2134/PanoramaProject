@@ -2,8 +2,8 @@
   "description": "4F B座：map.html tab 4 ↔ f4_b_graph.json 节点对照",
   "floor": 4,
   "planImage": "plans/f4_b_cad.png",
-  "planWidth": 795,
-  "planHeight": 871,
+  "planWidth": 844,
+  "planHeight": 925,
   "source": "node_nav/data/f4_b_graph.json + map.html tab 4",
   "note": "坐标取自 CAD graph（x_px/y_px）；仅用于搜索别名与文档对照，勿对 CAD 层运行 apply_layout_coords.py",
   "mappings": [

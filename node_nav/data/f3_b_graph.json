@@ -3,13 +3,13 @@
   "isFinished": false,
   "meta": {
     "floor": 3,
-    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；边权为虚构距离，务必按实地步行丈量后替换。门节点贴在走廊侧，后门按实际连通性增删边。 坐标基于 CAD 底图（tools/pick-coords.html 标注）。",
+    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；边权为虚构距离，务必按实地步行丈量后替换。门节点贴在走廊侧，后门按实际连通性增删边。 坐标基于 CAD 底图（tools/pick-coords.html 标注）。 已统一缩放到 B1F 尺寸 844×925（原 1027×1125）。",
     "building": "B7",
     "zone": "B",
     "units": "meter",
     "planImage": "plans/f3_b_cad.png",
-    "planWidth": 1027,
-    "planHeight": 1125
+    "planWidth": 844,
+    "planHeight": 925
   },
   "nodes": [
     {
@@ -17,320 +17,320 @@
       "label": "西北分叉",
       "floor": 3,
       "role": "corridor",
-      "x_px": 243,
-      "y_px": 228
+      "x_px": 200,
+      "y_px": 187
     },
     {
       "id": "fork_ne",
       "label": "东北分叉",
       "floor": 3,
       "role": "corridor",
-      "x_px": 725,
-      "y_px": 235
+      "x_px": 596,
+      "y_px": 193
     },
     {
       "id": "fork_se",
       "label": "东南分叉",
       "floor": 3,
       "role": "corridor",
-      "x_px": 725,
-      "y_px": 849
+      "x_px": 596,
+      "y_px": 698
     },
     {
       "id": "fork_sw",
       "label": "西南分叉",
       "floor": 3,
       "role": "corridor",
-      "x_px": 246,
-      "y_px": 838
+      "x_px": 202,
+      "y_px": 689
     },
     {
       "id": "end_nw",
       "label": "西北尽头",
       "floor": 3,
       "role": "corridor",
-      "x_px": 36,
-      "y_px": 229
+      "x_px": 30,
+      "y_px": 188
     },
     {
       "id": "end_ne",
       "label": "东北尽头",
       "floor": 3,
       "role": "corridor",
-      "x_px": 1001,
-      "y_px": 226
+      "x_px": 823,
+      "y_px": 186
     },
     {
       "id": "end_se",
       "label": "东南尽头",
       "floor": 3,
       "role": "corridor",
-      "x_px": 914,
-      "y_px": 842
+      "x_px": 751,
+      "y_px": 692
     },
     {
       "id": "end_sw",
       "label": "西南尽头",
       "floor": 3,
       "role": "corridor",
-      "x_px": 29,
-      "y_px": 846
+      "x_px": 24,
+      "y_px": 696
     },
     {
       "id": "stair_east",
       "label": "东侧楼梯",
       "floor": 3,
       "role": "vertical",
-      "x_px": 740,
-      "y_px": 351
+      "x_px": 608,
+      "y_px": 289
     },
     {
       "id": "stair_west",
       "label": "西侧楼梯",
       "floor": 3,
       "role": "vertical",
-      "x_px": 212,
-      "y_px": 746
+      "x_px": 174,
+      "y_px": 613
     },
     {
       "id": "elevator",
       "label": "东侧电梯",
       "floor": 3,
       "role": "vertical",
-      "x_px": 778,
-      "y_px": 280
+      "x_px": 639,
+      "y_px": 230
     },
     {
       "id": "north_cctv",
       "label": "北监控室",
       "floor": 3,
       "role": "room",
-      "x_px": 726,
-      "y_px": 218
+      "x_px": 597,
+      "y_px": 179
     },
     {
       "id": "washroom",
       "label": "洗手间",
       "floor": 3,
       "role": "facility",
-      "x_px": 730,
-      "y_px": 747
+      "x_px": 600,
+      "y_px": 614
     },
     {
       "id": "weak_elec",
       "label": "弱电间",
       "floor": 3,
       "role": "room",
-      "x_px": 270,
-      "y_px": 898
+      "x_px": 222,
+      "y_px": 738
     },
     {
       "id": "strong_elec",
       "label": "强电间",
       "floor": 3,
       "role": "room",
-      "x_px": 260,
-      "y_px": 962
+      "x_px": 214,
+      "y_px": 791
     },
     {
       "id": "storage",
       "label": "储藏室",
       "floor": 3,
       "role": "room",
-      "x_px": 255,
-      "y_px": 1033
+      "x_px": 210,
+      "y_px": 849
     },
     {
       "id": "link_to_a",
       "label": "连廊（接A区）",
       "floor": 3,
       "role": "corridor",
-      "x_px": 256,
-      "y_px": 1089
+      "x_px": 210,
+      "y_px": 895
     },
     {
       "id": "room331_front",
       "label": "331数字媒体实验室前门",
       "floor": 3,
       "role": "door",
-      "x_px": 336,
-      "y_px": 849
+      "x_px": 276,
+      "y_px": 698
     },
     {
       "id": "room331_back",
       "label": "331数字媒体实验室后门",
       "floor": 3,
       "role": "door",
-      "x_px": 523,
-      "y_px": 852
+      "x_px": 430,
+      "y_px": 701
     },
     {
       "id": "room332",
       "label": "332服务器室门",
       "floor": 3,
       "role": "door",
-      "x_px": 569,
-      "y_px": 846
+      "x_px": 468,
+      "y_px": 696
     },
     {
       "id": "room333_front",
       "label": "333数字媒体实验室前门",
       "floor": 3,
       "role": "door",
-      "x_px": 618,
-      "y_px": 854
+      "x_px": 508,
+      "y_px": 702
     },
     {
       "id": "room333_back",
       "label": "333数字媒体实验室后门",
       "floor": 3,
       "role": "door",
-      "x_px": 910,
-      "y_px": 860
+      "x_px": 748,
+      "y_px": 707
     },
     {
       "id": "room335",
       "label": "335教师办公室门",
       "floor": 3,
       "role": "door",
-      "x_px": 927,
-      "y_px": 232
+      "x_px": 762,
+      "y_px": 191
     },
     {
       "id": "lab336_front",
       "label": "336微机室前门",
       "floor": 3,
       "role": "door",
-      "x_px": 771,
-      "y_px": 229
+      "x_px": 634,
+      "y_px": 188
     },
     {
       "id": "lab336_back",
       "label": "336微机室后门",
       "floor": 3,
       "role": "door",
-      "x_px": 1001,
-      "y_px": 206
+      "x_px": 823,
+      "y_px": 169
     },
     {
       "id": "lab338a",
       "label": "338A数字创意实验室门",
       "floor": 3,
       "role": "door",
-      "x_px": 681,
-      "y_px": 221
+      "x_px": 560,
+      "y_px": 182
     },
     {
       "id": "lab338b_front",
       "label": "338B嵌入式系统实验室前门",
       "floor": 3,
       "role": "door",
-      "x_px": 390,
-      "y_px": 219
+      "x_px": 321,
+      "y_px": 180
     },
     {
       "id": "lab338b_back",
       "label": "338B嵌入式系统实验室后门",
       "floor": 3,
       "role": "door",
-      "x_px": 75,
-      "y_px": 227
+      "x_px": 62,
+      "y_px": 187
     },
     {
       "id": "conf339_front",
       "label": "339会议室前门",
       "floor": 3,
       "role": "door",
-      "x_px": 183,
-      "y_px": 230
+      "x_px": 150,
+      "y_px": 189
     },
     {
       "id": "conf339_back",
       "label": "339会议室后门",
       "floor": 3,
       "role": "door",
-      "x_px": 58,
-      "y_px": 235
+      "x_px": 48,
+      "y_px": 193
     },
     {
       "id": "director340",
       "label": "340主任室门",
       "floor": 3,
       "role": "door",
-      "x_px": 296,
-      "y_px": 229
+      "x_px": 243,
+      "y_px": 188
     },
     {
       "id": "expert341",
       "label": "341专家室门",
       "floor": 3,
       "role": "door",
-      "x_px": 355,
-      "y_px": 233
+      "x_px": 292,
+      "y_px": 192
     },
     {
       "id": "teacher342",
       "label": "342教师工作室1门",
       "floor": 3,
       "role": "door",
-      "x_px": 410,
-      "y_px": 230
+      "x_px": 337,
+      "y_px": 189
     },
     {
       "id": "teacher343",
       "label": "343教师工作室2门",
       "floor": 3,
       "role": "door",
-      "x_px": 455,
-      "y_px": 226
+      "x_px": 374,
+      "y_px": 186
     },
     {
       "id": "teacher344",
       "label": "344教师工作室3门",
       "floor": 3,
       "role": "door",
-      "x_px": 502,
-      "y_px": 227
+      "x_px": 413,
+      "y_px": 187
     },
     {
       "id": "teacher345",
       "label": "345教师工作室4门",
       "floor": 3,
       "role": "door",
-      "x_px": 556,
-      "y_px": 225
+      "x_px": 457,
+      "y_px": 185
     },
     {
       "id": "teacher346",
       "label": "346教师办公室5门",
       "floor": 3,
       "role": "door",
-      "x_px": 607,
-      "y_px": 223
+      "x_px": 499,
+      "y_px": 183
     },
     {
       "id": "deputy347",
       "label": "347副主任室门",
       "floor": 3,
       "role": "door",
-      "x_px": 661,
-      "y_px": 227
+      "x_px": 543,
+      "y_px": 187
     },
     {
       "id": "room349_front",
       "label": "349大数据系统与云计算研究室前门",
       "floor": 3,
       "role": "door",
-      "x_px": 202,
-      "y_px": 846
+      "x_px": 166,
+      "y_px": 696
     },
     {
       "id": "room349_back",
       "label": "349大数据系统与云计算研究室后门",
       "floor": 3,
       "role": "door",
-      "x_px": 29,
-      "y_px": 849
+      "x_px": 24,
+      "y_px": 698
     }
   ],
   "edges": [

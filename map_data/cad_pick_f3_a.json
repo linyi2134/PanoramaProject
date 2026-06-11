@@ -4,112 +4,112 @@
   "zone": "A",
   "description": "3F-A座",
   "planImage": "plans/f3_a_cad.png",
-  "planWidth": 603,
-  "planHeight": 593,
+  "planWidth": 933,
+  "planHeight": 918,
   "pdfSource": "3F-A.pdf",
   "graphFile": "node_nav/data/f3_a_graph.json",
   "graphNodeCount": 25,
   "note": "tools/pick-coords.html 导出；运行 apply_cad_coords.py 写回。",
   "coords": {
     "fork_nw": {
-      "x_px": 149,
-      "y_px": 176
+      "x_px": 231,
+      "y_px": 272
     },
     "fork_ne": {
-      "x_px": 285,
-      "y_px": 240
+      "x_px": 441,
+      "y_px": 372
     },
     "fork_se": {
-      "x_px": 219,
-      "y_px": 379
+      "x_px": 339,
+      "y_px": 587
     },
     "fork_sw": {
-      "x_px": 81,
-      "y_px": 310
+      "x_px": 125,
+      "y_px": 480
     },
     "end_se": {
-      "x_px": 478,
-      "y_px": 512
+      "x_px": 740,
+      "y_px": 793
     },
     "elec": {
-      "x_px": 310,
-      "y_px": 262
+      "x_px": 480,
+      "y_px": 406
     },
     "stair_big": {
-      "x_px": 287,
-      "y_px": 385
+      "x_px": 444,
+      "y_px": 596
     },
     "stair_small": {
-      "x_px": 534,
-      "y_px": 502
+      "x_px": 826,
+      "y_px": 777
     },
     "washroom": {
-      "x_px": 171,
-      "y_px": 136
+      "x_px": 265,
+      "y_px": 211
     },
     "water": {
-      "x_px": 128,
-      "y_px": 162
+      "x_px": 198,
+      "y_px": 251
     },
     "link_to_b": {
-      "x_px": 206,
-      "y_px": 61
+      "x_px": 319,
+      "y_px": 94
     },
     "office302": {
-      "x_px": 50,
-      "y_px": 299
+      "x_px": 77,
+      "y_px": 463
     },
     "meeting303_front": {
-      "x_px": 102,
-      "y_px": 325
+      "x_px": 158,
+      "y_px": 503
     },
     "meeting303_back": {
-      "x_px": 148,
-      "y_px": 350
+      "x_px": 229,
+      "y_px": 542
     },
     "office304": {
-      "x_px": 175,
-      "y_px": 363
+      "x_px": 271,
+      "y_px": 562
     },
     "office305": {
-      "x_px": 239,
-      "y_px": 393
+      "x_px": 370,
+      "y_px": 608
     },
     "meeting306": {
-      "x_px": 468,
-      "y_px": 469
+      "x_px": 724,
+      "y_px": 726
     },
     "office309": {
-      "x_px": 343,
-      "y_px": 281
+      "x_px": 531,
+      "y_px": 435
     },
     "lab310": {
-      "x_px": 351,
-      "y_px": 267
+      "x_px": 543,
+      "y_px": 413
     },
     "lab311": {
-      "x_px": 318,
-      "y_px": 244
+      "x_px": 492,
+      "y_px": 378
     },
     "office312": {
-      "x_px": 253,
-      "y_px": 218
+      "x_px": 391,
+      "y_px": 337
     },
     "office313": {
-      "x_px": 209,
-      "y_px": 199
+      "x_px": 323,
+      "y_px": 308
     },
     "lab314": {
-      "x_px": 187,
-      "y_px": 181
+      "x_px": 289,
+      "y_px": 280
     },
     "office315": {
-      "x_px": 125,
-      "y_px": 210
+      "x_px": 193,
+      "y_px": 325
     },
     "office316": {
-      "x_px": 103,
-      "y_px": 265
+      "x_px": 159,
+      "y_px": 410
     }
   }
 }

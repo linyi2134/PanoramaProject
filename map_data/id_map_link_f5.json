@@ -2,8 +2,8 @@
   "description": "连廊5F：map.html tab 18 ↔ link_f5_graph.json 节点对照",
   "floor": 18,
   "planImage": "plans/link_f5_cad.png",
-  "planWidth": 138,
-  "planHeight": 407,
+  "planWidth": 205,
+  "planHeight": 624,
   "source": "node_nav/data/link_f5_graph.json + map.html tab 18",
   "note": "坐标取自 CAD graph（x_px/y_px）；仅用于搜索别名与文档对照，勿对 CAD 层运行 apply_layout_coords.py",
   "mappings": [
@@ -12,24 +12,24 @@
       "floorsId": "link_to_b",
       "match": "cad",
       "note": "通往B区",
-      "x_px": 52,
-      "y_px": 33
+      "x_px": 77,
+      "y_px": 51
     },
     {
       "jsonId": "outdoor_stair",
       "floorsId": "outdoor_stair",
       "match": "cad",
       "note": "户外楼梯",
-      "x_px": 52,
-      "y_px": 216
+      "x_px": 77,
+      "y_px": 331
     },
     {
       "jsonId": "link_to_a",
       "floorsId": "link_to_a",
       "match": "cad",
       "note": "通往A区",
-      "x_px": 52,
-      "y_px": 336
+      "x_px": 77,
+      "y_px": 515
     }
   ],
   "floorsOnly": []

@@ -3,13 +3,13 @@
   "isFinished": false,
   "meta": {
     "floor": 4,
-    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；门节点贴在走廊侧，后门按实际连通性增删边。 坐标基于 CAD 底图（tools/pick-coords.html 标注）。",
+    "note": "占位模板：四分叉围成环廊，四尽头为向北/东/南/西延伸；门节点贴在走廊侧，后门按实际连通性增删边。 坐标基于 CAD 底图（tools/pick-coords.html 标注）。 已统一缩放到 933×918（原 537×529）。",
     "building": "B7",
     "zone": "A",
     "units": "meter",
     "planImage": "plans/f4_a_cad.png",
-    "planWidth": 537,
-    "planHeight": 529
+    "planWidth": 933,
+    "planHeight": 918
   },
   "nodes": [
     {
@@ -17,248 +17,248 @@
       "label": "西北分叉",
       "floor": 4,
       "role": "corridor",
-      "x_px": 129,
-      "y_px": 151
+      "x_px": 224,
+      "y_px": 262
     },
     {
       "id": "fork_ne",
       "label": "东北分叉",
       "floor": 4,
       "role": "corridor",
-      "x_px": 254,
-      "y_px": 213
+      "x_px": 441,
+      "y_px": 370
     },
     {
       "id": "fork_se",
       "label": "东南分叉",
       "floor": 4,
       "role": "corridor",
-      "x_px": 188,
-      "y_px": 340
+      "x_px": 327,
+      "y_px": 590
     },
     {
       "id": "fork_sw",
       "label": "西南分叉",
       "floor": 4,
       "role": "corridor",
-      "x_px": 61,
-      "y_px": 269
+      "x_px": 106,
+      "y_px": 467
     },
     {
       "id": "end_nww",
       "label": "西北分叉向西延伸 ",
       "floor": 4,
       "role": "corridor",
-      "x_px": 105,
-      "y_px": 140
+      "x_px": 182,
+      "y_px": 243
     },
     {
       "id": "end_nwn",
       "label": "西北分叉向北延伸 ",
       "floor": 4,
       "role": "corridor",
-      "x_px": 140,
-      "y_px": 124
+      "x_px": 243,
+      "y_px": 215
     },
     {
       "id": "end_nee",
       "label": "东北分叉向东延伸",
       "floor": 4,
       "role": "corridor",
-      "x_px": 314,
-      "y_px": 245
+      "x_px": 546,
+      "y_px": 425
     },
     {
       "id": "end_see",
       "label": "东南分叉向东延伸",
       "floor": 4,
       "role": "corridor",
-      "x_px": 243,
-      "y_px": 372
+      "x_px": 422,
+      "y_px": 646
     },
     {
       "id": "end_sww",
       "label": "西南分叉向西延伸",
       "floor": 4,
       "role": "corridor",
-      "x_px": 38,
-      "y_px": 256
+      "x_px": 66,
+      "y_px": 444
     },
     {
       "id": "stair_south",
       "label": "南侧楼梯",
       "floor": 4,
       "role": "vertical",
-      "x_px": 256,
-      "y_px": 340
+      "x_px": 445,
+      "y_px": 590
     },
     {
       "id": "water",
       "label": "饮水机",
       "floor": 4,
       "role": "facility",
-      "x_px": 101,
-      "y_px": 136
+      "x_px": 175,
+      "y_px": 236
     },
     {
       "id": "washroom",
       "label": "洗手间",
       "floor": 4,
       "role": "facility",
-      "x_px": 140,
-      "y_px": 122
+      "x_px": 243,
+      "y_px": 212
     },
     {
       "id": "weak_elec",
       "label": "弱电间",
       "floor": 4,
       "role": "room",
-      "x_px": 229,
-      "y_px": 266
+      "x_px": 398,
+      "y_px": 462
     },
     {
       "id": "strong_elec",
       "label": "强电间",
       "floor": 4,
       "role": "room",
-      "x_px": 239,
-      "y_px": 242
+      "x_px": 415,
+      "y_px": 420
     },
     {
       "id": "link_to_b",
       "label": "连廊（接B区）",
       "floor": 4,
       "role": "corridor",
-      "x_px": 190,
-      "y_px": 38
+      "x_px": 330,
+      "y_px": 66
     },
     {
       "id": "lab400",
       "label": "400人工智能与机器学习研究室门",
       "floor": 4,
       "role": "door",
-      "x_px": 241,
-      "y_px": 374
+      "x_px": 419,
+      "y_px": 649
     },
     {
       "id": "office401",
       "label": "401教师办公室门",
       "floor": 4,
       "role": "door",
-      "x_px": 36,
-      "y_px": 257
+      "x_px": 63,
+      "y_px": 446
     },
     {
       "id": "office402",
       "label": "402教师办公室门",
       "floor": 4,
       "role": "door",
-      "x_px": 59,
-      "y_px": 272
+      "x_px": 103,
+      "y_px": 472
     },
     {
       "id": "room403_front",
       "label": "403会议室前门",
       "floor": 4,
       "role": "door",
-      "x_px": 129,
-      "y_px": 309
+      "x_px": 224,
+      "y_px": 536
     },
     {
       "id": "room403_back",
       "label": "403会议室后门",
       "floor": 4,
       "role": "door",
-      "x_px": 83,
-      "y_px": 285
+      "x_px": 144,
+      "y_px": 495
     },
     {
       "id": "room404",
       "label": "404本科生资料室门",
       "floor": 4,
       "role": "door",
-      "x_px": 217,
-      "y_px": 357
+      "x_px": 377,
+      "y_px": 620
     },
     {
       "id": "office405",
       "label": "405教师办公室门",
       "floor": 4,
       "role": "door",
-      "x_px": 311,
-      "y_px": 244
+      "x_px": 540,
+      "y_px": 423
     },
     {
       "id": "office406",
       "label": "406教师办公室门",
       "floor": 4,
       "role": "door",
-      "x_px": 312,
-      "y_px": 242
+      "x_px": 542,
+      "y_px": 420
     },
     {
       "id": "office407",
       "label": "407教师办公室门",
       "floor": 4,
       "role": "door",
-      "x_px": 294,
-      "y_px": 231
+      "x_px": 511,
+      "y_px": 401
     },
     {
       "id": "office408",
       "label": "408教师办公室门",
       "floor": 4,
       "role": "door",
-      "x_px": 274,
-      "y_px": 222
+      "x_px": 476,
+      "y_px": 385
     },
     {
       "id": "office409",
       "label": "409教师办公室门",
       "floor": 4,
       "role": "door",
-      "x_px": 251,
-      "y_px": 208
+      "x_px": 436,
+      "y_px": 361
     },
     {
       "id": "office410",
       "label": "410教师办公室门",
       "floor": 4,
       "role": "door",
-      "x_px": 228,
-      "y_px": 195
+      "x_px": 396,
+      "y_px": 338
     },
     {
       "id": "office411",
       "label": "411教师办公室门",
       "floor": 4,
       "role": "door",
-      "x_px": 198,
-      "y_px": 179
+      "x_px": 344,
+      "y_px": 311
     },
     {
       "id": "office412",
       "label": "412教师办公室门",
       "floor": 4,
       "role": "door",
-      "x_px": 162,
-      "y_px": 161
+      "x_px": 281,
+      "y_px": 279
     },
     {
       "id": "office413",
       "label": "413教师办公室门",
       "floor": 4,
       "role": "door",
-      "x_px": 108,
-      "y_px": 191
+      "x_px": 188,
+      "y_px": 331
     },
     {
       "id": "lab414",
       "label": "414软件构建理论与方法研究室门",
       "floor": 4,
       "role": "door",
-      "x_px": 87,
-      "y_px": 228
+      "x_px": 151,
+      "y_px": 396
     }
   ],
   "edges": [

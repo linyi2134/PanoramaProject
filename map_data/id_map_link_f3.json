@@ -2,8 +2,8 @@
   "description": "连廊3F：map.html tab 16 ↔ link_f3_graph.json 节点对照",
   "floor": 16,
   "planImage": "plans/link_f3_cad.png",
-  "planWidth": 138,
-  "planHeight": 407,
+  "planWidth": 205,
+  "planHeight": 624,
   "source": "node_nav/data/link_f3_graph.json + map.html tab 16",
   "note": "坐标取自 CAD graph（x_px/y_px）；仅用于搜索别名与文档对照，勿对 CAD 层运行 apply_layout_coords.py",
   "mappings": [
@@ -12,24 +12,24 @@
       "floorsId": "link_to_b",
       "match": "cad",
       "note": "通往B区",
-      "x_px": 53,
-      "y_px": 40
+      "x_px": 79,
+      "y_px": 61
     },
     {
       "jsonId": "outdoor_stair",
       "floorsId": "outdoor_stair",
       "match": "cad",
       "note": "户外楼梯",
-      "x_px": 53,
-      "y_px": 218
+      "x_px": 79,
+      "y_px": 334
     },
     {
       "jsonId": "link_to_a",
       "floorsId": "link_to_a",
       "match": "cad",
       "note": "通往A区",
-      "x_px": 48,
-      "y_px": 347
+      "x_px": 71,
+      "y_px": 532
     }
   ],
   "floorsOnly": []

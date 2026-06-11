@@ -4,140 +4,140 @@
   "zone": "A",
   "description": "4F-A座",
   "planImage": "plans/f4_a_cad.png",
-  "planWidth": 537,
-  "planHeight": 529,
+  "planWidth": 933,
+  "planHeight": 918,
   "pdfSource": "4F-A.pdf",
   "graphFile": "node_nav/data/f4_a_graph.json",
   "graphNodeCount": 32,
   "note": "tools/pick-coords.html 导出；运行 apply_cad_coords.py 写回。",
   "coords": {
     "fork_nw": {
-      "x_px": 129,
-      "y_px": 151
+      "x_px": 224,
+      "y_px": 262
     },
     "fork_ne": {
-      "x_px": 254,
-      "y_px": 213
+      "x_px": 441,
+      "y_px": 370
     },
     "fork_se": {
-      "x_px": 188,
-      "y_px": 340
+      "x_px": 327,
+      "y_px": 590
     },
     "fork_sw": {
-      "x_px": 61,
-      "y_px": 269
+      "x_px": 106,
+      "y_px": 467
     },
     "end_nww": {
-      "x_px": 105,
-      "y_px": 140
+      "x_px": 182,
+      "y_px": 243
     },
     "end_nwn": {
-      "x_px": 140,
-      "y_px": 124
+      "x_px": 243,
+      "y_px": 215
     },
     "end_nee": {
-      "x_px": 314,
-      "y_px": 245
+      "x_px": 546,
+      "y_px": 425
     },
     "end_see": {
-      "x_px": 243,
-      "y_px": 372
+      "x_px": 422,
+      "y_px": 646
     },
     "end_sww": {
-      "x_px": 38,
-      "y_px": 256
+      "x_px": 66,
+      "y_px": 444
     },
     "stair_south": {
-      "x_px": 256,
-      "y_px": 340
+      "x_px": 445,
+      "y_px": 590
     },
     "stair_outdoor": {
-      "x_px": 208,
-      "y_px": 9
+      "x_px": 361,
+      "y_px": 16
     },
     "water": {
-      "x_px": 101,
-      "y_px": 136
+      "x_px": 175,
+      "y_px": 236
     },
     "washroom": {
-      "x_px": 140,
-      "y_px": 122
+      "x_px": 243,
+      "y_px": 212
     },
     "weak_elec": {
-      "x_px": 229,
-      "y_px": 266
+      "x_px": 398,
+      "y_px": 462
     },
     "strong_elec": {
-      "x_px": 239,
-      "y_px": 242
+      "x_px": 415,
+      "y_px": 420
     },
     "link_to_b": {
-      "x_px": 190,
-      "y_px": 38
+      "x_px": 330,
+      "y_px": 66
     },
     "lab400": {
-      "x_px": 241,
-      "y_px": 374
+      "x_px": 419,
+      "y_px": 649
     },
     "office401": {
-      "x_px": 36,
-      "y_px": 257
+      "x_px": 63,
+      "y_px": 446
     },
     "office402": {
-      "x_px": 59,
-      "y_px": 272
+      "x_px": 103,
+      "y_px": 472
     },
     "room403_front": {
-      "x_px": 129,
-      "y_px": 309
+      "x_px": 224,
+      "y_px": 536
     },
     "room403_back": {
-      "x_px": 83,
-      "y_px": 285
+      "x_px": 144,
+      "y_px": 495
     },
     "room404": {
-      "x_px": 217,
-      "y_px": 357
+      "x_px": 377,
+      "y_px": 620
     },
     "office405": {
-      "x_px": 311,
-      "y_px": 244
+      "x_px": 540,
+      "y_px": 423
     },
     "office406": {
-      "x_px": 312,
-      "y_px": 242
+      "x_px": 542,
+      "y_px": 420
     },
     "office407": {
-      "x_px": 294,
-      "y_px": 231
+      "x_px": 511,
+      "y_px": 401
     },
     "office408": {
-      "x_px": 274,
-      "y_px": 222
+      "x_px": 476,
+      "y_px": 385
     },
     "office409": {
-      "x_px": 251,
-      "y_px": 208
+      "x_px": 436,
+      "y_px": 361
     },
     "office410": {
-      "x_px": 228,
-      "y_px": 195
+      "x_px": 396,
+      "y_px": 338
     },
     "office411": {
-      "x_px": 198,
-      "y_px": 179
+      "x_px": 344,
+      "y_px": 311
     },
     "office412": {
-      "x_px": 162,
-      "y_px": 161
+      "x_px": 281,
+      "y_px": 279
     },
     "office413": {
-      "x_px": 108,
-      "y_px": 191
+      "x_px": 188,
+      "y_px": 331
     },
     "lab414": {
-      "x_px": 87,
-      "y_px": 228
+      "x_px": 151,
+      "y_px": 396
     }
   }
 }
