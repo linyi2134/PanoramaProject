@@ -1,0 +1,252 @@
+{
+  "description": "3F B座：map.html tab 3 ↔ f3_b_graph.json 节点对照",
+  "floor": 3,
+  "planImage": "plans/f3_b_cad.png",
+  "planWidth": 1027,
+  "planHeight": 1125,
+  "source": "node_nav/data/f3_b_graph.json + map.html tab 3",
+  "note": "坐标取自 CAD graph（x_px/y_px）；仅用于搜索别名与文档对照，勿对 CAD 层运行 apply_layout_coords.py",
+  "mappings": [
+    {
+      "jsonId": "fork_nw",
+      "match": "direct",
+      "note": "西北分叉",
+      "floorsId": "f3_jnw"
+    },
+    {
+      "jsonId": "fork_ne",
+      "match": "direct",
+      "note": "东北分叉",
+      "floorsId": "f3_jne"
+    },
+    {
+      "jsonId": "fork_se",
+      "match": "direct",
+      "note": "东南分叉",
+      "floorsId": "f3_jse"
+    },
+    {
+      "jsonId": "fork_sw",
+      "match": "direct",
+      "note": "西南分叉",
+      "floorsId": "f3_jsw"
+    },
+    {
+      "jsonId": "end_nw",
+      "match": "inferred",
+      "note": "西北尽头",
+      "floorsId": "f3_lw_n"
+    },
+    {
+      "jsonId": "end_ne",
+      "match": "inferred",
+      "note": "东北尽头",
+      "floorsId": "f3_top"
+    },
+    {
+      "jsonId": "end_se",
+      "match": "inferred",
+      "note": "东南尽头",
+      "floorsId": "f3_jrt_s"
+    },
+    {
+      "jsonId": "end_sw",
+      "match": "inferred",
+      "note": "西南尽头",
+      "floorsId": "f3_lw_s"
+    },
+    {
+      "jsonId": "stair_east",
+      "match": "direct",
+      "note": "东侧楼梯",
+      "floorsId": "f3_stN"
+    },
+    {
+      "jsonId": "stair_west",
+      "match": "direct",
+      "note": "西侧楼梯",
+      "floorsId": "f3_stS"
+    },
+    {
+      "jsonId": "elevator",
+      "match": "direct",
+      "note": "东侧电梯",
+      "floorsId": "f3_stN"
+    },
+    {
+      "jsonId": "north_cctv",
+      "match": "direct",
+      "note": "北监控室",
+      "floorsId": "f3_monitor"
+    },
+    {
+      "jsonId": "washroom",
+      "match": "direct",
+      "note": "洗手间",
+      "floorsId": "f3_wash"
+    },
+    {
+      "jsonId": "weak_elec",
+      "match": "direct",
+      "note": "弱电间",
+      "floorsId": "f3_util"
+    },
+    {
+      "jsonId": "strong_elec",
+      "match": "direct",
+      "note": "强电间",
+      "floorsId": "f3_util"
+    },
+    {
+      "jsonId": "storage",
+      "match": "direct",
+      "note": "储藏室",
+      "floorsId": "f3_util"
+    },
+    {
+      "jsonId": "link_to_a",
+      "match": "direct",
+      "note": "连廊（接A区）",
+      "floorsId": "f3_link_a"
+    },
+    {
+      "jsonId": "room331_front",
+      "match": "direct",
+      "note": "331数字媒体实验室前门",
+      "floorsId": "f3_rm331"
+    },
+    {
+      "jsonId": "room331_back",
+      "match": "direct",
+      "note": "331数字媒体实验室后门",
+      "floorsId": "f3_rm331"
+    },
+    {
+      "jsonId": "room332",
+      "match": "direct",
+      "note": "332 服务器室门",
+      "floorsId": "f3_rm332"
+    },
+    {
+      "jsonId": "room333_front",
+      "match": "direct",
+      "note": "333数字媒体实验室前门",
+      "floorsId": "f3_rm333"
+    },
+    {
+      "jsonId": "room333_back",
+      "match": "direct",
+      "note": "333数字媒体实验室后门",
+      "floorsId": "f3_rm333"
+    },
+    {
+      "jsonId": "room335",
+      "match": "direct",
+      "note": "335 教师办公室门",
+      "floorsId": "f3_rm335"
+    },
+    {
+      "jsonId": "lab336_front",
+      "match": "direct",
+      "note": "336微机室前门",
+      "floorsId": "f3_rm336"
+    },
+    {
+      "jsonId": "lab336_back",
+      "match": "direct",
+      "note": "336微机室后门",
+      "floorsId": "f3_rm336"
+    },
+    {
+      "jsonId": "lab338a",
+      "match": "direct",
+      "note": "338A数字创意实验室门",
+      "floorsId": "f3_rm338"
+    },
+    {
+      "jsonId": "lab338b_front",
+      "match": "direct",
+      "note": "338B嵌入式系统实验室前门",
+      "floorsId": "f3_rm338"
+    },
+    {
+      "jsonId": "lab338b_back",
+      "match": "direct",
+      "note": "338B嵌入式系统实验室后门",
+      "floorsId": "f3_rm338"
+    },
+    {
+      "jsonId": "conf339_front",
+      "match": "direct",
+      "note": "339会议室前门",
+      "floorsId": "f3_rm339"
+    },
+    {
+      "jsonId": "conf339_back",
+      "match": "direct",
+      "note": "339会议室后门",
+      "floorsId": "f3_rm339"
+    },
+    {
+      "jsonId": "director340",
+      "match": "direct",
+      "note": "340 主任室门",
+      "floorsId": "f3_rm340"
+    },
+    {
+      "jsonId": "expert341",
+      "match": "direct",
+      "note": "341 专家室门",
+      "floorsId": "f3_rm341"
+    },
+    {
+      "jsonId": "teacher342",
+      "match": "direct",
+      "note": "342教师工作室1门",
+      "floorsId": "f3_rm342"
+    },
+    {
+      "jsonId": "teacher343",
+      "match": "direct",
+      "note": "343教师工作室2门",
+      "floorsId": "f3_rm343"
+    },
+    {
+      "jsonId": "teacher344",
+      "match": "direct",
+      "note": "344教师工作室3门",
+      "floorsId": "f3_rm344"
+    },
+    {
+      "jsonId": "teacher345",
+      "match": "direct",
+      "note": "345教师工作室4门",
+      "floorsId": "f3_rm345"
+    },
+    {
+      "jsonId": "teacher346",
+      "match": "direct",
+      "note": "346教师办公室5门",
+      "floorsId": "f3_rm346"
+    },
+    {
+      "jsonId": "deputy347",
+      "match": "direct",
+      "note": "347 副主任室门",
+      "floorsId": "f3_rm347"
+    },
+    {
+      "jsonId": "room349_front",
+      "match": "direct",
+      "note": "349大数据系统与云计算研究室前门",
+      "floorsId": "f3_rm349"
+    },
+    {
+      "jsonId": "room349_back",
+      "match": "direct",
+      "note": "349大数据系统与云计算研究室后门",
+      "floorsId": "f3_rm349"
+    }
+  ],
+  "floorsOnly": []
+}

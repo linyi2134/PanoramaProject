@@ -1,0 +1,168 @@
+{
+  "description": "2F B座：map.html tab 2 ↔ f2_b_graph.json 节点对照",
+  "floor": 2,
+  "planImage": "plans/f2_b_cad.png",
+  "planWidth": 844,
+  "planHeight": 925,
+  "source": "node_nav/data/f2_b_graph.json + map.html tab 2",
+  "note": "坐标取自 CAD graph（x_px/y_px）；仅用于搜索别名与文档对照，勿对 CAD 层运行 apply_layout_coords.py",
+  "mappings": [
+    {
+      "jsonId": "fork_nw",
+      "match": "direct",
+      "note": "西北分叉",
+      "floorsId": "f2_jnw"
+    },
+    {
+      "jsonId": "fork_ne",
+      "match": "direct",
+      "note": "东北分叉",
+      "floorsId": "f2_jne"
+    },
+    {
+      "jsonId": "fork_se",
+      "match": "direct",
+      "note": "东南分叉",
+      "floorsId": "f2_jse"
+    },
+    {
+      "jsonId": "fork_sw",
+      "match": "direct",
+      "note": "西南分叉",
+      "floorsId": "f2_jsw"
+    },
+    {
+      "jsonId": "stair_west",
+      "match": "direct",
+      "note": "西侧楼梯",
+      "floorsId": "f2_stS"
+    },
+    {
+      "jsonId": "stair_east",
+      "match": "direct",
+      "note": "东侧楼梯",
+      "floorsId": "f2_stN"
+    },
+    {
+      "jsonId": "elevator",
+      "match": "direct",
+      "note": "东侧电梯",
+      "floorsId": "f2_stN"
+    },
+    {
+      "jsonId": "washroom",
+      "match": "direct",
+      "note": "洗手间",
+      "floorsId": "f2_wash"
+    },
+    {
+      "jsonId": "water",
+      "match": "direct",
+      "note": "饮水机",
+      "floorsId": "f2_wash"
+    },
+    {
+      "jsonId": "weak",
+      "match": "direct",
+      "note": "弱电间",
+      "floorsId": "f2_util"
+    },
+    {
+      "jsonId": "strong",
+      "match": "direct",
+      "note": "强电间",
+      "floorsId": "f2_util"
+    },
+    {
+      "jsonId": "link_to_a",
+      "match": "direct",
+      "note": "连廊（接A区）",
+      "floorsId": "f2_link_a"
+    },
+    {
+      "jsonId": "238_front",
+      "match": "direct",
+      "note": "238实验室前门",
+      "floorsId": "f2_rm238"
+    },
+    {
+      "jsonId": "238_back",
+      "match": "direct",
+      "note": "238实验室后门",
+      "floorsId": "f2_rm238"
+    },
+    {
+      "jsonId": "233_back",
+      "match": "direct",
+      "note": "233实训基地Ⅱ后门",
+      "floorsId": "f2_rm233"
+    },
+    {
+      "jsonId": "233_front",
+      "match": "direct",
+      "note": "233实训基地Ⅱ前门",
+      "floorsId": "f2_rm233"
+    },
+    {
+      "jsonId": "232",
+      "match": "direct",
+      "note": "232 监控室门",
+      "floorsId": "f2_rm232"
+    },
+    {
+      "jsonId": "231_front",
+      "match": "direct",
+      "note": "231实训基地Ⅰ前门",
+      "floorsId": "f2_rm231"
+    },
+    {
+      "jsonId": "230",
+      "match": "direct",
+      "note": "230储藏室",
+      "floorsId": "f2_rm230"
+    },
+    {
+      "jsonId": "240_front",
+      "match": "direct",
+      "note": "240办公室前门",
+      "floorsId": "f2_rm240"
+    },
+    {
+      "jsonId": "237",
+      "match": "direct",
+      "note": "237 监控室门",
+      "floorsId": "f2_rm237"
+    },
+    {
+      "jsonId": "236_front",
+      "match": "direct",
+      "note": "236学生创新基地前门",
+      "floorsId": "f2_rm236"
+    },
+    {
+      "jsonId": "236_back",
+      "match": "direct",
+      "note": "236学生创新基地后门",
+      "floorsId": "f2_rm236"
+    },
+    {
+      "jsonId": "235_back",
+      "match": "direct",
+      "note": "235服务器室后门",
+      "floorsId": "f2_rm235"
+    },
+    {
+      "jsonId": "234",
+      "match": "direct",
+      "note": "234门",
+      "floorsId": "f2_rm234"
+    },
+    {
+      "jsonId": "235_front",
+      "match": "direct",
+      "note": "235服务器室前门",
+      "floorsId": "f2_rm235"
+    }
+  ],
+  "floorsOnly": []
+}

@@ -1,0 +1,268 @@
+{
+  "description": "5F A座：map.html tab 12 ↔ f5_a_graph.json 节点对照",
+  "floor": 12,
+  "planImage": "plans/f5_a_cad.png",
+  "planWidth": 587,
+  "planHeight": 709,
+  "source": "node_nav/data/f5_a_graph.json + map.html tab 12",
+  "note": "坐标取自 CAD graph（x_px/y_px）；仅用于搜索别名与文档对照，勿对 CAD 层运行 apply_layout_coords.py",
+  "mappings": [
+    {
+      "jsonId": "fork_nw",
+      "match": "inferred",
+      "note": "西北分叉 ↔ 示意图走廊",
+      "floorsId": "a5_nw",
+      "x_px": 220,
+      "y_px": 251
+    },
+    {
+      "jsonId": "fork_ne",
+      "match": "inferred",
+      "note": "东北分叉 ↔ 示意图走廊",
+      "floorsId": "a5_ne",
+      "x_px": 427,
+      "y_px": 360
+    },
+    {
+      "jsonId": "fork_se",
+      "match": "inferred",
+      "note": "东南分叉 ↔ 示意图走廊",
+      "floorsId": "a5_se",
+      "x_px": 330,
+      "y_px": 581
+    },
+    {
+      "jsonId": "fork_sw",
+      "match": "inferred",
+      "note": "西南分叉 ↔ 示意图走廊",
+      "floorsId": "a5_sw",
+      "x_px": 124,
+      "y_px": 472
+    },
+    {
+      "jsonId": "end_nww",
+      "match": "cad",
+      "note": "西北分叉向西延伸 ",
+      "floorsId": "end_nww",
+      "x_px": 173,
+      "y_px": 231
+    },
+    {
+      "jsonId": "end_nwn",
+      "match": "cad",
+      "note": "西北分叉向北延伸 ",
+      "floorsId": "end_nwn",
+      "x_px": 322,
+      "y_px": 59
+    },
+    {
+      "jsonId": "end_nee",
+      "match": "cad",
+      "note": "东北分叉向东延伸",
+      "floorsId": "end_nee",
+      "x_px": 529,
+      "y_px": 411
+    },
+    {
+      "jsonId": "end_see",
+      "match": "cad",
+      "note": "东南分叉向东延伸",
+      "floorsId": "end_see",
+      "x_px": 415,
+      "y_px": 628
+    },
+    {
+      "jsonId": "end_sww",
+      "match": "cad",
+      "note": "西南分叉向西延伸",
+      "floorsId": "end_sww",
+      "x_px": 57,
+      "y_px": 441
+    },
+    {
+      "jsonId": "stair_south",
+      "match": "cad",
+      "note": "南侧楼梯",
+      "floorsId": "stair_south",
+      "x_px": 427,
+      "y_px": 604
+    },
+    {
+      "jsonId": "water",
+      "match": "cad",
+      "note": "饮水机",
+      "floorsId": "water",
+      "x_px": 173,
+      "y_px": 225
+    },
+    {
+      "jsonId": "washroom",
+      "match": "cad",
+      "note": "洗手间",
+      "floorsId": "washroom",
+      "x_px": 233,
+      "y_px": 209
+    },
+    {
+      "jsonId": "weak_elec",
+      "match": "cad",
+      "note": "弱电间",
+      "floorsId": "weak_elec",
+      "x_px": 387,
+      "y_px": 451
+    },
+    {
+      "jsonId": "strong_elec",
+      "match": "cad",
+      "note": "强电间",
+      "floorsId": "strong_elec",
+      "x_px": 410,
+      "y_px": 418
+    },
+    {
+      "jsonId": "link_to_b",
+      "match": "inferred",
+      "note": "连廊（接B区） ↔ 示意图走廊",
+      "floorsId": "a5_entry",
+      "x_px": 332,
+      "y_px": 48
+    },
+    {
+      "jsonId": "office501",
+      "match": "cad",
+      "note": "501教师办公室门",
+      "floorsId": "office501",
+      "x_px": 85,
+      "y_px": 456
+    },
+    {
+      "jsonId": "office502",
+      "match": "cad",
+      "note": "502教师办公室门",
+      "floorsId": "office502",
+      "x_px": 126,
+      "y_px": 472
+    },
+    {
+      "jsonId": "room503_front",
+      "match": "cad",
+      "note": "503资料室前门",
+      "floorsId": "room503_front",
+      "x_px": 285,
+      "y_px": 562
+    },
+    {
+      "jsonId": "room503_back",
+      "match": "cad",
+      "note": "503资料室后门",
+      "floorsId": "room503_back",
+      "x_px": 217,
+      "y_px": 519
+    },
+    {
+      "jsonId": "office504",
+      "match": "cad",
+      "note": "504教师办公室门",
+      "floorsId": "office504",
+      "x_px": 345,
+      "y_px": 598
+    },
+    {
+      "jsonId": "office505",
+      "match": "cad",
+      "note": "505教师办公室门",
+      "floorsId": "office505",
+      "x_px": 411,
+      "y_px": 632
+    },
+    {
+      "jsonId": "room506",
+      "match": "cad",
+      "note": "506研究生资料室门",
+      "floorsId": "room506",
+      "x_px": 368,
+      "y_px": 605
+    },
+    {
+      "jsonId": "office507",
+      "match": "cad",
+      "note": "507教师办公室门",
+      "floorsId": "office507",
+      "x_px": 529,
+      "y_px": 417
+    },
+    {
+      "jsonId": "office508",
+      "match": "cad",
+      "note": "508教师办公室门",
+      "floorsId": "office508",
+      "x_px": 534,
+      "y_px": 414
+    },
+    {
+      "jsonId": "office509",
+      "match": "cad",
+      "note": "509教师办公室门",
+      "floorsId": "office509",
+      "x_px": 504,
+      "y_px": 399
+    },
+    {
+      "jsonId": "office510",
+      "match": "cad",
+      "note": "510教师办公室门",
+      "floorsId": "office510",
+      "x_px": 479,
+      "y_px": 383
+    },
+    {
+      "jsonId": "office511",
+      "match": "cad",
+      "note": "511教师办公室门",
+      "floorsId": "office511",
+      "x_px": 431,
+      "y_px": 360
+    },
+    {
+      "jsonId": "office512",
+      "match": "cad",
+      "note": "512教师办公室门",
+      "floorsId": "office512",
+      "x_px": 372,
+      "y_px": 323
+    },
+    {
+      "jsonId": "office513",
+      "match": "cad",
+      "note": "513教师办公室门",
+      "floorsId": "office513",
+      "x_px": 315,
+      "y_px": 290
+    },
+    {
+      "jsonId": "office514",
+      "match": "cad",
+      "note": "514教师办公室门",
+      "floorsId": "office514",
+      "x_px": 268,
+      "y_px": 265
+    },
+    {
+      "jsonId": "lab515",
+      "match": "cad",
+      "note": "515软件构建理论与方法研究室",
+      "floorsId": "lab515",
+      "x_px": 180,
+      "y_px": 313
+    },
+    {
+      "jsonId": "office516",
+      "match": "cad",
+      "note": "516教师办公室门",
+      "floorsId": "office516",
+      "x_px": 147,
+      "y_px": 387
+    }
+  ],
+  "floorsOnly": []
+}

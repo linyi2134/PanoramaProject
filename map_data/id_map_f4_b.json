@@ -1,0 +1,252 @@
+{
+  "description": "4F B座：map.html tab 4 ↔ f4_b_graph.json 节点对照",
+  "floor": 4,
+  "planImage": "plans/f4_b_cad.png",
+  "planWidth": 795,
+  "planHeight": 871,
+  "source": "node_nav/data/f4_b_graph.json + map.html tab 4",
+  "note": "坐标取自 CAD graph（x_px/y_px）；仅用于搜索别名与文档对照，勿对 CAD 层运行 apply_layout_coords.py",
+  "mappings": [
+    {
+      "jsonId": "fork_nw",
+      "match": "direct",
+      "note": "西北分叉",
+      "floorsId": "f4_jnw"
+    },
+    {
+      "jsonId": "fork_ne",
+      "match": "direct",
+      "note": "东北分叉",
+      "floorsId": "f4_jne"
+    },
+    {
+      "jsonId": "fork_se",
+      "match": "direct",
+      "note": "东南分叉",
+      "floorsId": "f4_jse"
+    },
+    {
+      "jsonId": "fork_sw",
+      "match": "direct",
+      "note": "西南分叉",
+      "floorsId": "f4_jsw"
+    },
+    {
+      "jsonId": "end_nww",
+      "match": "inferred",
+      "note": "西北分叉向西延伸 ",
+      "floorsId": "f4_lw_n"
+    },
+    {
+      "jsonId": "end_sws",
+      "match": "inferred",
+      "note": "西南分叉向南延伸 ",
+      "floorsId": "f4_bot"
+    },
+    {
+      "jsonId": "end_nee",
+      "match": "inferred",
+      "note": "东北分叉向东延伸",
+      "floorsId": "f4_top"
+    },
+    {
+      "jsonId": "end_see",
+      "match": "inferred",
+      "note": "东南分叉向东延伸",
+      "floorsId": "f4_jrt_s"
+    },
+    {
+      "jsonId": "end_sww",
+      "match": "inferred",
+      "note": "西南分叉向西延伸",
+      "floorsId": "f4_lw_s"
+    },
+    {
+      "jsonId": "stair_west",
+      "match": "direct",
+      "note": "西侧楼梯",
+      "floorsId": "f4_stS"
+    },
+    {
+      "jsonId": "stair_east",
+      "match": "direct",
+      "note": "东侧楼梯",
+      "floorsId": "f4_stN"
+    },
+    {
+      "jsonId": "elevator",
+      "match": "direct",
+      "note": "东侧电梯",
+      "floorsId": "f4_stN"
+    },
+    {
+      "jsonId": "water",
+      "match": "direct",
+      "note": "饮水机",
+      "floorsId": "f4_wash"
+    },
+    {
+      "jsonId": "washroom",
+      "match": "direct",
+      "note": "洗手间",
+      "floorsId": "f4_wash"
+    },
+    {
+      "jsonId": "weak_elec",
+      "match": "direct",
+      "note": "弱电间",
+      "floorsId": "f4_util"
+    },
+    {
+      "jsonId": "strong_elec",
+      "match": "direct",
+      "note": "强电间",
+      "floorsId": "f4_util"
+    },
+    {
+      "jsonId": "link_to_a",
+      "match": "direct",
+      "note": "连廊（接A区）",
+      "floorsId": "f4_link_a"
+    },
+    {
+      "jsonId": "room430",
+      "match": "direct",
+      "note": "430房门",
+      "floorsId": "f4_rm430"
+    },
+    {
+      "jsonId": "lab431_front",
+      "match": "direct",
+      "note": "431电子工艺实习室前门",
+      "floorsId": "f4_rm431"
+    },
+    {
+      "jsonId": "lab431_medium",
+      "match": "direct",
+      "note": "431电子工艺实习室中门",
+      "floorsId": "f4_rm431"
+    },
+    {
+      "jsonId": "lab431_back",
+      "match": "direct",
+      "note": "431电子工艺实习室后门",
+      "floorsId": "f4_rm431"
+    },
+    {
+      "jsonId": "room432",
+      "match": "direct",
+      "note": "432杂物间门",
+      "floorsId": "f4_rm432"
+    },
+    {
+      "jsonId": "room433",
+      "match": "direct",
+      "note": "433仪器设备室门",
+      "floorsId": "f4_rm433"
+    },
+    {
+      "jsonId": "lab434_front",
+      "match": "direct",
+      "note": "434电子技术实验室前门",
+      "floorsId": "f4_rm434"
+    },
+    {
+      "jsonId": "lab434_back",
+      "match": "direct",
+      "note": "434电子技术实验室后门",
+      "floorsId": "f4_rm434"
+    },
+    {
+      "jsonId": "room435",
+      "match": "direct",
+      "note": "435服务器室门",
+      "floorsId": "f4_rm435"
+    },
+    {
+      "jsonId": "lab436_front_lab437_back",
+      "match": "direct",
+      "note": "436电子技术实验室前门（437创新实验室后门）",
+      "floorsId": "f4_rm436"
+    },
+    {
+      "jsonId": "lab436_medium",
+      "match": "direct",
+      "note": "436电子技术实验室中门",
+      "floorsId": "f4_rm436"
+    },
+    {
+      "jsonId": "lab436_back",
+      "match": "direct",
+      "note": "436电子技术实验室后门",
+      "floorsId": "f4_rm436"
+    },
+    {
+      "jsonId": "lab437_front",
+      "match": "direct",
+      "note": "437创新实验室前门",
+      "floorsId": "f4_rm437"
+    },
+    {
+      "jsonId": "office438",
+      "match": "direct",
+      "note": "438教师工作室门",
+      "floorsId": "f4_rm438"
+    },
+    {
+      "jsonId": "office439",
+      "match": "direct",
+      "note": "439教师工作室门",
+      "floorsId": "f4_rm439"
+    },
+    {
+      "jsonId": "office440",
+      "match": "direct",
+      "note": "440教师工作室门",
+      "floorsId": "f4_rm440"
+    },
+    {
+      "jsonId": "office441",
+      "match": "direct",
+      "note": "441教师工作室门",
+      "floorsId": "f4_rm441"
+    },
+    {
+      "jsonId": "office442",
+      "match": "direct",
+      "note": "442教师工作室门",
+      "floorsId": "f4_rm442"
+    },
+    {
+      "jsonId": "office443",
+      "match": "direct",
+      "note": "443教师工作室门",
+      "floorsId": "f4_rm443"
+    },
+    {
+      "jsonId": "office444",
+      "match": "direct",
+      "note": "444教师工作室门",
+      "floorsId": "f4_rm444"
+    },
+    {
+      "jsonId": "office445",
+      "match": "direct",
+      "note": "445教师工作室门",
+      "floorsId": "f4_rm445"
+    },
+    {
+      "jsonId": "room446_lab447_back",
+      "match": "direct",
+      "note": "446杂物间门（447印制电路板实习室后门）",
+      "floorsId": "f4_rm446"
+    },
+    {
+      "jsonId": "lab447_front",
+      "match": "direct",
+      "note": "447印制电路板实习室前门",
+      "floorsId": "f4_rm447"
+    }
+  ],
+  "floorsOnly": []
+}

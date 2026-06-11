@@ -44,16 +44,18 @@ map.html 读取 JSON + 贴 PNG → 点击节点算路
 }
 ```
 
-**1F B 区已做完**：见 `map_data/id_map_f1_b.json`，重跑：
+**15 层 id_map 已生成**：`map_data/id_map_*.json`（B/A/连廊），供 map 搜索别名与文档对照。
+
+重新生成（改 graph 节点 id 后）：
+
+```bash
+python node_nav/scripts/generate_id_maps.py
+```
+
+**注意**：各层 graph 已用 CAD 坐标，勿对 B2+ / A / 连廊运行 `apply_layout_coords.py`（仅 B1 示意层历史用途）。B1 示意坐标：
 
 ```bash
 python node_nav/scripts/apply_layout_coords.py
-```
-
-其他层：复制 `id_map_f1_b.json` 为 `id_map_f2_b.json` …，改对照后执行：
-
-```bash
-python node_nav/scripts/apply_layout_coords.py id_map_f2_b.json f2_b_graph.json
 ```
 
 ### 第三步：在 map.html 里启用
@@ -84,7 +86,7 @@ python server_main.py
 
 | 文件 | 说明 |
 |------|------|
-| `map_data/id_map_f1_b.json` | FLOORS[1] ↔ `f1_b_graph.json` 节点 id 对照（含 direct / inferred） |
+| `map_data/id_map_*.json` | 15 层节点对照 + 搜索房号别名（`generate_id_maps.py` 维护） |
 | `node_nav/data/f1_b_graph.json` | 已写入 `x_px/y_px` 及 `meta.planImage/planWidth/planHeight` |
 | `plans/f1_b.png` | 760×520 示意底图（与 map.html 建筑几何一致） |
 

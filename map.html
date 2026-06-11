@@ -214,7 +214,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
   .side-search-btn{display:none;}
 }
 </style>
-<script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+<script src="js/panzoom.min.js"></script>
 </head>
 <body>
 <header>
@@ -633,7 +633,7 @@ const JSON_GRAPHS={
   17:'node_nav/data/link_f4_graph.json',
   18:'node_nav/data/link_f5_graph.json',
 };
-const GRAPH_CACHE_VER='20260610-clean-cf';
+const GRAPH_CACHE_VER='20260611-id-map-all';
 // 各层示意 PNG（760×520）；JSON 未合并时仍可用 FLOORS 坐标叠在上面
 const PLAN_CACHE_VER='20260607-all-cad';
 const PLAN_IMAGES={
@@ -1388,6 +1388,23 @@ function clearAll(){
 
 const SEARCH_ROLE_LABELS={room:'房间',facility:'设施',door:'出入口',vertical:'楼梯/电梯'};
 const SEARCHABLE_ROLES=new Set(Object.keys(SEARCH_ROLE_LABELS));
+const ID_MAP_FILES=[
+  {tab:1,file:'map_data/id_map_f1_b.json'},
+  {tab:2,file:'map_data/id_map_f2_b.json'},
+  {tab:3,file:'map_data/id_map_f3_b.json'},
+  {tab:4,file:'map_data/id_map_f4_b.json'},
+  {tab:5,file:'map_data/id_map_f5_b.json'},
+  {tab:8,file:'map_data/id_map_f1_a.json'},
+  {tab:9,file:'map_data/id_map_f2_a.json'},
+  {tab:10,file:'map_data/id_map_f3_a.json'},
+  {tab:11,file:'map_data/id_map_f4_a.json'},
+  {tab:12,file:'map_data/id_map_f5_a.json'},
+  {tab:14,file:'map_data/id_map_link_f1.json'},
+  {tab:15,file:'map_data/id_map_link_f2.json'},
+  {tab:16,file:'map_data/id_map_link_f3.json'},
+  {tab:17,file:'map_data/id_map_link_f4.json'},
+  {tab:18,file:'map_data/id_map_link_f5.json'},
+];
 let roomAliasByNavId={};
 
 function graphLocalId(navId,floor){
@@ -1409,23 +1426,32 @@ function extractSearchKeys(label,localId){
   return [...keys];
 }
 
+function addRoomAliasKeys(navId, floorsId, note, jsonId){
+  if(!roomAliasByNavId[navId]) roomAliasByNavId[navId]=new Set();
+  const add=s=>{const t=normalizeSearchText(s);if(t) roomAliasByNavId[navId].add(t);};
+  for(const src of [floorsId,jsonId]){
+    if(!src) continue;
+    for(const m of String(src).matchAll(/(?:rm|office|room|lab|conf|meeting)_?(\d{2,4})/gi)) add(m[1]);
+    const bare=String(src).match(/^(\d{2,4})(?:_|$)/);
+    if(bare) add(bare[1]);
+  }
+  for(const n of String(note||'').matchAll(/(?<!\d)(1[0-9]{2}|[2-9][0-9]{2})(?!\d)/g)) add(n[1]);
+}
+
 async function loadRoomSearchAliases(){
   roomAliasByNavId={};
-  try{
-    const r=await fetch(`map_data/id_map_f1_b.json?_gv=${encodeURIComponent(GRAPH_CACHE_VER)}`);
-    if(!r.ok) return;
-    const data=await r.json();
-    for(const m of data.mappings||[]){
-      if(!m.jsonId) continue;
-      const navId=navNodeId(1,m.jsonId);
-      if(!roomAliasByNavId[navId]) roomAliasByNavId[navId]=new Set();
-      const rm=m.floorsId?.match(/rm(\d{2,4})/i);
-      if(rm) roomAliasByNavId[navId].add(rm[1]);
-      for(const n of String(m.note||'').matchAll(/(?<!\d)(1[0-9]{2}|[2-9][0-9]{2})(?!\d)/g)){
-        roomAliasByNavId[navId].add(n[1]);
+  const q=`?_gv=${encodeURIComponent(GRAPH_CACHE_VER)}`;
+  for(const {tab,file} of ID_MAP_FILES){
+    try{
+      const r=await fetch(file+q);
+      if(!r.ok) continue;
+      const data=await r.json();
+      for(const m of data.mappings||[]){
+        if(!m.jsonId) continue;
+        addRoomAliasKeys(navNodeId(tab,m.jsonId),m.floorsId,m.note,m.jsonId);
       }
-    }
-  }catch(e){console.warn('room search aliases load failed',e);}
+    }catch(e){console.warn('room search aliases load failed',file,e);}
+  }
 }
 
 function normalizeSearchText(s){

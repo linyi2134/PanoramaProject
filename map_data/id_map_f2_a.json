@@ -1,0 +1,260 @@
+{
+  "description": "2F A座：map.html tab 9 ↔ f2_a_graph.json 节点对照",
+  "floor": 9,
+  "planImage": "plans/f2_a_cad.png",
+  "planWidth": 933,
+  "planHeight": 918,
+  "source": "node_nav/data/f2_a_graph.json + map.html tab 9",
+  "note": "坐标取自 CAD graph（x_px/y_px）；仅用于搜索别名与文档对照，勿对 CAD 层运行 apply_layout_coords.py",
+  "mappings": [
+    {
+      "jsonId": "fork_nw",
+      "match": "inferred",
+      "note": "西北分叉 ↔ 示意图走廊",
+      "floorsId": "a2_nw",
+      "x_px": 226,
+      "y_px": 251
+    },
+    {
+      "jsonId": "fork_ne",
+      "match": "inferred",
+      "note": "东北分叉 ↔ 示意图走廊",
+      "floorsId": "a2_ne",
+      "x_px": 441,
+      "y_px": 366
+    },
+    {
+      "jsonId": "fork_se",
+      "match": "inferred",
+      "note": "东南分叉 ↔ 示意图走廊",
+      "floorsId": "a2_se",
+      "x_px": 325,
+      "y_px": 591
+    },
+    {
+      "jsonId": "fork_sw",
+      "match": "inferred",
+      "note": "西南分叉 ↔ 示意图走廊",
+      "floorsId": "a2_sw",
+      "x_px": 108,
+      "y_px": 476
+    },
+    {
+      "jsonId": "fork_other",
+      "match": "cad",
+      "note": "分叉",
+      "floorsId": "fork_other",
+      "x_px": 730,
+      "y_px": 806
+    },
+    {
+      "jsonId": "link_to_b",
+      "match": "inferred",
+      "note": "连廊（接B区） ↔ 示意图走廊",
+      "floorsId": "a2_entry",
+      "x_px": 264,
+      "y_px": 181
+    },
+    {
+      "jsonId": "link_other",
+      "match": "cad",
+      "note": "连廊",
+      "floorsId": "link_other",
+      "x_px": 451,
+      "y_px": 658
+    },
+    {
+      "jsonId": "stair_south",
+      "match": "cad",
+      "note": "南侧楼梯",
+      "floorsId": "stair_south",
+      "x_px": 434,
+      "y_px": 648
+    },
+    {
+      "jsonId": "stair_small",
+      "match": "cad",
+      "note": "小楼楼梯",
+      "floorsId": "stair_small",
+      "x_px": 803,
+      "y_px": 846
+    },
+    {
+      "jsonId": "washroom_nw",
+      "match": "cad",
+      "note": "卫生间（西北）",
+      "floorsId": "washroom_nw",
+      "x_px": 245,
+      "y_px": 217
+    },
+    {
+      "jsonId": "washroom_other",
+      "match": "cad",
+      "note": "卫生间（其他）",
+      "floorsId": "washroom_other",
+      "x_px": 801,
+      "y_px": 681
+    },
+    {
+      "jsonId": "water",
+      "match": "cad",
+      "note": "饮水机",
+      "floorsId": "water",
+      "x_px": 184,
+      "y_px": 229
+    },
+    {
+      "jsonId": "weak_elec",
+      "match": "cad",
+      "note": "弱电间",
+      "floorsId": "weak_elec",
+      "x_px": 374,
+      "y_px": 494
+    },
+    {
+      "jsonId": "strong_elec",
+      "match": "cad",
+      "note": "强电间",
+      "floorsId": "strong_elec",
+      "x_px": 398,
+      "y_px": 448
+    },
+    {
+      "jsonId": "office217",
+      "match": "cad",
+      "note": "217教师办公室门",
+      "floorsId": "office217",
+      "x_px": 205,
+      "y_px": 290
+    },
+    {
+      "jsonId": "office218",
+      "match": "cad",
+      "note": "218教师办公室门",
+      "floorsId": "office218",
+      "x_px": 127,
+      "y_px": 441
+    },
+    {
+      "jsonId": "office202",
+      "match": "cad",
+      "note": "202学生工作办公室门",
+      "floorsId": "office202",
+      "x_px": 87,
+      "y_px": 465
+    },
+    {
+      "jsonId": "room201",
+      "match": "cad",
+      "note": "201党员之家门",
+      "floorsId": "room201",
+      "x_px": 64,
+      "y_px": 453
+    },
+    {
+      "jsonId": "room203",
+      "match": "cad",
+      "note": "203接待室门",
+      "floorsId": "room203",
+      "x_px": 232,
+      "y_px": 543
+    },
+    {
+      "jsonId": "office204",
+      "match": "cad",
+      "note": "204党委书记办公室门",
+      "floorsId": "office204",
+      "x_px": 301,
+      "y_px": 579
+    },
+    {
+      "jsonId": "office214",
+      "match": "cad",
+      "note": "214教师工作办公室门",
+      "floorsId": "office214",
+      "x_px": 496,
+      "y_px": 396
+    },
+    {
+      "jsonId": "office213",
+      "match": "cad",
+      "note": "213教师工作办公室门",
+      "floorsId": "office213",
+      "x_px": 532,
+      "y_px": 415
+    },
+    {
+      "jsonId": "office212",
+      "match": "cad",
+      "note": "212教师工作办公室门",
+      "floorsId": "office212",
+      "x_px": 559,
+      "y_px": 429
+    },
+    {
+      "jsonId": "office216",
+      "match": "cad",
+      "note": "216教师工作办公室门",
+      "floorsId": "office216",
+      "x_px": 278,
+      "y_px": 279
+    },
+    {
+      "jsonId": "office215",
+      "match": "cad",
+      "note": "215学院办公室门",
+      "floorsId": "office215",
+      "x_px": 383,
+      "y_px": 334
+    },
+    {
+      "jsonId": "room211",
+      "match": "cad",
+      "note": "211门",
+      "floorsId": "room211",
+      "x_px": 353,
+      "y_px": 606
+    },
+    {
+      "jsonId": "office205",
+      "match": "cad",
+      "note": "205组织员办公室门",
+      "floorsId": "office205",
+      "x_px": 387,
+      "y_px": 624
+    },
+    {
+      "jsonId": "office206",
+      "match": "cad",
+      "note": "206党委副书记办公室门",
+      "floorsId": "office206",
+      "x_px": 412,
+      "y_px": 637
+    },
+    {
+      "jsonId": "room210",
+      "match": "cad",
+      "note": "210候播室门",
+      "floorsId": "room210",
+      "x_px": 772,
+      "y_px": 733
+    },
+    {
+      "jsonId": "lab209",
+      "match": "cad",
+      "note": "209智能软件与机器人研究室门",
+      "floorsId": "lab209",
+      "x_px": 789,
+      "y_px": 703
+    },
+    {
+      "jsonId": "room207",
+      "match": "cad",
+      "note": "207门",
+      "floorsId": "room207",
+      "x_px": 773,
+      "y_px": 829
+    }
+  ],
+  "floorsOnly": []
+}

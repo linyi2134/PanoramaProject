@@ -27,7 +27,7 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 | CAD 取点 | ✅ | `tools/pick-coords.html` + `apply_cad_coords.py` |
 | 路网校验 | ✅ | `check_graph.py`、`verify_zone_route.py` |
 | 竖向边审计 | ✅ | `audit_vertical_links.py`（楼梯/电梯分组） |
-| 边权 | 🔄 | 跨层已设 **每层 +6**；同层/跨区多为占位，待实地丈量 |
+| 边权 | ✅ | 跨层 **每层 +6**；同层/跨区边权已实地走查 |
 | 自动定位 | ⏸ | 不做 BLE/WiFi；公网扫码或局域网演示 |
 
 ### map.html 要点（2026-06-11）
@@ -49,7 +49,7 @@ B7 教学楼室内导航课程项目 **「知途」**：**二维 CAD 地图 + Di
 | 层次 | 技术 |
 |------|------|
 | 地图 UI | HTML + SVG + `js/pathfind.browser.js` |
-| 地图缩放 | [@panzoom/panzoom](https://github.com/timmywil/panzoom) 4.5.1（CDN） |
+| 地图缩放 | [@panzoom/panzoom](https://github.com/timmywil/panzoom) 4.5.1（`js/panzoom.min.js`） |
 | 全景 | Pannellum 2.5.6（CDN） |
 | 服务 | Python `http.server`（`server_main.py`，端口 8000） |
 | 单层算路 CLI | `indoor_nav/`（Dijkstra） |
@@ -70,6 +70,7 @@ PanoramaProject/
 ├── js/
 │   ├── pathfind.browser.js     # 浏览器 Dijkstra（与 indoor_nav 同逻辑）
 │   ├── panorama_map_bridge.js  # 二维节点 ↔ 全景场景对照
+│   ├── panzoom.min.js          # 手机端地图缩放（4.5.1）
 │   └── room_labels_all.js      # 全景房间标注
 ├── plans/                      # 15 张 *_cad.png（map 底图）
 │   └── _archive/               # 旧示意 PNG/SVG（已不用）
@@ -78,6 +79,7 @@ PanoramaProject/
 ├── map_data/
 │   ├── cross_floor_links.json  # 跨层/跨区定义（已无 campusCrossFloor）
 │   ├── panorama_map_bridge.md  # 二维↔全景对照表（权威）
+│   ├── id_map_*.json           # 15 层节点对照 + 搜索别名
 │   ├── cad_pick_*.json         # pick-coords 导出归档
 │   └── README.md
 ├── node_nav/

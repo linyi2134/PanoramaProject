@@ -1,0 +1,148 @@
+{
+  "description": "1F A座：map.html tab 8 ↔ f1_a_graph.json 节点对照",
+  "floor": 8,
+  "planImage": "plans/f1_a_cad.png",
+  "planWidth": 816,
+  "planHeight": 720,
+  "source": "node_nav/data/f1_a_graph.json + map.html tab 8",
+  "note": "坐标取自 CAD graph（x_px/y_px）；仅用于搜索别名与文档对照，勿对 CAD 层运行 apply_layout_coords.py",
+  "mappings": [
+    {
+      "jsonId": "fork_nw",
+      "match": "inferred",
+      "note": "西北分叉 ↔ 示意图走廊",
+      "floorsId": "a1_nw",
+      "x_px": 185,
+      "y_px": 195
+    },
+    {
+      "jsonId": "fork_ne",
+      "match": "inferred",
+      "note": "东北分叉 ↔ 示意图走廊",
+      "floorsId": "a1_ne",
+      "x_px": 268,
+      "y_px": 33
+    },
+    {
+      "jsonId": "fork_se",
+      "match": "inferred",
+      "note": "东南分叉 ↔ 示意图走廊",
+      "floorsId": "a1_se",
+      "x_px": 314,
+      "y_px": 494
+    },
+    {
+      "jsonId": "fork_sw",
+      "match": "inferred",
+      "note": "西南分叉 ↔ 示意图走廊",
+      "floorsId": "a1_sw",
+      "x_px": 68,
+      "y_px": 371
+    },
+    {
+      "jsonId": "washroom",
+      "match": "cad",
+      "note": "洗手间",
+      "floorsId": "washroom",
+      "x_px": 184,
+      "y_px": 195
+    },
+    {
+      "jsonId": "office_room",
+      "match": "cad",
+      "note": "值班室",
+      "floorsId": "office_room",
+      "x_px": 184,
+      "y_px": 196
+    },
+    {
+      "jsonId": "restarea",
+      "match": "cad",
+      "note": "135 休息区",
+      "floorsId": "restarea",
+      "x_px": 68,
+      "y_px": 367
+    },
+    {
+      "jsonId": "a_door",
+      "match": "cad",
+      "note": "A区大门",
+      "floorsId": "a_door",
+      "x_px": 68,
+      "y_px": 427
+    },
+    {
+      "jsonId": "office101_front",
+      "match": "cad",
+      "note": "101 学院办公室前门",
+      "floorsId": "office101_front",
+      "x_px": 239,
+      "y_px": 231
+    },
+    {
+      "jsonId": "office101_back",
+      "match": "cad",
+      "note": "101 学院办公室后门",
+      "floorsId": "office101_back",
+      "x_px": 340,
+      "y_px": 283
+    },
+    {
+      "jsonId": "office102",
+      "match": "cad",
+      "note": "102 学生工作办公室",
+      "floorsId": "office102",
+      "x_px": 417,
+      "y_px": 322
+    },
+    {
+      "jsonId": "stair_south",
+      "match": "cad",
+      "note": "南侧楼梯",
+      "floorsId": "stair_south",
+      "x_px": 351,
+      "y_px": 482
+    },
+    {
+      "jsonId": "stair_small",
+      "match": "cad",
+      "note": "小楼楼梯",
+      "floorsId": "stair_small",
+      "x_px": 617,
+      "y_px": 656
+    },
+    {
+      "jsonId": "link_to_b",
+      "match": "inferred",
+      "note": "连廊（接B区） ↔ 示意图走廊",
+      "floorsId": "a1_entry",
+      "x_px": 269,
+      "y_px": 29
+    },
+    {
+      "jsonId": "fireboard",
+      "match": "cad",
+      "note": "消防柜",
+      "floorsId": "fireboard",
+      "x_px": 148,
+      "y_px": 237
+    },
+    {
+      "jsonId": "room_104A",
+      "match": "cad",
+      "note": "104 大数据与云计算研究室",
+      "floorsId": "room_104A",
+      "x_px": 560,
+      "y_px": 571
+    },
+    {
+      "jsonId": "room_104B",
+      "match": "cad",
+      "note": "104 数据科学与智能软件研究室",
+      "floorsId": "room_104B",
+      "x_px": 616,
+      "y_px": 603
+    }
+  ],
+  "floorsOnly": []
+}

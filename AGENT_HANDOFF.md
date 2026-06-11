@@ -41,7 +41,7 @@
   · 节点：link_to_a / link_to_b、elevator、stair_*、outdoor_stair
   · 点击 → portalModal：可选跳转到对应区域二维图；楼梯/电梯提供上楼/下楼；仍可进全景或继续选点
   · 逻辑：getCrossRegionPortal() 读 crossFloorSpec.zoneLinks + unifiedVertical；jumpToPortalOption() → switchFloor
-- **地点搜索**：侧栏 🔍 → 弹窗 → 房号/名称匹配 → 跳层设终点 + 算路（B1 别名 id_map_f1_b.json）
+- **地点搜索**：侧栏 🔍 → 弹窗 → 房号/名称匹配 → 跳层设终点 + 算路（15 层 id_map_*.json）
 - **资源预取**：prefetchAllCadImages() 先 15 张 CAD（当前层优先）→ runPanoramaPrefetch() 当前层全景 → 依次其它层
   · 切 tab：AbortController 取消进行中的全景 fetch，重新排队；已缓存 scene 不重复拉
 - 顶栏「🌐 全景」：红色描边按钮
@@ -49,7 +49,7 @@
 
 【map.html · 手机端（≤768px）】
 - 顶栏压缩；侧栏折叠 52px（◀ + 🔍 + 起/终点）→ 展开 160px 浮层
-- Panzoom 4.5.1（CDN）；切层 resetMapZoom()
+- Panzoom 4.5.1（本地 js/panzoom.min.js）；切层 resetMapZoom()
 - 关键函数：initMobileSide()、initMapPanzoom()、initPlaceSearch()、schedulePanoramaPrefetch()、offerPortalModal()
 
 【panorama_full.html】
@@ -66,7 +66,7 @@
 
 【必读】
 - AGENT_HANDOFF.md、PROJECT_CONTEXT.md、README.md
-- map_data/cross_floor_links.md、panorama_map_bridge.md、id_map_f1_b.json
+- map_data/cross_floor_links.md、panorama_map_bridge.md、map_data/id_map_*.json
 
 【运行】
 cd PanoramaProject
@@ -74,7 +74,7 @@ python server_main.py
 → http://localhost:8000/map.html
 
 【改 graph / map / 对照后】
-- 改 graph 或 cross_floor_links → bump map.html GRAPH_CACHE_VER（当前 20260610-clean-cf）
+- 改 graph 或 cross_floor_links → bump map.html GRAPH_CACHE_VER（当前 20260611-id-map-all）
 - 改 panorama_map_bridge.js → bump ?v=（当前 20260610-prefetch）
 - 改 panoramas/*.jpg → bump PANORAMA_CACHE_VER（20260610-compress）
 - 改 .github/workflows/deploy-pages.yml → push 后看 Actions「Deploy GitHub Pages」
@@ -85,12 +85,7 @@ python node_nav/scripts/audit_vertical_links.py
 # map：搜「133」；点 B1 连廊口见琥珀圈+跳转弹窗；切层后 Network 见旧全景 canceled
 # 全景：无黑屏；JPG ~800KB
 
-【待办 · 建议优先级】
-1. 边权实地丈量（同层边、zoneLinks 等）
-2. 2F-B 东侧动线（237/234/236，草稿 backup/indoor_navigator_misc/2F-B座.json）
-3. 搜索 id_map 扩层；Panzoom 改本地 js/；二栋 -5 电梯全景对照
-
-不做：BLE、Qt 客户端、恢复独立「小楼」tab
+【不做】BLE、Qt 客户端、恢复独立「小楼」tab
 
 【约束】
 - 中文；最小改动；改 map.html 勿在 </html> 后再加 JS 块
@@ -100,32 +95,28 @@ python node_nav/scripts/audit_vertical_links.py
 【本次请你】
 
 
-完成后说明：改了哪些文件、如何验证、对应哪条待办。
+完成后说明：改了哪些文件、如何验证。
 ```
 
 ---
 
 ## 当前进度摘要（2026-06-11）
 
-### 已完成
-
 | 项 | 说明 |
 |----|------|
 | 二维导航 MVP | 15 tab、CAD、Dijkstra、跨层/跨区、路径高亮 |
 | GitHub Pages | 自定义 `deploy-pages.yml`；index → map |
-| map 搜索 | initPlaceSearch；id_map 房号别名 |
+| map 搜索 | initPlaceSearch；15 层 id_map 房号别名 |
 | map 跨区跳转 | portalModal；楼梯上/下楼；琥珀圈常显标注 |
 | map 预取 | 先 15 CAD → 当前层全景 → 其余层；切层 abort |
-| map 手机端 | 折叠侧栏 + Panzoom + 设施常显 |
+| map 手机端 | 折叠侧栏 + Panzoom（本地）+ 设施常显 |
 | 全景压缩/性能 | ~32 MB；LRU×5；无 loader |
 | 二维↔全景 | bridge + 双向深链 |
 | cross_floor 清理 | 删除 campusCrossFloor 废弃字段 |
-
-### 待办
-
-1. 同层与跨区边权实地丈量
-2. 2F-B 东侧动线（backup 草稿）
-3. 搜索 id_map 扩层；Panzoom 本地化
+| 边权 | 同层/跨区/跨层已实地走查校验 |
+| 2F-B 东侧动线 | 237/234/236 等已合并进 f2_b_graph.json 并验收 |
+| id_map | 15 层 map_data/id_map_*.json + generate_id_maps.py |
+| Panzoom | js/panzoom.min.js 4.5.1 本地化 |
 
 ### map.html 关键符号
 
@@ -207,4 +198,4 @@ python node_nav/scripts/verify_zone_route.py
 
 ---
 
-*最后更新：2026-06-11*
+*最后更新：2026-06-11（待办已清空）*

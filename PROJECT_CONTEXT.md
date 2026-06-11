@@ -70,7 +70,7 @@ python server_main.py
 ### 搜索房号说明
 
 - JSON 节点 label 常无房号（如「移动计算与软件实验室」）
-- B1 房号靠 `map_data/id_map_f1_b.json` → `loadRoomSearchAliases()`
+- 15 层 `map_data/id_map_*.json` → `loadRoomSearchAliases()`
 - 其他楼层：从节点 `id` / label 内数字匹配（如 `room331_front` → 331）
 
 ### 手机端（≤768px）
@@ -79,7 +79,7 @@ python server_main.py
 |------|------|
 | 侧栏折叠 | **52px**：◀ + **🔍** + 起/终点竖排 |
 | 侧栏展开 | 160px 浮层，不挤地图 |
-| 缩放 | Panzoom CDN；切层 reset |
+| 缩放 | Panzoom 本地 js/panzoom.min.js；切层 reset |
 
 桌面（>768px）：侧栏 320px；搜索在「路径规划」标题旁 🔍。
 
@@ -118,7 +118,7 @@ PanoramaProject/
 ├── map.html, panorama_full.html, index.html, server_main.py
 ├── js/panorama_map_bridge.js, js/pathfind.browser.js, js/room_labels_all.js
 ├── panoramas/*.jpg
-├── map_data/id_map_f1_b.json, cross_floor_links.json
+├── map_data/id_map_*.json, cross_floor_links.json
 ├── node_nav/data/*.json, node_nav/scripts/compress_panoramas.py
 ├── AGENT_HANDOFF.md, README.md, PROJECT_CONTEXT.md
 └── backup/（含 panoramas_original/，gitignore）
@@ -126,19 +126,15 @@ PanoramaProject/
 
 ---
 
-## 8. 已完成 vs 待办
-
-### 已完成
+## 8. 功能完成度
 
 - [x] 15 层 CAD + 跨层/跨区算路 + 二维↔全景深链
 - [x] GitHub Pages（deploy-pages.yml）；map 搜索；跨区跳转 portalModal
 - [x] CAD/全景分级预取；设施与跳转节点常显标注
 - [x] 全景压缩与 LRU；cross_floor 废弃字段清理
-
-### 待办
-
-- [ ] 边权实地丈量
-- [ ] 2F-B 东侧动线；搜索 id_map 扩层；Panzoom 本地化
+- [x] 边权实地走查（同层/跨区/跨层）
+- [x] 2F-B 东侧动线（237/234/236 等）
+- [x] 15 层 id_map 搜索别名；Panzoom 本地化
 
 ---
 
@@ -165,4 +161,4 @@ python node_nav/scripts/audit_vertical_links.py
 
 ---
 
-*最后更新：2026-06-11*
+*最后更新：2026-06-11（待办已清空）*
