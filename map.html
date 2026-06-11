@@ -285,19 +285,22 @@ body.ui-mode-fab .fab-hub{
   .btn{padding:5px 8px;font-size:12px;white-space:nowrap;flex-shrink:0;}
   .floor-tabs{order:3;padding:2px 0 0;gap:4px;}
   .floor-tab{padding:5px 10px;font-size:12px;}
-  .main{position:relative;flex-direction:column;}
+  .main{position:relative;flex-direction:column;overflow:visible;}
   .side{
     order:-1;width:100%;flex-shrink:0;position:relative;z-index:28;
     border-left:none;border-bottom:1px solid var(--border);
     box-shadow:0 2px 10px rgba(0,0,0,.06);
     display:flex;flex-wrap:nowrap;align-items:stretch;
     min-height:48px;background:var(--surface);
+    overflow:visible;
   }
   .side.side-expanded{z-index:45;}
   .side-toggle{
     display:flex;align-items:center;justify-content:center;
-    width:40px;flex-shrink:0;padding:0;border:none;border-left:1px solid var(--border);
-    background:var(--surface);color:var(--accent);font-size:13px;cursor:pointer;
+    width:48px;min-height:48px;flex-shrink:0;padding:0;
+    border:none;border-left:1px solid var(--border);
+    background:var(--surface);color:var(--accent);
+    font-size:22px;font-weight:700;line-height:1;cursor:pointer;
     order:4;
   }
   .side-search-btn{
@@ -311,7 +314,7 @@ body.ui-mode-fab .fab-hub{
   .side .sec-head{display:none;}
   .side .sec-pick{
     padding:4px 6px 4px 0;border-bottom:none;display:flex;flex-wrap:wrap;
-    align-items:center;gap:4px;width:100%;
+    align-items:center;gap:4px;width:100%;overflow:visible;
   }
   .mob-pt-pair{display:flex;flex:1;min-width:0;gap:4px;order:2;}
   .side .pt-row{
@@ -325,10 +328,13 @@ body.ui-mode-fab .fab-hub{
     display:none;order:10;flex-basis:100%;
   }
   .side.side-expanded .mob-side-drawer-inner{
-    display:block;position:absolute;top:100%;left:0;right:0;z-index:1;
+    display:block;position:absolute;top:100%;left:0;right:0;z-index:50;
     background:var(--surface);border-bottom:1px solid var(--border);
     box-shadow:0 10px 28px rgba(0,0,0,.14);
     max-height:min(50vh,300px);overflow-y:auto;padding:10px 12px 12px;
+  }
+  .mob-drawer-placeholder{
+    font-size:13px;color:var(--muted);line-height:1.5;padding:4px 0 8px;
   }
   .side #routeResult{margin-top:0;}
   .side .route-hint{font-size:12px;margin-top:0;line-height:1.45;}
@@ -523,7 +529,7 @@ body.ui-mode-fab .fab-hub{
     </div>
   </div>
   <div class="side side-collapsed" id="sidePanel">
-    <button type="button" class="side-toggle" id="sideToggle" title="展开/折叠路径面板" aria-expanded="false">▼</button>
+    <button type="button" class="side-toggle" id="sideToggle" title="展开/折叠路径详情" aria-expanded="false">▼</button>
     <button type="button" class="side-search-btn" id="btnOpenSearch" title="搜索目的地">
       <span class="side-search-icon">🔍</span><span class="side-search-lbl">搜索地点</span>
     </button>
@@ -1595,6 +1601,17 @@ function floorChangeHow(viaNode,destTab){
   return '换层';
 }
 
+function syncMobDrawerPlaceholder(){
+  if(!window.matchMedia('(max-width:768px)').matches) return;
+  const side=document.getElementById('sidePanel');
+  const div=document.getElementById('routeResult');
+  if(!side||!div||!side.classList.contains('side-expanded')) return;
+  if(div.innerHTML.trim()) return;
+  if(!startN&&!endN){
+    div.innerHTML='<div class="mob-drawer-placeholder">点击上方「起点」「终点」后在地图上选点，路线将显示在此处。</div>';
+  }
+}
+
 function showResult(){
   const div=document.getElementById('routeResult');
   if(!startN&&!endN){div.innerHTML='';return;}
@@ -1602,13 +1619,19 @@ function showResult(){
     div.innerHTML=startN
       ?'<div class="route-hint">已选起点，请在地图上选终点</div>'
       :'<div class="route-hint">已选终点，请先选起点</div>';
+    if(window.matchMedia('(max-width:768px)').matches) expandMobSide();
     return;
   }
   if(typeof IndoorPathfind==='undefined'){
     div.innerHTML='<div class="route-err">⚠️ 算路模块未加载，请 Ctrl+F5 强刷</div>';
+    if(window.matchMedia('(max-width:768px)').matches) expandMobSide();
     return;
   }
-  if(!curPath){div.innerHTML='<div class="route-err">❌ 未找到路径</div>';return;}
+  if(!curPath){
+    div.innerHTML='<div class="route-err">❌ 未找到路径</div>';
+    if(window.matchMedia('(max-width:768px)').matches) expandMobSide();
+    return;
+  }
   let steps=[],prevF=null;
   for(let i=0;i<curPath.path.length;i++){
     const n=findNodeOnAnyFloor(curPath.path[i]);if(!n)continue;
@@ -1894,14 +1917,17 @@ function expandMobSide(){
     toggle.textContent='▲';
     toggle.setAttribute('aria-expanded','true');
   }
+  syncMobDrawerPlaceholder();
 }
 
 function collapseMobSide(){
   const side=document.getElementById('sidePanel');
   const toggle=document.getElementById('sideToggle');
+  const div=document.getElementById('routeResult');
   if(!side) return;
   side.classList.add('side-collapsed');
   side.classList.remove('side-expanded');
+  if(div?.querySelector('.mob-drawer-placeholder')) div.innerHTML='';
   if(toggle){
     toggle.textContent='▼';
     toggle.setAttribute('aria-expanded','false');
